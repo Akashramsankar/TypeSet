@@ -329,7 +329,7 @@
   .win .score small{font-size:1.1rem; font-weight:600; color:var(--ink-muted); margin-left:6px; letter-spacing:0;}
   .share{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; background:var(--surface-2);
     border:1px solid var(--rule); border-radius:var(--radius); padding:12px; font-size:.82rem;
-    letter-spacing:.04em; line-height:1.5; margin:12px 0; white-space:pre-line; color:var(--ink); user-select:text; -webkit-user-select:text;}
+    letter-spacing:.04em; line-height:1.5; margin:12px 0; white-space:pre-line; overflow-wrap:anywhere; color:var(--ink); user-select:text; -webkit-user-select:text;}
 
   /* Modal buttons: solid ink primary, outlined secondary */
   .win button{
@@ -1112,6 +1112,8 @@ const PUZZLES = [
     ] }
 ];
 
+const GAME_URL="https://akashramsankar.github.io/TypeSet/";   // appended to the share card, as Tumbler does
+
 /* ---------------- Dictionary ---------------- */
 const DICT=new Set((window.TYPESET_WORDS||"").split(" "));
 
@@ -1653,7 +1655,7 @@ function showWin(){
     `TYPESET #${activeDay+1} 🖋️\nBoard: ${"★".repeat(activePuzzle.stars)}${"☆".repeat(5-activePuzzle.stars)}\n`+
     `Score: ${score}/${maxScore()} (${g})\nMoves: ${moves}/${par} [${bar}]\n`+
     `Time: ${fmtTime(elapsedNow())} (+${speedBonus()})\n`+
-    `Clean Press: ${bounces===0?"YES":"NO"} (${bounces} Bounce${bounces===1?"":"s"})${hintTag}\n\n${grid}`;
+    `Clean Press: ${bounces===0?"YES":"NO"} (${bounces} Bounce${bounces===1?"":"s"})${hintTag}\n\n${grid}\n\nPlay: ${GAME_URL}`;
   $("retryBtn").hidden=(m===3);
   $("modal").classList.add("show");
 }
