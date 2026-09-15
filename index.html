@@ -315,10 +315,7 @@
   }
   .win .phrase{font-family:var(--font-display); font-size:1.05rem; letter-spacing:.04em; font-weight:700;
     text-transform:uppercase; color:var(--accent-ink); margin:4px 0 12px; line-height:1.5;}
-  .win .grade{display:inline-block; padding:5px 14px; border-radius:999px; font-weight:700;
-    letter-spacing:.1em; margin-bottom:10px; font-size:.7rem; text-transform:uppercase;}
-  .win .medals{font-size:1.4rem; letter-spacing:.12em; color:var(--gold); margin:2px 0 6px;}
-  .win .medals .off{color:var(--rule-strong);}
+  .win .medal{font-size:3rem; line-height:1; margin:2px 0 6px;}
   .win .score{font-family:var(--font-display); font-size:2.6rem; font-weight:800; line-height:1.1; margin:4px 0; color:var(--ink);}
   .win .breakdown{color:var(--ink-soft); font-size:.92rem; line-height:1.55; margin:10px 0;}
   .win .bonus{display:flex; justify-content:center; flex-wrap:wrap; gap:6px; margin:8px 0 2px;}
@@ -510,7 +507,7 @@
         <b>Score &amp; ink medals.</b> <span>Every letter you set is worth <b>10 points</b>, plus a <b>speed bonus of up
         to 60</b> that drains over the board's time budget — 2 minutes per star, so a 3★ board gives you 6 minutes.
         Each bounce costs 10 and each move over Par costs 5. Your medal comes from the total:
-        <b>85%</b> of the maximum is <b>Master Gold</b>, <b>65%</b> is <b>Silver Print</b>.</span></div></div>
+<b>85%</b> of the maximum earns 🥇, <b>65%</b> earns 🥈, and any finish is 🥉.</span></div></div>
 
       <div class="step"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.5 6 .8-4.4 4.2 1.1 6-5.3-2.9L6.7 19.5l1.1-6L3.4 9.3l6-.8z"/></svg></div><div class="t">
         <b>Difficulty cycles.</b> <span>The <span class="gd">★ stars</span> in the header rate the board from 1 to 5 —
@@ -559,8 +556,7 @@
     <div class="win">
       <h2>Page printed</h2>
       <div class="phrase" id="winPhrase"></div>
-      <div class="grade" id="grade"></div>
-      <div class="medals" id="medals"></div>
+      <div class="medal" id="medal"></div>
       <div class="score" id="winScore"></div>
       <div class="breakdown" id="breakdown"></div>
       <div class="bonus" id="bonus"></div>
@@ -1171,7 +1167,7 @@ function loadState(day){
 
 /* ---------------- Stats & streaks ---------------- */
 const STATS_KEY="typeset_stats";
-const GRADE_KEYS=[["gold","Master Gold"],["silver","Silver Print"],["bronze","Completion"]];
+const GRADE_KEYS=[["gold","🥇"],["silver","🥈"],["bronze","🥉"]];
 function loadStats(){
   let s={};
   try{ s=JSON.parse(localStorage.getItem(STATS_KEY)||"{}")||{}; }catch(e){ s={}; }
@@ -1619,18 +1615,11 @@ function animateWin(){
   celebrationTimers.push(setTimeout(()=>{ boardEl.classList.remove("pressing"); boardEl.classList.add("celebrate"); },1300));
   celebrationTimers.push(setTimeout(showWin,1500));
 }
-function gradeFor(m){
-  if(m===3) return ["Master Gold","var(--color-close)"];
-  if(m===2) return ["Silver Print","var(--accent)"];
-  return ["Completion","var(--ink-muted)"];
-}
+function medalEmoji(m){ return m===3?"🥇":m===2?"🥈":"🥉"; }
 function showWin(){
   const m=medalFor(), score=scoreFor(), over=moves-par;
-  const [g,col]=gradeFor(m);
   $("winPhrase").textContent=boardWords().join(" · ");
-  const gr=$("grade"); gr.textContent=g;
-  gr.style.background="color-mix(in srgb, "+col+" 12%, transparent)"; gr.style.color=col; gr.style.border="1px solid "+col;
-  $("medals").innerHTML="★".repeat(m)+'<span class="off">'+"☆".repeat(3-m)+"</span>";
+  $("medal").textContent=medalEmoji(m);
   const max=maxScore(), letters=openCells.length, speed=speedBonus(), pct=Math.round(score/max*100), time=fmtTime(elapsedNow());
   $("winScore").innerHTML=`${score}<small>/ ${max}</small>`;
   $("breakdown").textContent=
@@ -1648,14 +1637,14 @@ function showWin(){
   $("stMax").textContent=s.maxStreak;
   $("stDist").innerHTML=GRADE_KEYS.map(([k,l])=>`<span class="gd${k===curKey?" cur":""}">${l} <b>${s.dist[k]||0}</b></span>`).join("");
 
-  const greens=Math.max(0,5-Math.max(0,over)), bar="🟩".repeat(greens)+"⬜".repeat(5-greens);
+  // Share card: two lines of stats, the board's shape, the link. Bounces and
+  // hints only appear when there were any.
   const grid=activePuzzle.g.map(row=>row.split("").map(ch=>ch==="#"?"⬛":"🟨").join("")).join("\n");
-  const hintTag=hintLevel?` · 💡${hintLevel}`:"";
+  const extras=(bounces?` · 💥${bounces}`:"")+(hintLevel?` · 💡${hintLevel}`:"");
   $("share").textContent=
-    `TYPESET #${activeDay+1} 🖋️\nBoard: ${"★".repeat(activePuzzle.stars)}${"☆".repeat(5-activePuzzle.stars)}\n`+
-    `Score: ${score}/${maxScore()} (${g})\nMoves: ${moves}/${par} [${bar}]\n`+
-    `Time: ${fmtTime(elapsedNow())} (+${speedBonus()})\n`+
-    `Clean Press: ${bounces===0?"YES":"NO"} (${bounces} Bounce${bounces===1?"":"s"})${hintTag}\n\n${grid}\n\nPlay: ${GAME_URL}`;
+    `Typeset #${activeDay+1} ${"★".repeat(activePuzzle.stars)}${"☆".repeat(5-activePuzzle.stars)} ${medalEmoji(m)}\n`+
+    `${score}/${max} · ${moves} move${moves===1?"":"s"} · ${time}${s.currentStreak?` · 🔥${s.currentStreak}`:""}${extras}\n`+
+    `${grid}\n${GAME_URL}`;
   $("retryBtn").hidden=(m===3);
   $("modal").classList.add("show");
 }
