@@ -164,11 +164,14 @@
   .cell.iron::after{content:""; position:absolute; inset:38%; border-radius:50%; background:var(--iron-edge); box-shadow:inset 0 1px 1px rgba(0,0,0,.6);}
   .cell.drop-ok{background:var(--accent-soft); box-shadow:inset 0 0 0 2px var(--accent); transition:none;}
   .cell.drop-bad{background:rgba(201,96,90,.15); box-shadow:inset 0 0 0 2px var(--bad); transition:none;}
-  .cell.hint-lane{
-    box-shadow:inset 0 0 0 2px var(--gold-glow); animation:hintpulse 1.1s ease-in-out infinite;
-  }
-  @keyframes hintpulse{0%,100%{box-shadow:inset 0 0 0 2px var(--gold-glow);}
-    50%{box-shadow:inset 0 0 0 6px var(--gold-glow);}}
+  /* ink mode: empty cells invite a tap; a stamped cell shows its letter faintly */
+  #board.inking .cell:not(.iron):not(.stamped){cursor:pointer; box-shadow:inset 0 0 0 2px var(--gold-glow); animation:inkpulse 1.1s ease-in-out infinite;}
+  @keyframes inkpulse{0%,100%{box-shadow:inset 0 0 0 2px var(--gold-glow);}50%{box-shadow:inset 0 0 0 5px var(--gold-glow);}}
+  .cell.stamped{display:flex; align-items:center; justify-content:center; font-weight:700; font-size:calc(var(--cell)*.5);
+    color:var(--gold); background:rgba(176,125,18,.08); box-shadow:inset 0 0 0 2px var(--gold-glow);}
+  .cell.stamped span{opacity:.9; transform:rotate(-8deg); font-family:var(--font-display);}
+  @keyframes stamp{0%{transform:scale(1.6) rotate(-8deg); opacity:0;}60%{transform:scale(.95) rotate(-8deg); opacity:1;}100%{transform:scale(1) rotate(-8deg);}}
+  .cell.stamped.fresh span{animation:stamp .35s cubic-bezier(.2,.9,.2,1);}
 
   /* A letter block: rigid cluster of joined tiles. --u / --g = tile size and gap for its context. */
   .block{
@@ -182,9 +185,6 @@
   .block.in-tray{position:relative; --u:var(--tcell); --g:var(--tgap);}
   .block.lifted{opacity:.28; filter:none;}
   .block.armed{transform:scale(1.08); filter:drop-shadow(0 6px 10px rgba(27,25,22,.3));}
-  .block.hint-piece{animation:hintpulse-b 1.1s ease-in-out infinite;}
-  @keyframes hintpulse-b{0%,100%{filter:drop-shadow(0 0 0 var(--gold)) drop-shadow(0 1px 1px rgba(27,25,22,.18));}
-    50%{filter:drop-shadow(0 0 5px var(--gold)) drop-shadow(0 1px 1px rgba(27,25,22,.18));}}
   .block.wiggle{animation:wiggle .3s ease;}
   @keyframes wiggle{0%,100%{transform:rotate(0)}30%{transform:rotate(-4deg)}70%{transform:rotate(4deg)}}
   .block.spin{animation:spin .22s cubic-bezier(.2,.8,.2,1);}
@@ -274,6 +274,11 @@
   button.act:hover:not(:disabled){border-color:var(--ink); background:var(--hover);}
   button.act.on{background:var(--accent-soft); color:var(--accent-ink); border-color:var(--accent);}
   button.act:disabled{opacity:.55; cursor:default;}
+  /* ink drops: the day's stock, drained left to right as they're used */
+  button.act .drops{display:inline-flex; gap:2px;}
+  button.act .drops i{display:block; width:10px; height:13px; background:var(--gold);
+    border-radius:50% 50% 50% 50% / 60% 60% 40% 40%; transform:rotate(180deg); transition:opacity .2s, transform .2s;}
+  button.act .drops i.used{opacity:.22; transform:rotate(180deg) scale(.8);}
 
   /* Submit: the day-ending action, styled like the modal primary */
   .submit-row{width:min(420px,100%);}
@@ -517,9 +522,14 @@
         back to the tray (free). Undo rewinds your last move.</span></div></div>
 
       <div class="step"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg></div><div class="t">
-        <b>Stuck?</b> <span>Hint glows the cells where one of your tray blocks belongs and pulses that block. Hints
-        are noted on your share card. Or <b>Submit</b> the page as it stands: the solution is revealed, the letters
-        you set <b>in the right place</b> are scored, and you get a proof 📄 instead of a medal. It still counts for your streak.</span></div></div>
+        <b>Stuck? Use ink.</b> <span>You get <b>3 drops of ink</b> a day. Tap <b>Ink</b>, then any empty cell, and the
+        letter that belongs there is stamped in gold. The stamp stays until you cover it — and only the right letter
+        fits on it. Each drop costs <b>10 points</b>, and a page printed with ink tops out at 🥈. Ink isn't refunded
+        by Reset or Undo.</span></div></div>
+
+      <div class="step"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v12H4z"/><path d="M8 20h8"/><path d="M12 16v4"/></svg></div><div class="t">
+        <b>Or hand it in.</b> <span><b>Submit</b> the page as it stands: the solution is revealed, the letters you set
+        <b>in the right place</b> are scored, and you get a proof 📄 instead of a medal. It still counts for your streak.</span></div></div>
 
       <div class="step"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.5 6 .8-4.4 4.2 1.1 6-5.3-2.9L6.7 19.5l1.1-6L3.4 9.3l6-.8z"/></svg></div><div class="t">
         <b>Beat Par.</b> <span>Par is the number of blocks — one clean placement each. The clock starts on your
@@ -562,7 +572,7 @@
   </div>
 
   <div class="controls">
-    <button class="act" id="hintBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg><span>Hint</span></button>
+    <button class="act" id="inkBtn" type="button" aria-label="Use an ink drop to stamp a letter"><span class="drops" id="drops"></span><span>Ink</span></button>
     <button class="act" id="undoBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg><span>Undo</span></button>
     <button class="act" id="resetBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg><span>Reset</span></button>
   </div>
@@ -583,6 +593,7 @@
   <div class="hint" id="modeHint">
     <span class="ac">Hold &amp; drag</span> blocks from the tray into the press. <span class="ac">Tap</span> a block to rotate it — letters turn
     with it. Every row and column must read as a word; a bad line <span class="gd">bounces</span> the block back.
+    Stuck? Spend an <span class="gd">ink drop</span> to stamp a cell's letter.
   </div>
 
   <div class="toast" id="toast"></div>
@@ -649,7 +660,7 @@
    cycles like Sudoku — 1★, 2★, 3★, 4★, 5★, then back to 1★ — so the list length
    stays a multiple of 5 (35 = seven full cycles) to keep the cycle unbroken.
    Validation is against the dictionary in words.js, so any all-words fill
-   counts — the authored solution just drives hints and the share grid.     */
+   counts — the authored solution just drives ink stamps and the share grid. */
 const PUZZLES = [
   { sp:[[0,0],[0,4],[4,0],[4,4],[2,1],[2,3]], stars:1, tier:"Easy",
     g:["#BAY#","GENES","A#G#U","STEAM","#OLD#"],
@@ -1155,13 +1166,16 @@ let activeDay=0, activePuzzle=null;
 let spans=[];        // every run of >=2 open cells (rows then columns): [[r,c],...]
 let openCells=[];    // [r,c] of every non-spacer cell
 let pieces=[];       // {id, base:[[dr,dc,ch]], rot, at:[r,c]|null, home:[r,c], type}
-let moves=0, bounces=0, hintLevel=0, par=0;
+let moves=0, bounces=0, par=0;
+let inkUsed=0;           // ink drops spent today (never refunded — knowledge can't be un-learned)
+let stamps=[];           // [[r,c]] cells whose solution letter has been revealed
+let inking=false;        // ink mode: next tap on an empty cell stamps it
+const INK_MAX=3;
 let proof=null;          // set when the page was submitted unfinished: {cells: letters in the RIGHT place, wrong: letters in the wrong place} as [r,c] lists
 let elapsed=0;           // ms on the clock, not counting the currently running stretch
 let runningSince=0;      // timestamp while the clock is running, else 0
 let won=false;
 let history=[];          // snapshots for Undo
-let hintPiece=null;      // id of the block currently being hinted
 let celebrationTimers=[];
 let PITCH=64, CELL=58;   // measured from the DOM after render
 
@@ -1188,7 +1202,7 @@ function saveState(){
   try{
     const all=allSaves();
     all[activeDay]={sig:sigOf(activePuzzle),pieces:pieces.map(p=>({rot:p.rot,at:p.at})),
-      moves,bounces,hintLevel,won,history,elapsed:elapsedNow(),proof};
+      moves,bounces,inkUsed,stamps,won,history,elapsed:elapsedNow(),proof};
     localStorage.setItem(SAVE_KEY, JSON.stringify(all));
   }catch(e){ /* localStorage blocked — progress just won't persist */ }
 }
@@ -1275,6 +1289,8 @@ function checkPlacement(piece,rot,r0,c0){
     const r=r0+dr,c=c0+dc;
     if(r<0||r>4||c<0||c>4||isSpacer(r,c)||g[r][c]) return {ok:false,reason:"fit"};
   }
+  const stamped=stampConflict(piece,rot,r0,c0);
+  if(stamped) return {ok:false,reason:"stamp",word:stamped};
   for(const [dr,dc,ch] of cells) g[r0+dr][c0+dc]=ch;
   const touched=new Set(cells.map(([dr,dc])=>(r0+dr)+","+(c0+dc)));
   for(const sp of spans){
@@ -1326,6 +1342,7 @@ function renderBoardCells(){
     const d=document.createElement("div");
     d.className="cell"+(isSpacer(r,c)?" iron":""); d.dataset.r=r; d.dataset.c=c;
     d.style.setProperty("--r",r); d.style.setProperty("--c",c);
+    if(!isSpacer(r,c)) d.addEventListener("click",()=>{ if(inking) stampCell(r,c); });
     boardEl.insertBefore(d,$("press"));
   }
   const cells=boardEl.querySelectorAll(".cell");
@@ -1338,7 +1355,6 @@ function fullRender(){
   for(const p of pieces){
     const el=blockEl(p,p.at?"board":"tray");
     if(p.at) boardEl.insertBefore(el,$("press")); else { trayEl.appendChild(el); inTray++; }
-    if(hintPiece===p.id&&!p.at) el.classList.add("hint-piece");
   }
   if(inTray===0){
     const e=document.createElement("div"); e.className="tray-empty";
@@ -1348,58 +1364,59 @@ function fullRender(){
   $("trayCount").textContent=inTray?`${inTray} block${inTray===1?"":"s"} left`:"";
   $("moves").textContent=moves;
   const b=$("bounces"); b.textContent=bounces; b.classList.toggle("hot",bounces>0);
-  renderHintCells();
+  renderStamps();
   updateControls();
 }
 function updateControls(){
   $("undoBtn").disabled=won||history.length===0;
-  $("hintBtn").disabled=won;
+  $("inkBtn").disabled=won||inkUsed>=INK_MAX;
+  $("drops").innerHTML=Array.from({length:INK_MAX},(_,i)=>`<i${i<inkUsed?' class="used"':""}></i>`).join("");
   $("resetBtn").disabled=(moves===0&&history.length===0&&!won)||!!proof;   // a revealed day stays revealed
   $("submitBtn").disabled=won||!pieces.some(p=>p.at);
 }
 function starsHTML(n){ return "★".repeat(n)+'<span class="off">'+"☆".repeat(5-n)+"</span>"; }
 
-/* ---------------- Hints ---------------- */
-function clearHint(){
-  hintPiece=null; renderHintCells();
-  document.querySelectorAll(".block.hint-piece").forEach(b=>b.classList.remove("hint-piece"));
-  $("hintBtn").classList.remove("on");
-  $("hintBanner").classList.remove("show");
-}
-function renderHintCells(){
-  boardEl.querySelectorAll(".cell.hint-lane").forEach(c=>c.classList.remove("hint-lane"));
-  if(hintPiece===null) return;
-  const p=pieces.find(x=>x.id===hintPiece); if(!p||p.at) return;
-  for(const [dr,dc] of p.base){
-    const cell=boardEl.querySelector(`.cell[data-r="${p.home[0]+dr}"][data-c="${p.home[1]+dc}"]`);
-    if(cell) cell.classList.add("hint-lane");
+/* ---------------- Ink (hints) ----------------
+   A small daily stock of drops, Circuits-style: tap Ink, then an empty cell,
+   and its solution letter is stamped there. Costs points, survives Reset.  */
+function renderStamps(){
+  boardEl.querySelectorAll(".cell.stamped").forEach(c=>{ c.classList.remove("stamped","fresh"); c.textContent=""; });
+  for(const [r,c] of stamps){
+    const cell=boardEl.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`); if(!cell) continue;
+    cell.classList.add("stamped"); cell.innerHTML=`<span>${activePuzzle.g[r][c]}</span>`;
   }
 }
-function showMoveHint(){
-  if(won) return;
-  // A block sitting somewhere other than its authored home is the first thing to fix.
-  const misplaced=pieces.find(p=>p.at&&(p.at[0]!==p.home[0]||p.at[1]!==p.home[1]||p.rot%4!==0));
-  if(misplaced){
-    hintLevel++; saveState();
-    const bn=$("hintBanner");
-    bn.textContent=`The ${misplaced.base.map(c=>c[2]).join("")} block isn't where the printer set it — try moving it.`;
-    bn.classList.add("show");
-    const el=boardEl.querySelector(`.block[data-id="${misplaced.id}"]`);
-    if(el){ el.classList.add("hint-piece"); }
-    $("hintBtn").classList.add("on");
-    return;
-  }
-  const candidates=pieces.filter(p=>!p.at&&clearanceOnly(p,0,p.home[0],p.home[1]));
-  if(!candidates.length){ toast("No open home for any tray block — move something first"); return; }
-  candidates.sort((a,b)=>b.base.length-a.base.length);
-  const pick=candidates[0];
-  hintPiece=pick.id; hintLevel++; saveState();
-  const needsTurn=pick.rot%4!==0;
+function setInking(on){
+  inking=on&&!won&&inkUsed<INK_MAX;
+  boardEl.classList.toggle("inking",inking);
+  $("inkBtn").classList.toggle("on",inking);
   const bn=$("hintBanner");
-  bn.textContent=`The ${pick.base.map(c=>c[2]).join("")} block goes in the glowing cells`+(needsTurn?" — rotate it to fit.":".");
-  bn.classList.add("show");
-  $("hintBtn").classList.add("on");
-  fullRender();
+  if(inking){ bn.textContent="Tap an empty cell to stamp its letter (−10 points)."; bn.classList.add("show"); }
+  else bn.classList.remove("show");
+}
+function toggleInking(){
+  if(won) return;
+  if(inkUsed>=INK_MAX){ toast("No ink left today"); return; }
+  setInking(!inking);
+}
+function stampCell(r,c){
+  if(!inking||won) return;
+  const g=boardLetters(null);
+  if(g[r][c]){ toast("That cell is already set"); return; }
+  if(stamps.some(([a,b])=>a===r&&b===c)){ toast("Already stamped"); return; }
+  startClock();
+  stamps.push([r,c]); inkUsed++;
+  setInking(false); saveState(); fullRender();
+  const cell=boardEl.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`); if(cell) cell.classList.add("fresh");
+  try{ navigator.vibrate&&navigator.vibrate(15); }catch(e){}
+}
+// A stamped cell only accepts its own letter.
+function stampConflict(piece,rot,r0,c0){
+  for(const [dr,dc,ch] of cellsAt(piece,rot)){
+    const r=r0+dr,c=c0+dc;
+    if(stamps.some(([a,b])=>a===r&&b===c)&&activePuzzle.g[r][c]!==ch) return activePuzzle.g[r][c];
+  }
+  return null;
 }
 
 /* ---------------- Moves ---------------- */
@@ -1412,15 +1429,14 @@ function undoMove(){
   const s=history.pop();
   s.pieces.forEach((q,i)=>{ pieces[i].rot=q.rot; pieces[i].at=q.at; });
   moves=s.moves;
-  if(hintPiece!==null){ const hp=pieces.find(p=>p.id===hintPiece); if(hp&&hp.at) clearHint(); }
   fullRender(); saveState();
 }
 function resetBoard(){
   clearCelebrationState();
   pieces.forEach(p=>{ p.rot=p.k0; p.at=null; });
-  moves=0; bounces=0; hintLevel=0; won=false; history=[]; proof=null;
+  moves=0; bounces=0; won=false; history=[]; proof=null;   // ink and stamps deliberately survive a reset
   elapsed=0; runningSince=0; renderTime();
-  clearHint(); $("modal").classList.remove("show");
+  setInking(false); $("modal").classList.remove("show");
   fullRender(); saveState();
 }
 function clearCelebrationState(){
@@ -1448,20 +1464,18 @@ function placePiece(piece,r0,c0){
   const res=checkPlacement(piece,piece.rot,r0,c0);
   if(!res.ok){
     if(res.reason==="fit"){ return false; }              // physically blocked — not a move
+    if(res.reason==="stamp"){ toast(`That cell is stamped “${res.word}”`); return false; }
     startClock();
     // invalid seam: bounce to the tray with a thud
     pushHistory();
     piece.at=null; bounces++;                            // costs its 10 points, not a move
     thud(); toast(`“${res.word}” isn't a word`,true);
     boardEl.classList.remove("thud"); void boardEl.offsetWidth; boardEl.classList.add("thud");
-    if(hintPiece===piece.id) clearHint();
     fullRender(); saveState();
     return false;
   }
   startClock(); pushHistory();
   piece.at=[r0,c0]; moves++;
-  if(hintPiece===piece.id) clearHint();
-  else if(hintPiece!==null) renderHintCells();
   fullRender(); saveState();
   if(isSolved()) winGame();
   return true;
@@ -1494,6 +1508,7 @@ function rotatePiece(piece){
   if(!res.ok){
     piece.at=null;
     if(res.reason==="word"){ bounces++; thud(); toast(`“${res.word}” isn't a word`,true); }
+    else if(res.reason==="stamp") toast(`That cell is stamped “${res.word}” — back to the tray`);
     else toast("No room to turn it there — back to the tray");
   }
   animateSpin(piece.id); fullRender(); saveState();
@@ -1550,7 +1565,6 @@ function startGhost(){
   drag.cells=cellsAt(piece,piece.rot); drag.box=bbox(drag.cells);
   drag.lastKey="";
   el.classList.add("lifted");
-  if(hintPiece===piece.id) renderHintCells();
 }
 function moveGhost(x,y){
   const {ghost,grab,rect:br,cells,box:{h,w}}=drag;
@@ -1647,17 +1661,18 @@ function pressSlam(){
 /* Score: 10 per letter set, plus a speed bonus (up to 60) that drains linearly
    over the board's time budget, minus 10 per bounce and 5 per move over Par.
    The medal is a share of the maximum: 85% gold, 65% silver, else completion. */
-const PTS_LETTER=10, PTS_SPEED=60, PTS_BOUNCE=10, PTS_OVER=5;
+const PTS_LETTER=10, PTS_SPEED=60, PTS_BOUNCE=10, PTS_OVER=5, PTS_INK=10;
 function maxScore(){ return openCells.length*PTS_LETTER+PTS_SPEED; }
 function speedBonus(){ return Math.round(PTS_SPEED*Math.max(0,1-elapsedNow()/timeLimit())); }
 function lettersSet(){ return proof?proof.cells.length:openCells.length; }
 function scoreFor(){
   const speed=proof?0:speedBonus();                       // no speed bonus on an unfinished page
-  return Math.max(0, lettersSet()*PTS_LETTER+speed-bounces*PTS_BOUNCE-Math.max(0,moves-par)*PTS_OVER);
+  return Math.max(0, lettersSet()*PTS_LETTER+speed-bounces*PTS_BOUNCE-Math.max(0,moves-par)*PTS_OVER-inkUsed*PTS_INK);
 }
-function medalFor(){ if(proof) return 0; const r=scoreFor()/maxScore(); return r>=.85?3:r>=.65?2:1; }
+// Gold is reserved for pages printed without ink (Circuits' "no bolts").
+function medalFor(){ if(proof) return 0; const r=scoreFor()/maxScore(); return (r>=.85&&inkUsed===0)?3:r>=.65?2:1; }
 function winGame(){
-  won=true; pauseClock(); renderTime(); clearHint();
+  won=true; pauseClock(); renderTime(); setInking(false);
   if(activeDay===dayNumber()) recordWin(medalFor());
   saveState(); updateControls();
   animateWin();
@@ -1693,7 +1708,7 @@ function askSubmit(){
 }
 function submitProof(){
   $("confirmModal").classList.remove("show");
-  pauseClock(); clearHint();
+  pauseClock(); setInking(false);
   const g=boardLetters(null);
   proof={cells:openCells.filter(([r,c])=>g[r][c]&&g[r][c]===activePuzzle.g[r][c]),
          wrong:openCells.filter(([r,c])=>g[r][c]&&g[r][c]!==activePuzzle.g[r][c])};
@@ -1726,7 +1741,7 @@ function showWin(){
     (proof?"":`<span class="${speed?"got":""}">Speed ${time} +${speed}</span>`)+
     (bounces?`<span class="lost">${bounces} bounce${bounces===1?"":"s"} −${bounces*PTS_BOUNCE}</span>`:"")+
     (over>0?`<span class="lost">${over} over Par −${over*PTS_OVER}</span>`:"")+
-    (hintLevel?`<span>💡 ${hintLevel} hint${hintLevel===1?"":"s"}</span>`:"");
+    (inkUsed?`<span class="lost">${inkUsed} ink drop${inkUsed===1?"":"s"} −${inkUsed*PTS_INK}</span>`:`<span class="got">No ink</span>`);
   const s=loadStats(), curKey=medalKey(m);
   $("stPlayed").textContent=s.played;
   $("stStreak").textContent=s.currentStreak;
@@ -1738,7 +1753,7 @@ function showWin(){
   const right=new Set((proof?proof.cells:openCells).map(([r,c])=>r+","+c));
   const wrong=new Set((proof?proof.wrong:[]).map(([r,c])=>r+","+c));
   const grid=activePuzzle.g.map((row,r)=>row.split("").map((ch,c)=>ch==="#"?"⬛":right.has(r+","+c)?"🟨":wrong.has(r+","+c)?"🟥":"⬜").join("")).join("\n");
-  const extras=(bounces?` · 💥${bounces}`:"")+(hintLevel?` · 💡${hintLevel}`:"");
+  const extras=(bounces?` · 💥${bounces}`:"")+(inkUsed?` · 💧${inkUsed}`:"");
   const mid = proof ? `${score}/${max} · ${letters}/${openCells.length} letters · ${moves} move${moves===1?"":"s"}`
                     : `${score}/${max} · ${moves} move${moves===1?"":"s"} · ${time}`;
   $("share").textContent=
@@ -1750,7 +1765,7 @@ function showWin(){
 }
 
 /* ---------------- UI wiring ---------------- */
-$("hintBtn").addEventListener("click",showMoveHint);
+$("inkBtn").addEventListener("click",toggleInking);
 $("undoBtn").addEventListener("click",undoMove);
 $("resetBtn").addEventListener("click",resetBoard);
 $("retryBtn").addEventListener("click",resetBoard);
@@ -1832,16 +1847,15 @@ function init(){
   const saved=loadState(activeDay);
   if(saved){
     saved.pieces.forEach((q,i)=>{ if(pieces[i]){ pieces[i].rot=q.rot; pieces[i].at=q.at; } });
-    moves=saved.moves||0; bounces=saved.bounces||0; hintLevel=saved.hintLevel||0;
+    moves=saved.moves||0; bounces=saved.bounces||0; inkUsed=saved.inkUsed||0; stamps=Array.isArray(saved.stamps)?saved.stamps:[];
     won=!!saved.won;
     history=Array.isArray(saved.history)?saved.history:[];
     elapsed=saved.elapsed||0; proof=saved.proof||null;
   }else{
-    moves=0; bounces=0; hintLevel=0; won=false; history=[]; elapsed=0; proof=null;
+    moves=0; bounces=0; inkUsed=0; stamps=[]; won=false; history=[]; elapsed=0; proof=null;
   }
   runningSince=0; renderTime();
-  hintPiece=null;
-  $("hintBtn").classList.remove("on");
+  inking=false; boardEl.classList.remove("inking"); $("inkBtn").classList.remove("on");
   $("hintBanner").classList.remove("show");
   fullRender();
   if(won) showWin();   // already solved — show the result instead of replaying the press
