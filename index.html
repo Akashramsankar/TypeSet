@@ -149,7 +149,6 @@
   #board{
     position:relative; width:var(--span); height:var(--span); margin:0 auto;
     background:var(--grid-bg); border-radius:var(--radius);
-    touch-action:none;
   }
   .cell{
     position:absolute; width:var(--cell); height:var(--cell); border-radius:8px;
@@ -175,13 +174,14 @@
   .block{
     position:absolute; --u:var(--cell); --g:var(--gap); --p:calc(var(--u) + var(--g));
     width:calc(var(--w)*var(--p) - var(--g)); height:calc(var(--h)*var(--p) - var(--g));
-    cursor:grab; touch-action:none; will-change:transform;
+    cursor:grab; will-change:transform; -webkit-touch-callout:none; user-select:none; -webkit-user-select:none;
     filter:drop-shadow(0 1px 1px rgba(27,25,22,.18));
     transition:transform .18s cubic-bezier(.2,.8,.2,1), opacity .2s, filter .2s;
   }
   .block.on-board{left:calc(var(--c)*var(--pitch)); top:calc(var(--r)*var(--pitch)); z-index:3;}
   .block.in-tray{position:relative; --u:var(--tcell); --g:var(--tgap);}
   .block.lifted{opacity:.28; filter:none;}
+  .block.armed{transform:scale(1.08); filter:drop-shadow(0 6px 10px rgba(27,25,22,.3));}
   .block.hint-piece{animation:hintpulse-b 1.1s ease-in-out infinite;}
   @keyframes hintpulse-b{0%,100%{filter:drop-shadow(0 0 0 var(--gold)) drop-shadow(0 1px 1px rgba(27,25,22,.18));}
     50%{filter:drop-shadow(0 0 5px var(--gold)) drop-shadow(0 1px 1px rgba(27,25,22,.18));}}
@@ -500,12 +500,12 @@
 
       <div class="step"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><path d="M17 14v6M14 17h6"/></svg></div><div class="t">
         <b>Drag blocks onto the board.</b> <span>Letters in a block are bound together — a domino, tromino,
-        L-block or 2×2 quad always moves as one piece. Drop it on empty cells; each placement is one move.</span></div></div>
+        L-block or 2×2 quad always moves as one piece. On a phone, <b>press and hold</b> a block to pick it up
+        (a quick swipe scrolls the page). Drop it on empty cells; each placement is one move.</span></div></div>
 
       <div class="step"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg></div><div class="t">
         <b>Tap a block to rotate it.</b> <span>It turns 90° clockwise and the letters turn with it, so <b>TH</b>
-        becomes T-over-H, then <b>HT</b>. Rotating in the tray is free until your first placement; after that,
-        every rotation costs a move.</span></div></div>
+        becomes T-over-H, then <b>HT</b>. Rotating is always free, in the tray or on the board.</span></div></div>
 
       <div class="step"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg></div><div class="t">
         <b>Every line must be a word.</b> <span>The dark <b>iron spacers</b> split rows and columns — letters on
@@ -581,7 +581,7 @@
   </div>
 
   <div class="hint" id="modeHint">
-    Drag blocks from the tray into the press. <span class="ac">Tap</span> a block to rotate it — letters turn
+    <span class="ac">Hold &amp; drag</span> blocks from the tray into the press. <span class="ac">Tap</span> a block to rotate it — letters turn
     with it. Every row and column must read as a word; a bad line <span class="gd">bounces</span> the block back.
   </div>
 
@@ -1156,7 +1156,6 @@ let spans=[];        // every run of >=2 open cells (rows then columns): [[r,c],
 let openCells=[];    // [r,c] of every non-spacer cell
 let pieces=[];       // {id, base:[[dr,dc,ch]], rot, at:[r,c]|null, home:[r,c], type}
 let moves=0, bounces=0, hintLevel=0, par=0;
-let firstPlaced=false;   // once a block hits the board, tray rotations start costing
 let proof=null;          // set when the page was submitted unfinished: {cells: letters in the RIGHT place, wrong: letters in the wrong place} as [r,c] lists
 let elapsed=0;           // ms on the clock, not counting the currently running stretch
 let runningSince=0;      // timestamp while the clock is running, else 0
@@ -1189,7 +1188,7 @@ function saveState(){
   try{
     const all=allSaves();
     all[activeDay]={sig:sigOf(activePuzzle),pieces:pieces.map(p=>({rot:p.rot,at:p.at})),
-      moves,bounces,hintLevel,firstPlaced,won,history,elapsed:elapsedNow(),proof};
+      moves,bounces,hintLevel,won,history,elapsed:elapsedNow(),proof};
     localStorage.setItem(SAVE_KEY, JSON.stringify(all));
   }catch(e){ /* localStorage blocked — progress just won't persist */ }
 }
@@ -1405,21 +1404,21 @@ function showMoveHint(){
 
 /* ---------------- Moves ---------------- */
 function snapshot(){
-  return {pieces:pieces.map(p=>({rot:p.rot,at:p.at?p.at.slice():null})),moves,firstPlaced};
+  return {pieces:pieces.map(p=>({rot:p.rot,at:p.at?p.at.slice():null})),moves};
 }
 function pushHistory(){ history.push(snapshot()); if(history.length>200) history.shift(); }
 function undoMove(){
   if(won||!history.length) return;
   const s=history.pop();
   s.pieces.forEach((q,i)=>{ pieces[i].rot=q.rot; pieces[i].at=q.at; });
-  moves=s.moves; firstPlaced=s.firstPlaced;
+  moves=s.moves;
   if(hintPiece!==null){ const hp=pieces.find(p=>p.id===hintPiece); if(hp&&hp.at) clearHint(); }
   fullRender(); saveState();
 }
 function resetBoard(){
   clearCelebrationState();
   pieces.forEach(p=>{ p.rot=p.k0; p.at=null; });
-  moves=0; bounces=0; hintLevel=0; firstPlaced=false; won=false; history=[]; proof=null;
+  moves=0; bounces=0; hintLevel=0; won=false; history=[]; proof=null;
   elapsed=0; runningSince=0; renderTime();
   clearHint(); $("modal").classList.remove("show");
   fullRender(); saveState();
@@ -1452,7 +1451,7 @@ function placePiece(piece,r0,c0){
     startClock();
     // invalid seam: bounce to the tray with a thud
     pushHistory();
-    piece.at=null; moves++; bounces++; firstPlaced=true;
+    piece.at=null; bounces++;                            // costs its 10 points, not a move
     thud(); toast(`“${res.word}” isn't a word`,true);
     boardEl.classList.remove("thud"); void boardEl.offsetWidth; boardEl.classList.add("thud");
     if(hintPiece===piece.id) clearHint();
@@ -1460,7 +1459,7 @@ function placePiece(piece,r0,c0){
     return false;
   }
   startClock(); pushHistory();
-  piece.at=[r0,c0]; moves++; firstPlaced=true;
+  piece.at=[r0,c0]; moves++;
   if(hintPiece===piece.id) clearHint();
   else if(hintPiece!==null) renderHintCells();
   fullRender(); saveState();
@@ -1484,15 +1483,14 @@ function rotatePiece(piece){
   startClock();
   if(!piece.at){
     pushHistory();
-    piece.rot=next;
-    if(firstPlaced) moves++;                              // free only before the first placement
+    piece.rot=next;                                       // rotating is always free
     animateSpin(piece.id); fullRender(); saveState();
     return;
   }
   // rotating on the board: it must still fit and still read as words, else it drops to the tray
   const res=checkPlacement(piece,next,piece.at[0],piece.at[1]);
   pushHistory();
-  piece.rot=next; moves++;
+  piece.rot=next;
   if(!res.ok){
     piece.at=null;
     if(res.reason==="word"){ bounces++; thud(); toast(`“${res.word}” isn't a word`,true); }
@@ -1505,7 +1503,12 @@ function animateSpin(id){
   requestAnimationFrame(()=>{ const el=document.querySelector(`.block[data-id="${id}"]`); if(el) el.classList.add("spin"); });
 }
 
-/* ---------------- Drag & drop ---------------- */
+/* ---------------- Drag & drop ----------------
+   Touch: the page must stay scrollable with a finger on the board, so blocks
+   don't use touch-action:none. Instead a block is picked up by pressing and
+   holding for HOLD_MS; a finger that moves before that is a scroll, and the
+   browser takes it (we get pointercancel). Mouse drags start immediately.   */
+const HOLD_MS=180, SLOP=8;
 let drag=null;   // {piece, el, ghost, grab:[dr,dc], startX, startY, moved, lift, target:[r,c]|null}
 function pointerDownBlock(e,el){
   if(won||e.button>0) return;
@@ -1513,16 +1516,24 @@ function pointerDownBlock(e,el){
   if(!piece||drag) return;
   const cell=e.target.closest(".bcell");
   const grab=cell?[+cell.dataset.dr,+cell.dataset.dc]:[0,0];
-  drag={piece,el,ghost:null,grab,startX:e.clientX,startY:e.clientY,moved:false,
-        lift:e.pointerType==="touch"?34:0,target:null,pointerId:e.pointerId};
-  try{ el.setPointerCapture(e.pointerId); }catch(err){}
-  e.preventDefault();
+  const touch=e.pointerType==="touch";
+  drag={piece,el,ghost:null,grab,startX:e.clientX,startY:e.clientY,moved:false,touch,armed:!touch,
+        lift:touch?34:0,target:null,pointerId:e.pointerId,holdTimer:0};
+  if(touch){
+    drag.holdTimer=setTimeout(()=>{ if(drag&&drag.pointerId===e.pointerId&&!drag.moved){ drag.armed=true; el.classList.add("armed"); try{ navigator.vibrate&&navigator.vibrate(10); }catch(x){} } },HOLD_MS);
+  }else{
+    try{ el.setPointerCapture(e.pointerId); }catch(err){}
+    e.preventDefault();
+  }
 }
+// While a block is armed (held), swallow touchmove so the page doesn't scroll under the drag.
+document.addEventListener("touchmove",e=>{ if(drag&&drag.armed) e.preventDefault(); },{passive:false});
 function pointerMoveBlock(e){
   if(!drag||e.pointerId!==drag.pointerId) return;
   const dx=e.clientX-drag.startX, dy=e.clientY-drag.startY;
   if(!drag.moved){
-    if(Math.hypot(dx,dy)<6) return;
+    if(Math.hypot(dx,dy)<(drag.touch?SLOP:6)) return;
+    if(!drag.armed){ abandonDrag(); return; }          // moved before the hold: it's a scroll, not a drag
     drag.moved=true; startGhost();
   }
   // one ghost update per frame, using the latest pointer position
@@ -1535,7 +1546,7 @@ function startGhost(){
   g.style.removeProperty("--r"); g.style.removeProperty("--c");
   document.body.appendChild(g);
   drag.ghost=g;
-  drag.rect=boardEl.getBoundingClientRect();        // board doesn't move during a drag (touch-action:none)
+  drag.rect=boardEl.getBoundingClientRect();        // page can't scroll under an armed drag, so this stays valid
   drag.cells=cellsAt(piece,piece.rot); drag.box=bbox(drag.cells);
   drag.lastKey="";
   el.classList.add("lifted");
@@ -1562,14 +1573,20 @@ function moveGhost(x,y){
     if(cell) cell.classList.add(ok?"drop-ok":"drop-bad");
   }
 }
+function abandonDrag(){
+  const d=drag; drag=null;
+  if(!d) return;
+  clearTimeout(d.holdTimer); d.el.classList.remove("armed");
+}
 function pointerUpBlock(e){
   if(!drag||e.pointerId!==drag.pointerId) return;
   const d=drag; drag=null;
+  clearTimeout(d.holdTimer); d.el.classList.remove("armed");
   if(d.raf) cancelAnimationFrame(d.raf);
   if(d.moved&&d.x!==undefined){ drag=d; moveGhost(d.x,d.y); drag=null; }   // settle on the final pointer position
   try{ d.el.releasePointerCapture(e.pointerId); }catch(err){}
   boardEl.querySelectorAll(".cell.drop-ok,.cell.drop-bad").forEach(c=>c.classList.remove("drop-ok","drop-bad"));
-  if(!d.moved){ rotatePiece(d.piece); return; }          // a tap, not a drag
+  if(!d.moved){ if(!(d.touch&&d.armed)) rotatePiece(d.piece); return; }   // a tap rotates; a hold released in place does nothing
   if(d.ghost) d.ghost.remove();
   d.el.classList.remove("lifted");
   if(d.target&&d.target[2]){
@@ -1585,6 +1602,7 @@ function pointerUpBlock(e){
 function pointerCancelBlock(e){
   if(!drag||e.pointerId!==drag.pointerId) return;
   const d=drag; drag=null;
+  clearTimeout(d.holdTimer); d.el.classList.remove("armed");
   if(d.raf) cancelAnimationFrame(d.raf);
   if(d.ghost) d.ghost.remove();
   boardEl.querySelectorAll(".cell.drop-ok,.cell.drop-bad").forEach(c=>c.classList.remove("drop-ok","drop-bad"));
@@ -1815,11 +1833,11 @@ function init(){
   if(saved){
     saved.pieces.forEach((q,i)=>{ if(pieces[i]){ pieces[i].rot=q.rot; pieces[i].at=q.at; } });
     moves=saved.moves||0; bounces=saved.bounces||0; hintLevel=saved.hintLevel||0;
-    firstPlaced=!!saved.firstPlaced; won=!!saved.won;
+    won=!!saved.won;
     history=Array.isArray(saved.history)?saved.history:[];
     elapsed=saved.elapsed||0; proof=saved.proof||null;
   }else{
-    moves=0; bounces=0; hintLevel=0; firstPlaced=false; won=false; history=[]; elapsed=0; proof=null;
+    moves=0; bounces=0; hintLevel=0; won=false; history=[]; elapsed=0; proof=null;
   }
   runningSince=0; renderTime();
   hintPiece=null;
