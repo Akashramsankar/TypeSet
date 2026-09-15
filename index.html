@@ -137,7 +137,8 @@
   .clue-label{font-size:.66rem; letter-spacing:.12em; color:var(--ink-muted); text-transform:uppercase; font-weight:600;}
 
   /* ==================== STATS ROW ==================== */
-  .stats{display:grid; grid-template-columns:repeat(3,1fr); width:min(420px,100%); padding:0 4px;}
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); width:min(420px,100%); padding:0 4px;}
+  .stat.time .v{font-size:1.45rem;}
   .stat{display:flex; flex-direction:column; align-items:center; gap:4px;}
   .stat .v{font-size:1.6rem; font-weight:800; letter-spacing:-.02em; line-height:1.1; color:var(--ink);}
   .stat .l{font-size:.64rem; letter-spacing:.1em; color:var(--ink-muted); text-transform:uppercase; font-weight:600;}
@@ -503,12 +504,14 @@
         are noted on your share card.</span></div></div>
 
       <div class="step"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.5 6 .8-4.4 4.2 1.1 6-5.3-2.9L6.7 19.5l1.1-6L3.4 9.3l6-.8z"/></svg></div><div class="t">
-        <b>Beat Par, earn ink.</b> <span>Par is the number of blocks — one clean placement each. Finish within
-        Par+2 for <b>Silver Print</b>; hit Par with zero bounces for <b>Master Gold</b>.</span></div></div>
+        <b>Beat Par.</b> <span>Par is the number of blocks — one clean placement each. The clock starts on your
+        first move and pauses whenever you leave the page.</span></div></div>
 
       <div class="step"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16"/><path d="M6 19V9"/><path d="M11 19V5"/><path d="M16 19v-8"/></svg></div><div class="t">
-        <b>Score.</b> <span>Every letter you set is worth <b>10 points</b>, so a board's maximum is fixed
-        (a 21-letter board is 210). Each bounce costs 10 and each move over Par costs 5.</span></div></div>
+        <b>Score &amp; ink medals.</b> <span>Every letter you set is worth <b>10 points</b>, plus a <b>speed bonus of up
+        to 60</b> that drains over the board's time budget — 2 minutes per star, so a 3★ board gives you 6 minutes.
+        Each bounce costs 10 and each move over Par costs 5. Your medal comes from the total:
+        <b>85%</b> of the maximum is <b>Master Gold</b>, <b>65%</b> is <b>Silver Print</b>.</span></div></div>
 
       <div class="step"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.5 6 .8-4.4 4.2 1.1 6-5.3-2.9L6.7 19.5l1.1-6L3.4 9.3l6-.8z"/></svg></div><div class="t">
         <b>Difficulty cycles.</b> <span>The <span class="gd">★ stars</span> in the header rate the board from 1 to 5 —
@@ -522,6 +525,7 @@
     <div class="stat"><span class="v" id="moves">0</span><span class="l">Moves</span></div>
     <div class="stat par"><span class="v" id="par">–</span><span class="l">Par</span></div>
     <div class="stat bounce"><span class="v" id="bounces">0</span><span class="l">Bounces</span></div>
+    <div class="stat time"><span class="v" id="time">0:00</span><span class="l">Time</span></div>
   </div>
 
   <div class="hint-banner" id="hintBanner"></div>
@@ -1122,6 +1126,8 @@ let openCells=[];    // [r,c] of every non-spacer cell
 let pieces=[];       // {id, base:[[dr,dc,ch]], rot, at:[r,c]|null, home:[r,c], type}
 let moves=0, bounces=0, hintLevel=0, par=0;
 let firstPlaced=false;   // once a block hits the board, tray rotations start costing
+let elapsed=0;           // ms on the clock, not counting the currently running stretch
+let runningSince=0;      // timestamp while the clock is running, else 0
 let won=false;
 let history=[];          // snapshots for Undo
 let hintPiece=null;      // id of the block currently being hinted
@@ -1151,7 +1157,7 @@ function saveState(){
   try{
     const all=allSaves();
     all[activeDay]={sig:sigOf(activePuzzle),pieces:pieces.map(p=>({rot:p.rot,at:p.at})),
-      moves,bounces,hintLevel,firstPlaced,won,history};
+      moves,bounces,hintLevel,firstPlaced,won,history,elapsed:elapsedNow()};
     localStorage.setItem(SAVE_KEY, JSON.stringify(all));
   }catch(e){ /* localStorage blocked — progress just won't persist */ }
 }
@@ -1381,6 +1387,7 @@ function resetBoard(){
   clearCelebrationState();
   pieces.forEach(p=>{ p.rot=p.k0; p.at=null; });
   moves=0; bounces=0; hintLevel=0; firstPlaced=false; won=false; history=[];
+  elapsed=0; runningSince=0; renderTime();
   clearHint(); $("modal").classList.remove("show");
   fullRender(); saveState();
 }
@@ -1388,6 +1395,21 @@ function clearCelebrationState(){
   celebrationTimers.forEach(clearTimeout); celebrationTimers=[];
   boardEl.classList.remove("pressing","slam","celebrate");
 }
+/* ---------------- Clock ---------------- */
+function elapsedNow(){ return elapsed+(runningSince?Date.now()-runningSince:0); }
+function startClock(){ if(!won&&!runningSince) runningSince=Date.now(); }
+function pauseClock(){ if(runningSince){ elapsed+=Date.now()-runningSince; runningSince=0; } }
+function fmtTime(ms){ const t=Math.floor(ms/1000); return Math.floor(t/60)+":"+String(t%60).padStart(2,"0"); }
+function renderTime(){ $("time").textContent=fmtTime(elapsedNow()); }
+setInterval(()=>{ if(runningSince) renderTime(); },1000);
+let resumeOnReturn=false;   // the clock was running when the page was hidden
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden){ resumeOnReturn=!!runningSince; if(runningSince){ pauseClock(); saveState(); } }
+  else if(resumeOnReturn){ resumeOnReturn=false; startClock(); }
+});
+window.addEventListener("pagehide",()=>{ if(runningSince){ pauseClock(); saveState(); } });
+function timeLimit(){ return activePuzzle.stars*2*60*1000; }   // 2 minutes per star
+
 /* Drop a piece at (r0,c0). Returns true if it locked in. */
 function placePiece(piece,r0,c0){
   const wasAt=piece.at;
@@ -1395,6 +1417,7 @@ function placePiece(piece,r0,c0){
   const res=checkPlacement(piece,piece.rot,r0,c0);
   if(!res.ok){
     if(res.reason==="fit"){ return false; }              // physically blocked — not a move
+    startClock();
     // invalid seam: bounce to the tray with a thud
     pushHistory();
     piece.at=null; moves++; bounces++; firstPlaced=true;
@@ -1404,7 +1427,7 @@ function placePiece(piece,r0,c0){
     fullRender(); saveState();
     return false;
   }
-  pushHistory();
+  startClock(); pushHistory();
   piece.at=[r0,c0]; moves++; firstPlaced=true;
   if(hintPiece===piece.id) clearHint();
   else if(hintPiece!==null) renderHintCells();
@@ -1426,6 +1449,7 @@ function rotatePiece(piece){
     return;
   }
   const next=(piece.rot+1)%4;
+  startClock();
   if(!piece.at){
     pushHistory();
     piece.rot=next;
@@ -1570,16 +1594,18 @@ function pressSlam(){
 }
 
 /* ---------------- Win: the press ---------------- */
-function medalFor(){ return (moves<=par&&bounces===0)?3:(moves<=par+2)?2:1; }
-/* Score: 10 per letter set (so the board's maximum is fixed and visible),
-   minus 10 per bounce and 5 per move over Par. Never below zero. */
-const PTS_LETTER=10, PTS_BOUNCE=10, PTS_OVER=5;
-function maxScore(){ return openCells.length*PTS_LETTER; }
+/* Score: 10 per letter set, plus a speed bonus (up to 60) that drains linearly
+   over the board's time budget, minus 10 per bounce and 5 per move over Par.
+   The medal is a share of the maximum: 85% gold, 65% silver, else completion. */
+const PTS_LETTER=10, PTS_SPEED=60, PTS_BOUNCE=10, PTS_OVER=5;
+function maxScore(){ return openCells.length*PTS_LETTER+PTS_SPEED; }
+function speedBonus(){ return Math.round(PTS_SPEED*Math.max(0,1-elapsedNow()/timeLimit())); }
 function scoreFor(){
-  return Math.max(0, maxScore()-bounces*PTS_BOUNCE-Math.max(0,moves-par)*PTS_OVER);
+  return Math.max(0, openCells.length*PTS_LETTER+speedBonus()-bounces*PTS_BOUNCE-Math.max(0,moves-par)*PTS_OVER);
 }
+function medalFor(){ const r=scoreFor()/maxScore(); return r>=.85?3:r>=.65?2:1; }
 function winGame(){
-  won=true; clearHint();
+  won=true; pauseClock(); renderTime(); clearHint();
   if(activeDay===dayNumber()) recordWin(medalFor());
   saveState(); updateControls();
   animateWin();
@@ -1606,15 +1632,15 @@ function showWin(){
   const gr=$("grade"); gr.textContent=g;
   gr.style.background="color-mix(in srgb, "+col+" 12%, transparent)"; gr.style.color=col; gr.style.border="1px solid "+col;
   $("medals").innerHTML="★".repeat(m)+'<span class="off">'+"☆".repeat(3-m)+"</span>";
-  const max=maxScore(), letters=openCells.length;
+  const max=maxScore(), letters=openCells.length, speed=speedBonus(), pct=Math.round(score/max*100), time=fmtTime(elapsedNow());
   $("winScore").innerHTML=`${score}<small>/ ${max}</small>`;
   $("breakdown").textContent=
-    m===3 ? `Par ${par} in ${moves} moves with a clean press. Perfect setting.` :
-    over<=0 ? `On Par in ${moves} moves — ${bounces} bounce${bounces===1?"":"s"} kept the gold out of reach.` :
-    `${moves} moves, ${over} over Par.`;
+    `${pct}% of the maximum — ${moves} move${moves===1?"":"s"} against Par ${par}, `+
+    `${bounces} bounce${bounces===1?"":"s"}, ${time} on the clock.`;
   $("bonus").innerHTML=
-    `<span class="got">${letters} letters +${max}</span>`+
-    (bounces?`<span class="lost">${bounces} bounce${bounces===1?"":"s"} −${bounces*PTS_BOUNCE}</span>`:`<span class="got">Clean press</span>`)+
+    `<span class="got">${letters} letters +${letters*PTS_LETTER}</span>`+
+    `<span class="${speed?"got":""}">Speed ${time} +${speed}</span>`+
+    (bounces?`<span class="lost">${bounces} bounce${bounces===1?"":"s"} −${bounces*PTS_BOUNCE}</span>`:"")+
     (over>0?`<span class="lost">${over} over Par −${over*PTS_OVER}</span>`:"")+
     (hintLevel?`<span>💡 ${hintLevel} hint${hintLevel===1?"":"s"}</span>`:"");
   const s=loadStats(), curKey=medalKey(m);
@@ -1629,6 +1655,7 @@ function showWin(){
   $("share").textContent=
     `TYPESET #${activeDay+1} 🖋️\nBoard: ${"★".repeat(activePuzzle.stars)}${"☆".repeat(5-activePuzzle.stars)} (${activePuzzle.tier})\n`+
     `Score: ${score}/${maxScore()} (${g})\nMoves: ${moves}/${par} [${bar}]\n`+
+    `Time: ${fmtTime(elapsedNow())} (+${speedBonus()})\n`+
     `Clean Press: ${bounces===0?"YES":"NO"} (${bounces} Bounce${bounces===1?"":"s"})${hintTag}\n\n${grid}`;
   $("retryBtn").hidden=(m===3);
   $("modal").classList.add("show");
@@ -1720,9 +1747,11 @@ function init(){
     moves=saved.moves||0; bounces=saved.bounces||0; hintLevel=saved.hintLevel||0;
     firstPlaced=!!saved.firstPlaced; won=!!saved.won;
     history=Array.isArray(saved.history)?saved.history:[];
+    elapsed=saved.elapsed||0;
   }else{
-    moves=0; bounces=0; hintLevel=0; firstPlaced=false; won=false; history=[];
+    moves=0; bounces=0; hintLevel=0; firstPlaced=false; won=false; history=[]; elapsed=0;
   }
+  runningSince=0; renderTime();
   hintPiece=null;
   $("hintBtn").classList.remove("on");
   $("hintBanner").classList.remove("show");
@@ -1731,6 +1760,7 @@ function init(){
 }
 /* Switch the board to a given puzzle day (from the archive). */
 function loadDay(day){
+  pauseClock(); saveState();
   activeDay=day;
   $("modal").classList.remove("show");
   init();
