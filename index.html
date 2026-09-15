@@ -276,10 +276,32 @@
   button.act.on{background:var(--accent-soft); color:var(--accent-ink); border-color:var(--accent);}
   button.act:disabled{opacity:.55; cursor:default;}
   /* ink drops: the day's stock, drained left to right as they're used */
-  button.act .drops{display:inline-flex; gap:2px;}
-  button.act .drops i{display:block; width:10px; height:13px; background:var(--gold);
-    border-radius:50% 50% 50% 50% / 60% 60% 40% 40%; transform:rotate(180deg); transition:opacity .2s, transform .2s;}
-  button.act .drops i.used{opacity:.22; transform:rotate(180deg) scale(.8);}
+  /* ==================== INKWELL ==================== */
+  /* The hint system, kept in the player's eyeline right above the press. */
+  .inkwell{
+    width:min(420px,100%); display:flex; align-items:center; gap:14px; text-align:left;
+    background:var(--card); border:1px solid var(--rule); border-radius:var(--radius);
+    padding:10px 14px; cursor:pointer; color:var(--ink); font-family:inherit;
+    transition:border-color .15s ease, background .15s ease, opacity .15s ease;
+  }
+  .inkwell:hover:not(:disabled){border-color:var(--gold);}
+  .inkwell.on{border-color:var(--gold); background:rgba(176,125,18,.08);}
+  .inkwell:disabled{cursor:default; opacity:.7;}
+  .inkwell .drops{display:inline-flex; gap:4px; flex-shrink:0;}
+  .inkwell .drops i{display:block; width:16px; height:21px; background:var(--gold);
+    border-radius:50% 50% 50% 50% / 60% 60% 40% 40%; transform:rotate(180deg);
+    box-shadow:inset 0 -3px 0 rgba(0,0,0,.12); transition:opacity .3s, transform .3s;}
+  .inkwell .drops i.used{opacity:.22; transform:rotate(180deg) scale(.82); box-shadow:none;}
+  .inkwell .drops i.filling{animation:refill 1.6s ease-in-out infinite;}
+  @keyframes refill{0%,100%{transform:rotate(180deg) scale(.82);}50%{transform:rotate(180deg) scale(.95);}}
+  .inkwell .itext{flex:1; min-width:0; line-height:1.3;}
+  .inkwell .itext b{display:block; font-size:.92rem; font-weight:700; color:var(--ink);}
+  .inkwell .itext small{display:block; font-size:.74rem; color:var(--ink-muted); font-weight:500; margin-top:2px;}
+  .inkwell.on .itext b{color:var(--gold);}
+  .inkwell .ipill{flex-shrink:0; font-size:.72rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+    border-radius:999px; padding:6px 12px; background:var(--gold); color:#fff;}
+  .inkwell.on .ipill{background:var(--card); color:var(--gold); border:1px solid var(--gold);}
+  .inkwell:disabled .ipill{background:var(--surface-2); color:var(--ink-muted);}
 
   /* Submit: the day-ending action, styled like the modal primary */
   .submit-row{width:min(420px,100%);}
@@ -303,16 +325,6 @@
   .hint{color:var(--ink-muted); font-size:.8rem; text-align:center; width:min(420px,100%); line-height:1.5;}
   .hint .ac{color:var(--accent-ink); font-weight:600;}
   .hint .gd{color:var(--gold); font-weight:600;}
-  .hint-banner{
-    width:min(420px,100%); max-height:0; overflow:hidden; opacity:0;
-    background:var(--card); border:1px solid var(--gold); border-radius:var(--radius);
-    color:var(--gold); font-size:.88rem; font-weight:600; text-align:center;
-    transition:max-height .25s ease, opacity .25s ease, padding .25s ease, margin .25s ease;
-    padding:0 14px; margin:0;
-  }
-  .hint-banner.show{max-height:200px; opacity:1; padding:10px 14px; margin:0 0 -4px;
-    display:flex; align-items:center; justify-content:center; min-height:20px;}
-
   .toast{
     position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
     background:var(--ink); color:var(--card); padding:9px 16px; border-radius:6px;
@@ -555,7 +567,11 @@
     <div class="stat bounce"><span class="v" id="bounces">0</span><span class="l">Bounces</span></div>
   </div>
 
-  <div class="hint-banner" id="hintBanner"></div>
+  <button class="inkwell" id="inkBtn" type="button" aria-label="Use an ink drop to stamp a letter">
+    <span class="drops" id="drops"></span>
+    <span class="itext"><b id="inkTitle">Stuck? Use ink</b><small id="inkSub"></small></span>
+    <span class="ipill" id="inkPill">Use</span>
+  </button>
 
   <div class="stage" id="stage">
     <div id="board" aria-label="Press board">
@@ -572,7 +588,6 @@
   </div>
 
   <div class="controls">
-    <button class="act" id="inkBtn" type="button" aria-label="Use an ink drop to stamp a letter"><span class="drops" id="drops"></span><span>Ink</span></button>
     <button class="act" id="undoBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg><span>Undo</span></button>
     <button class="act" id="resetBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg><span>Reset</span></button>
   </div>
@@ -1376,7 +1391,14 @@ function updateControls(){
   $("inkBtn").disabled=won||ink<=0;
   const prog=ink<INK_MAX?Math.min(1,(elapsedNow()-lastRefill)/refillInterval()):0;
   $("drops").innerHTML=Array.from({length:INK_MAX},(_,i)=>
-    i<ink?"<i></i>":i===ink?`<i class="used" style="opacity:${(.22+.6*prog).toFixed(2)}"></i>`:'<i class="used"></i>').join("");
+    i<ink?"<i></i>":i===ink?`<i class="used filling" style="opacity:${(.22+.6*prog).toFixed(2)}"></i>`:'<i class="used"></i>').join("");
+  const secs=ink<INK_MAX?Math.max(0,Math.ceil((refillInterval()-(elapsedNow()-lastRefill))/1000)):0;
+  const refillNote=ink<INK_MAX?(runningSince?` · next in ${secs}s`:` · refills as you play`):"";
+  const title=$("inkTitle"), sub=$("inkSub"), pill=$("inkPill");
+  if(won){ title.textContent=proof?"Proof pulled":"Page printed"; sub.textContent=inkUsed?`${inkUsed} ink drop${inkUsed===1?"":"s"} used`:"No ink used"; pill.textContent="Done"; }
+  else if(inking){ title.textContent="Tap an empty cell"; sub.textContent="Its letter gets stamped there · −10 points"; pill.textContent="Cancel"; }
+  else if(ink<=0){ title.textContent="Out of ink"; sub.textContent=runningSince?`Next drop in ${secs}s`:"A drop refills as you play"; pill.textContent="Wait"; }
+  else { title.textContent="Stuck? Use ink"; sub.textContent=`${ink} drop${ink===1?"":"s"} ready · reveals a letter for 10 pts${refillNote}`; pill.textContent="Use"; }
   $("resetBtn").disabled=(moves===0&&history.length===0&&!won)||!!proof;   // a revealed day stays revealed
   $("submitBtn").disabled=won||!pieces.some(p=>p.at);
 }
@@ -1396,9 +1418,7 @@ function setInking(on){
   inking=on&&!won&&ink>0;
   boardEl.classList.toggle("inking",inking);
   $("inkBtn").classList.toggle("on",inking);
-  const bn=$("hintBanner");
-  if(inking){ bn.textContent="Tap an empty cell to stamp its letter (−10 points)."; bn.classList.add("show"); }
-  else bn.classList.remove("show");
+  updateControls();
 }
 function toggleInking(){
   if(won) return;
@@ -1468,7 +1488,7 @@ function refillInk(){
   if(grew){ toast("Ink refilled 💧"); saveState(); }
   updateControls();
 }
-setInterval(()=>{ if(runningSince) refillInk(); },1000);
+setInterval(()=>{ if(runningSince){ refillInk(); updateControls(); } },1000);
 let resumeOnReturn=false;   // the clock was running when the page was hidden
 document.addEventListener("visibilitychange",()=>{
   if(document.hidden){ resumeOnReturn=!!runningSince; if(runningSince){ pauseClock(); saveState(); } }
@@ -1874,7 +1894,6 @@ function init(){
   }
   runningSince=0; renderTime();
   inking=false; boardEl.classList.remove("inking"); $("inkBtn").classList.remove("on");
-  $("hintBanner").classList.remove("show");
   fullRender();
   if(won) showWin();   // already solved — show the result instead of replaying the press
 }
