@@ -3,7 +3,7 @@
    Needs two word lists next to it:
      enable.txt  https://raw.githubusercontent.com/dolph/dictionary/master/enable1.txt   (validation dictionary; also feeds words.js)
      g10k.txt    https://raw.githubusercontent.com/first20hours/google-10000-english/master/google-10000-english-usa-no-swears.txt  (frequency list -> "common" fill words)
-   Puzzle i uses weekday tier i % 7 (Mon..Sun), so keep the count a multiple of 7.
+   Puzzle i uses tier i % 5 (1★..5★ then back to 1★), so keep the count a multiple of 5.
 
    Fills 5x5 grids (spacer layout per weekday), cuts the open cells into
    letter blocks per the tier's block composition, and emits a PUZZLES array. */
@@ -13,7 +13,7 @@ const g10k=fs.readFileSync("g10k.txt","utf8").split("\n").map(s=>s.trim());
 const COMMON2="ad ah am an as at ax be by do go ha he hi id if in is it me my no of oh on or ow ox pa so to up us we ye".split(" ");
 const web2=new Set(fs.readFileSync("/usr/share/dict/words","utf8").split("\n").filter(w=>/^[a-z]{2,5}$/.test(w)));
 /* abbreviations / names / fragments that slip through the dictionaries */
-const BLOCK=new Set("las reg mel shaw ana mem casa sec dee ser del rom eng ons asp devel lib yahoo ala pas ain ave bio lol wow eco pic pics tex tec med mag mags ref refs spec specs sci soc mfg int ext pro pros exp est etc fax faxes tel vol vols mac mics doc docs ann ben dan don jan jim joe jon ken lee les lou max moe pat ray rob ron roy sam sal sol sue tim tom von wan yen yer yep yup ala als alt gen gov hey hrs ies ing ipod ism lat lbs log logs lts msg nat oct pty pvt res ret sep sim src std tba thu tue wed mon fri sat sun fwd gmt pst utc uni univ var vars ver vid vids vip wiki xml php sql cgi cms dns dvd faq faqs ftp gif gifs gnu html http https ibm ieee ipad ips jpg mba mlb mpg mtv nba nfl nhl obj pdf png ppm pmc rss sms tcp tgp url urls usb vhs wav xbox zip cc bb dd ee ff gg hh ii jj kk ll mm nn oo pp qq rr ss tt uu vv ww xx yy zz ac ad? ax? aa ka monte sri chile anime costa leone erica jane henry peter paris roman john james mary david mark paul lisa anna maria carl eric adam alex andy brad chad dave dean doug earl gary greg jack jake jeff jess jose josh juan kate kyle luis lynn matt mike neil nick pete phil rick ryan sean seth todd tony wade zach bush ford ohio texas utah iowa cuba iran iraq peru rome asia china india japan spain italy kenya tokyo delhi miami vegas tampa york maine idaho nokia sony intel cisco ebay honda mazda lexus volvo linux intel excel apple cody abby amy ann beth carl cole dana dean ella emma erin eve gina hugo ivan jody joel judy jill kim kurt leo lily luke lynn mae meg mia noah omar owen ross ruby ruth sara tara ted tina troy vera zoe hans otto olaf ali ari ben eli ian jay joy kay les lin liz mel ned pam pat ray reg rex rob ron roy sal sam sue tom von wes viv ala usa uk eu un nyc ny la ca fl tx nj pa dc oz cd cds dvd tv pc pcs vs etc inc ltd llc corp dept eg ie ok colin ralph lewis genoa dom phi mas leu psi dis rep con yok askoi tepoy sperm sex sexy porn nude rape damn hell ass arse crap piss tit tits boob boobs cum dick cock fuck shit anal anus nazi slut whore dildo penis vagina pussy bitch cunt fart poop jew jews arab arabs negro chink spic kike gook tard retard idiot ugly fat? cody abu ahmed ali amir arjun beta chi delta gamma theta omega sigma alpha iota zeta eta rho tau phi psi chi nu mu xi laura terry cad sen til cos pee dos gee gal gals lad lads ish sup yo ya ye? gonna wanna".split(" "));
+const BLOCK=new Set("las reg mel shaw ana mem casa sec dee ser del rom eng ons asp devel lib yahoo ala pas ain ave bio lol wow eco pic pics tex tec med mag mags ref refs spec specs sci soc mfg int ext pro pros exp est etc fax faxes tel vol vols mac mics doc docs ann ben dan don jan jim joe jon ken lee les lou max moe pat ray rob ron roy sam sal sol sue tim tom von wan yen yer yep yup ala als alt gen gov hey hrs ies ing ipod ism lat lbs log logs lts msg nat oct pty pvt res ret sep sim src std tba thu tue wed mon fri sat sun fwd gmt pst utc uni univ var vars ver vid vids vip wiki xml php sql cgi cms dns dvd faq faqs ftp gif gifs gnu html http https ibm ieee ipad ips jpg mba mlb mpg mtv nba nfl nhl obj pdf png ppm pmc rss sms tcp tgp url urls usb vhs wav xbox zip cc bb dd ee ff gg hh ii jj kk ll mm nn oo pp qq rr ss tt uu vv ww xx yy zz ac ad? ax? aa ka monte sri chile anime costa leone erica jane henry peter paris roman john james mary david mark paul lisa anna maria carl eric adam alex andy brad chad dave dean doug earl gary greg jack jake jeff jess jose josh juan kate kyle luis lynn matt mike neil nick pete phil rick ryan sean seth todd tony wade zach bush ford ohio texas utah iowa cuba iran iraq peru rome asia china india japan spain italy kenya tokyo delhi miami vegas tampa york maine idaho nokia sony intel cisco ebay honda mazda lexus volvo linux intel excel apple cody abby amy ann beth carl cole dana dean ella emma erin eve gina hugo ivan jody joel judy jill kim kurt leo lily luke lynn mae meg mia noah omar owen ross ruby ruth sara tara ted tina troy vera zoe hans otto olaf ali ari ben eli ian jay joy kay les lin liz mel ned pam pat ray reg rex rob ron roy sal sam sue tom von wes viv ala usa uk eu un nyc ny la ca fl tx nj pa dc oz cd cds dvd tv pc pcs vs etc inc ltd llc corp dept eg ie ok colin ralph lewis genoa dom phi mas leu psi dis rep con yok askoi tepoy sperm sex sexy porn nude rape damn hell ass arse crap piss tit tits boob boobs cum dick cock fuck shit anal anus nazi slut whore dildo penis vagina pussy bitch cunt fart poop jew jews arab arabs negro chink spic kike gook tard retard idiot ugly fat? cody abu ahmed ali amir arjun beta chi delta gamma theta omega sigma alpha iota zeta eta rho tau phi psi chi nu mu xi laura terry cad sen til cos pee dos gee gal gals lad lads ish sup yo ya ye? gonna wanna perry nam pac mil col bra dow mono naked inter meth coke dope weed alan sally whats thats dont cant wont isnt".split(" "));
 const common={2:COMMON2,3:[],4:[],5:[]};
 function okCommon(w){
   if(BLOCK.has(w)) return false;
@@ -41,14 +41,10 @@ const TIERS=[
    weights:{S:3,D:7}, rot:.25},
  {name:"Medium", stars:3, layouts:[[[0,0],[0,4],[4,0],[4,4]], [[0,2],[4,2],[2,0],[2,4]], [[1,1],[1,3],[3,1],[3,3]]],
    weights:{S:1.5,D:6,T:2.5}, rot:.5},
- {name:"Hard",   stars:4, layouts:[[[0,0],[4,4],[1,3],[3,1]], [[0,4],[4,0],[1,1],[3,3]], [[0,1],[2,3],[4,1],[2,0]]],
-   weights:{D:6,T:4}, rot:.6},
- {name:"Hard",   stars:4, layouts:[[[0,2],[4,2],[2,0],[2,4]], [[1,1],[3,3],[0,4],[4,0]], [[1,2],[3,2],[2,0],[2,4]]],
-   weights:{D:3,T:4,Q:3}, rot:.6},
- {name:"Master", stars:5, layouts:[[[0,0],[2,2],[4,4]], [[0,4],[2,2],[4,0]], [[1,1],[3,3],[0,4]]],
-   weights:{D:1.5,T:2.5,L:3.5,Q:2.5}, rot:.75},
- {name:"Master", stars:5, layouts:[[[0,0],[2,2]], [[1,1],[3,3]], [[1,2],[3,2]], [[1,3],[3,1]], [[0,1],[2,3]]],
-   weights:{D:2,T:2,L:2,Q:2,M:2}, rot:.75, rare:true},
+ {name:"Hard",   stars:4, layouts:[[[0,0],[4,4],[1,3],[3,1]], [[0,4],[4,0],[1,1],[3,3]], [[0,2],[4,2],[2,0],[2,4]], [[1,2],[3,2],[2,0],[2,4]]],
+   weights:{D:4,T:4,Q:2}, rot:.6},
+ {name:"Master", stars:5, layouts:[[[0,0],[2,2],[4,4]], [[0,0],[2,2]], [[0,4],[2,2],[4,0]], [[1,1],[3,3]], [[1,2],[3,2]]],
+   weights:{D:1.5,T:2,L:3,Q:2,M:1.5}, rot:.75, rare:true},
 ];
 
 /* ---- Grid fill ---- */
@@ -153,8 +149,8 @@ function rotateCells(cells){ // 90° clockwise, cells [[dr,dc,ch]] within bbox
 const N=+process.argv[2]||35;
 const PUZ=[];
 for(let i=0;i<N;i++){
-  const tier=TIERS[i%7];
-  const layout=tier.layouts[Math.floor(i/7)%tier.layouts.length];
+  const tier=TIERS[i%TIERS.length];
+  const layout=tier.layouts[Math.floor(i/TIERS.length)%tier.layouts.length];
   let res=null, pieces=null, seed=1000+i*97;
   for(let attempt=0;attempt<400&&!pieces;attempt++){
     const rng=mulberry32(seed+attempt*7919);
@@ -184,7 +180,7 @@ for(let i=0;i<N;i++){
 // report
 PUZ.forEach((p,i)=>{
   const comp={}; p.p.forEach(x=>{const t=x.s.length===1?"S":x.s.length===4?"Q":x.s.length===6?"M":x.s.length===2?"D":(x.s.every(([r])=>r===x.s[0][0])||x.s.every(([,c])=>c===x.s[0][1]))?"T":"L"; comp[t]=(comp[t]||0)+1;});
-  console.error(`#${i+1} ${["Mon","Tue","Wed","Thu","Fri","Sat","Sun"][i%7]} ${p.tier} par=${p.p.length} rot=${p.p.filter(x=>x.k).length} ${JSON.stringify(comp)} words=${p._words.join(",")}${p._uncommon.length?"  UNCOMMON:"+p._uncommon.join(","):""}`);
+  console.error(`#${i+1} ${"★".repeat(p.stars)} ${p.tier} par=${p.p.length} rot=${p.p.filter(x=>x.k).length} ${JSON.stringify(comp)} words=${p._words.join(",")}${p._uncommon.length?"  UNCOMMON:"+p._uncommon.join(","):""}`);
   console.error("   "+p.g.join(" / "));
 });
 // emit JS
