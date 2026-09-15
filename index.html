@@ -137,11 +137,12 @@
   .clue-label{font-size:.66rem; letter-spacing:.12em; color:var(--ink-muted); text-transform:uppercase; font-weight:600;}
 
   /* ==================== STATS ROW ==================== */
-  .stats{display:grid; grid-template-columns:repeat(3,1fr); width:min(420px,100%); padding:0 4px;}
+  .stats{display:grid; grid-template-columns:repeat(2,1fr); width:min(420px,100%); padding:0 4px;}
   .stat{display:flex; flex-direction:column; align-items:center; gap:4px;}
   .stat .v{font-size:1.6rem; font-weight:800; letter-spacing:-.02em; line-height:1.1; color:var(--ink);}
   .stat .l{font-size:.64rem; letter-spacing:.1em; color:var(--ink-muted); text-transform:uppercase; font-weight:600;}
-  .stat.par .v{color:var(--accent-ink);}
+  .stat.words .v{color:var(--accent-ink);}
+  .stat.words .v small{font-size:1rem; font-weight:600; color:var(--ink-muted);}
   .stat.bounce .v.hot{color:var(--bad);}
 
   /* ==================== THE PRESS (board) ==================== */
@@ -506,7 +507,7 @@
       <div class="step"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><path d="M17 14v6M14 17h6"/></svg></div><div class="t">
         <b>Drag blocks onto the board.</b> <span>Letters in a block are bound together — a domino, tromino,
         L-block or 2×2 quad always moves as one piece. On a phone, <b>press and hold</b> a block to pick it up
-        (a quick swipe scrolls the page). Drop it on empty cells; each placement is one move.</span></div></div>
+        (a quick swipe scrolls the page). Drop it on empty cells.</span></div></div>
 
       <div class="step"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg></div><div class="t">
         <b>Tap a block to rotate it.</b> <span>It turns 90° clockwise and the letters turn with it, so <b>TH</b>
@@ -532,13 +533,13 @@
         <b>in the right place</b> are scored, and you get a proof 📄 instead of a medal. It still counts for your streak.</span></div></div>
 
       <div class="step"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.5 6 .8-4.4 4.2 1.1 6-5.3-2.9L6.7 19.5l1.1-6L3.4 9.3l6-.8z"/></svg></div><div class="t">
-        <b>Beat Par.</b> <span>Par is the number of blocks — one clean placement each. The clock starts on your
-        first move and pauses whenever you leave the page.</span></div></div>
+        <b>The clock.</b> <span>It starts on your first move and pauses whenever you leave the page. Moving blocks
+        around is free — only bounces, ink and time cost points.</span></div></div>
 
       <div class="step"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16"/><path d="M6 19V9"/><path d="M11 19V5"/><path d="M16 19v-8"/></svg></div><div class="t">
         <b>Score &amp; ink medals.</b> <span>Every letter you set is worth <b>10 points</b>, plus a <b>speed bonus of up
         to 60</b> that drains over the board's time budget — 2 minutes per star, so a 3★ board gives you 6 minutes.
-        Each bounce costs 10 and each move over Par costs 5. Your medal comes from the total:
+        Each bounce and each ink drop costs 10. Your medal comes from the total:
 <b>85%</b> of the maximum earns 🥇, <b>65%</b> earns 🥈, and any finish is 🥉.</span></div></div>
 
       <div class="step"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.5 6 .8-4.4 4.2 1.1 6-5.3-2.9L6.7 19.5l1.1-6L3.4 9.3l6-.8z"/></svg></div><div class="t">
@@ -550,8 +551,7 @@
   </div>
 
   <div class="stats">
-    <div class="stat"><span class="v" id="moves">0</span><span class="l">Moves</span></div>
-    <div class="stat par"><span class="v" id="par">–</span><span class="l">Par</span></div>
+    <div class="stat words"><span class="v" id="words">0</span><span class="l">Words set</span></div>
     <div class="stat bounce"><span class="v" id="bounces">0</span><span class="l">Bounces</span></div>
   </div>
 
@@ -616,7 +616,7 @@
       </div>
       <div class="share" id="share"></div>
       <button id="copyBtn">Share result</button>
-      <button id="retryBtn" class="secondary">Try for fewer moves</button>
+      <button id="retryBtn" class="secondary">Print it again</button>
     </div>
   </div>
 
@@ -1166,7 +1166,7 @@ let activeDay=0, activePuzzle=null;
 let spans=[];        // every run of >=2 open cells (rows then columns): [[r,c],...]
 let openCells=[];    // [r,c] of every non-spacer cell
 let pieces=[];       // {id, base:[[dr,dc,ch]], rot, at:[r,c]|null, home:[r,c], type}
-let moves=0, bounces=0, par=0;
+let moves=0, bounces=0;   // moves = placements; internal only (enables Reset/Undo), not scored
 let inkUsed=0;           // ink drops spent today (never refunded — knowledge can't be un-learned)
 let ink=1;               // drops in stock right now
 let lastRefill=0;        // clock reading (ms) when the stock last grew — refills accrue from here
@@ -1365,7 +1365,8 @@ function fullRender(){
     trayEl.appendChild(e);
   }
   $("trayCount").textContent=inTray?`${inTray} block${inTray===1?"":"s"} left`:"";
-  $("moves").textContent=moves;
+  const g=boardLetters(null), wordsDone=spans.filter(sp=>sp.every(([r,c])=>g[r][c])).length;
+  $("words").innerHTML=`${wordsDone}<small>/${spans.length}</small>`;
   const b=$("bounces"); b.textContent=bounces; b.classList.toggle("hot",bounces>0);
   renderStamps();
   updateControls();
@@ -1678,15 +1679,15 @@ function pressSlam(){
 
 /* ---------------- Win: the press ---------------- */
 /* Score: 10 per letter set, plus a speed bonus (up to 60) that drains linearly
-   over the board's time budget, minus 10 per bounce and 5 per move over Par.
+   over the board's time budget, minus 10 per bounce and 10 per ink drop.
    The medal is a share of the maximum: 85% gold, 65% silver, else completion. */
-const PTS_LETTER=10, PTS_SPEED=60, PTS_BOUNCE=10, PTS_OVER=5, PTS_INK=10;
+const PTS_LETTER=10, PTS_SPEED=60, PTS_BOUNCE=10, PTS_INK=10;
 function maxScore(){ return openCells.length*PTS_LETTER+PTS_SPEED; }
 function speedBonus(){ return Math.round(PTS_SPEED*Math.max(0,1-elapsedNow()/timeLimit())); }
 function lettersSet(){ return proof?proof.cells.length:openCells.length; }
 function scoreFor(){
   const speed=proof?0:speedBonus();                       // no speed bonus on an unfinished page
-  return Math.max(0, lettersSet()*PTS_LETTER+speed-bounces*PTS_BOUNCE-Math.max(0,moves-par)*PTS_OVER-inkUsed*PTS_INK);
+  return Math.max(0, lettersSet()*PTS_LETTER+speed-bounces*PTS_BOUNCE-inkUsed*PTS_INK);
 }
 // Gold is reserved for pages printed without ink (Circuits' "no bolts").
 function medalFor(){ if(proof) return 0; const r=scoreFor()/maxScore(); return (r>=.85&&inkUsed===0)?3:r>=.65?2:1; }
@@ -1743,7 +1744,7 @@ $("confirmYes").addEventListener("click",submitProof);
 $("confirmNo").addEventListener("click",()=>$("confirmModal").classList.remove("show"));
 $("confirmModal").addEventListener("click",e=>{ if(e.target.id==="confirmModal") $("confirmModal").classList.remove("show"); });
 function showWin(){
-  const m=medalFor(), score=scoreFor(), over=moves-par;
+  const m=medalFor(), score=scoreFor();
   $("winTitle").textContent=proof?"Proof pulled":"Page printed";
   $("winPhrase").textContent=boardWords().join(" · ");
   $("medal").textContent=medalEmoji(m);
@@ -1753,13 +1754,12 @@ function showWin(){
     `${letters} of ${openCells.length} letters were in the right place when you submitted`+
     (proof.wrong.length?` — ${proof.wrong.length} more ${proof.wrong.length===1?"was":"were"} set in the wrong spot.`:".")+
     ` Dashed blocks show what you were missing.` :
-    `${pct}% of the maximum — ${moves} move${moves===1?"":"s"} against Par ${par}, `+
-    `${bounces} bounce${bounces===1?"":"s"}, ${time} on the clock.`;
+    `${pct}% of the maximum — ${bounces} bounce${bounces===1?"":"s"}, `+
+    `${inkUsed} ink drop${inkUsed===1?"":"s"}, ${time} on the clock.`;
   $("bonus").innerHTML=
     `<span class="got">${letters} letters +${letters*PTS_LETTER}</span>`+
     (proof?"":`<span class="${speed?"got":""}">Speed ${time} +${speed}</span>`)+
     (bounces?`<span class="lost">${bounces} bounce${bounces===1?"":"s"} −${bounces*PTS_BOUNCE}</span>`:"")+
-    (over>0?`<span class="lost">${over} over Par −${over*PTS_OVER}</span>`:"")+
     (inkUsed?`<span class="lost">${inkUsed} ink drop${inkUsed===1?"":"s"} −${inkUsed*PTS_INK}</span>`:`<span class="got">No ink</span>`);
   const s=loadStats(), curKey=medalKey(m);
   $("stPlayed").textContent=s.played;
@@ -1773,8 +1773,8 @@ function showWin(){
   const wrong=new Set((proof?proof.wrong:[]).map(([r,c])=>r+","+c));
   const grid=activePuzzle.g.map((row,r)=>row.split("").map((ch,c)=>ch==="#"?"⬛":right.has(r+","+c)?"🟨":wrong.has(r+","+c)?"🟥":"⬜").join("")).join("\n");
   const extras=(bounces?` · 💥${bounces}`:"")+(inkUsed?` · 💧${inkUsed}`:"");
-  const mid = proof ? `${score}/${max} · ${letters}/${openCells.length} letters · ${moves} move${moves===1?"":"s"}`
-                    : `${score}/${max} · ${moves} move${moves===1?"":"s"} · ${time}`;
+  const mid = proof ? `${score}/${max} · ${letters}/${openCells.length} letters`
+                    : `${score}/${max} · ${time}`;
   $("share").textContent=
     `Typeset #${activeDay+1} ${"★".repeat(activePuzzle.stars)}${"☆".repeat(5-activePuzzle.stars)} ${medalEmoji(m)}\n`+
     `${mid}${s.currentStreak?` · 🔥${s.currentStreak}`:""}${extras}\n`+
@@ -1859,8 +1859,6 @@ function init(){
   pieces=activePuzzle.p.map((q,i)=>({
     id:i, base:q.s.map(([dr,dc],j)=>[dr,dc,q.l[j]]), rot:q.k, k0:q.k, at:null, home:q.at.slice(), type:shapeType(q.s)
   }));
-  par=pieces.length;
-  $("par").textContent=par;
   renderBoardCells();
 
   const saved=loadState(activeDay);
