@@ -275,6 +275,25 @@
   button.act.on{background:var(--accent-soft); color:var(--accent-ink); border-color:var(--accent);}
   button.act:disabled{opacity:.55; cursor:default;}
 
+  /* Submit: the day-ending action, styled like the modal primary */
+  .submit-row{width:min(420px,100%);}
+  button.submit{
+    display:block; width:100%; padding:13px 20px; border-radius:999px; cursor:pointer;
+    background:var(--ink); color:var(--card); border:1px solid var(--ink);
+    font-size:.95rem; font-weight:600; letter-spacing:.01em;
+    transition:background .15s ease, transform .1s ease, opacity .15s ease;
+  }
+  button.submit:hover:not(:disabled){background:#322f2a;}
+  button.submit:active:not(:disabled){transform:scale(.985);}
+  button.submit:disabled{opacity:.4; cursor:default;}
+  /* blocks the game placed for you at reveal time */
+  .block.revealed .bcell{background:transparent; border:2px dashed var(--rule-strong); color:var(--ink-muted); box-shadow:none;}
+  .block.revealed .bcell.jr::after,.block.revealed .bcell.jd::before{display:none;}
+  .block.revealed{cursor:default; animation:fadeIn .5s ease both;}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  .confirm .ctext{color:var(--ink-soft); font-size:.92rem; line-height:1.55; margin:6px 0 14px;}
+  .confirm .ctext b{color:var(--ink);}
+
   .hint{color:var(--ink-muted); font-size:.8rem; text-align:center; width:min(420px,100%); line-height:1.5;}
   .hint .ac{color:var(--accent-ink); font-weight:600;}
   .hint .gd{color:var(--gold); font-weight:600;}
@@ -407,6 +426,7 @@
     :root:not([data-theme="light"]) .modal{background:rgba(0,0,0,.62);}
     :root:not([data-theme="light"]) .toast:not(.bad){color:var(--paper);}
     :root:not([data-theme="light"]) .win button:hover:not(.secondary):not(.arch-row){background:#dcd7cd;}
+    :root:not([data-theme="light"]) button.submit:hover:not(:disabled){background:#dcd7cd;}
   }
   :root[data-theme="dark"]{
     color-scheme:dark;
@@ -426,6 +446,7 @@
   :root[data-theme="dark"] .modal{background:rgba(0,0,0,.62);}
   :root[data-theme="dark"] .toast:not(.bad){color:var(--paper);}
   :root[data-theme="dark"] .win button:hover:not(.secondary):not(.arch-row){background:#dcd7cd;}
+  :root[data-theme="dark"] button.submit:hover:not(:disabled){background:#dcd7cd;}
 
   /* ==================== FOCUS ==================== */
   :focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
@@ -497,7 +518,8 @@
 
       <div class="step"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg></div><div class="t">
         <b>Stuck?</b> <span>Hint glows the cells where one of your tray blocks belongs and pulses that block. Hints
-        are noted on your share card.</span></div></div>
+        are noted on your share card. Or <b>Submit</b> the page as it stands: the solution is revealed, the letters
+        you set are scored, and you get a proof 📄 instead of a medal. It still counts for your streak.</span></div></div>
 
       <div class="step"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.5 6 .8-4.4 4.2 1.1 6-5.3-2.9L6.7 19.5l1.1-6L3.4 9.3l6-.8z"/></svg></div><div class="t">
         <b>Beat Par.</b> <span>Par is the number of blocks — one clean placement each. The clock starts on your
@@ -545,6 +567,19 @@
     <button class="act" id="resetBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg><span>Reset</span></button>
   </div>
 
+  <div class="submit-row">
+    <button class="submit" id="submitBtn" type="button">Submit page</button>
+  </div>
+
+  <div class="modal" id="confirmModal">
+    <div class="win confirm">
+      <h2>Submit an unfinished page?</h2>
+      <div class="ctext" id="confirmText"></div>
+      <button id="confirmYes">Submit and reveal</button>
+      <button id="confirmNo" class="secondary">Keep working</button>
+    </div>
+  </div>
+
   <div class="hint" id="modeHint">
     Drag blocks from the tray into the press. <span class="ac">Tap</span> a block to rotate it — letters turn
     with it. Every row and column must read as a word; a bad line <span class="gd">bounces</span> the block back.
@@ -554,7 +589,7 @@
 
   <div class="modal" id="modal">
     <div class="win">
-      <h2>Page printed</h2>
+      <h2 id="winTitle">Page printed</h2>
       <div class="phrase" id="winPhrase"></div>
       <div class="medal" id="medal"></div>
       <div class="score" id="winScore"></div>
@@ -1122,6 +1157,7 @@ let openCells=[];    // [r,c] of every non-spacer cell
 let pieces=[];       // {id, base:[[dr,dc,ch]], rot, at:[r,c]|null, home:[r,c], type}
 let moves=0, bounces=0, hintLevel=0, par=0;
 let firstPlaced=false;   // once a block hits the board, tray rotations start costing
+let proof=null;          // set when the page was submitted unfinished: {cells:[[r,c]...], yours:[ids]}
 let elapsed=0;           // ms on the clock, not counting the currently running stretch
 let runningSince=0;      // timestamp while the clock is running, else 0
 let won=false;
@@ -1153,7 +1189,7 @@ function saveState(){
   try{
     const all=allSaves();
     all[activeDay]={sig:sigOf(activePuzzle),pieces:pieces.map(p=>({rot:p.rot,at:p.at})),
-      moves,bounces,hintLevel,firstPlaced,won,history,elapsed:elapsedNow()};
+      moves,bounces,hintLevel,firstPlaced,won,history,elapsed:elapsedNow(),proof};
     localStorage.setItem(SAVE_KEY, JSON.stringify(all));
   }catch(e){ /* localStorage blocked — progress just won't persist */ }
 }
@@ -1167,7 +1203,7 @@ function loadState(day){
 
 /* ---------------- Stats & streaks ---------------- */
 const STATS_KEY="typeset_stats";
-const GRADE_KEYS=[["gold","🥇"],["silver","🥈"],["bronze","🥉"]];
+const GRADE_KEYS=[["gold","🥇"],["silver","🥈"],["bronze","🥉"],["proof","📄"]];
 function loadStats(){
   let s={};
   try{ s=JSON.parse(localStorage.getItem(STATS_KEY)||"{}")||{}; }catch(e){ s={}; }
@@ -1179,7 +1215,7 @@ function loadStats(){
   GRADE_KEYS.forEach(([k])=>{ if(typeof s.dist[k]!=="number") s.dist[k]=0; });
   return s;
 }
-function medalKey(m){ return m===3?"gold":m===2?"silver":"bronze"; }
+function medalKey(m){ return m===3?"gold":m===2?"silver":m===1?"bronze":"proof"; }
 // Records exactly one win per day; called from winGame (the live win moment only).
 function recordWin(medal){
   const s=loadStats(), day=dayNumber();
@@ -1282,7 +1318,7 @@ function blockEl(piece,ctx){
     const s=document.createElement("span"); s.textContent=ch; d.appendChild(s);
     el.appendChild(d);
   }
-  if(won) el.classList.add("inked");
+  if(won) el.classList.add(proof&&!proof.yours.includes(piece.id)?"revealed":"inked");
   return el;
 }
 function renderBoardCells(){
@@ -1307,7 +1343,7 @@ function fullRender(){
   }
   if(inTray===0){
     const e=document.createElement("div"); e.className="tray-empty";
-    e.innerHTML=won?"<b>All type set.</b> Page printed.":"Tray empty — every block is on the board.";
+    e.innerHTML=won?(proof?"<b>Proof pulled.</b> Dashed blocks are the ones you were missing.":"<b>All type set.</b> Page printed."):"Tray empty — every block is on the board.";
     trayEl.appendChild(e);
   }
   $("trayCount").textContent=inTray?`${inTray} block${inTray===1?"":"s"} left`:"";
@@ -1319,7 +1355,8 @@ function fullRender(){
 function updateControls(){
   $("undoBtn").disabled=won||history.length===0;
   $("hintBtn").disabled=won;
-  $("resetBtn").disabled=moves===0&&history.length===0&&!won;
+  $("resetBtn").disabled=(moves===0&&history.length===0&&!won)||!!proof;   // a revealed day stays revealed
+  $("submitBtn").disabled=won||!pieces.some(p=>p.at);
 }
 function starsHTML(n){ return "★".repeat(n)+'<span class="off">'+"☆".repeat(5-n)+"</span>"; }
 
@@ -1382,7 +1419,7 @@ function undoMove(){
 function resetBoard(){
   clearCelebrationState();
   pieces.forEach(p=>{ p.rot=p.k0; p.at=null; });
-  moves=0; bounces=0; hintLevel=0; firstPlaced=false; won=false; history=[];
+  moves=0; bounces=0; hintLevel=0; firstPlaced=false; won=false; history=[]; proof=null;
   elapsed=0; runningSince=0; renderTime();
   clearHint(); $("modal").classList.remove("show");
   fullRender(); saveState();
@@ -1595,10 +1632,12 @@ function pressSlam(){
 const PTS_LETTER=10, PTS_SPEED=60, PTS_BOUNCE=10, PTS_OVER=5;
 function maxScore(){ return openCells.length*PTS_LETTER+PTS_SPEED; }
 function speedBonus(){ return Math.round(PTS_SPEED*Math.max(0,1-elapsedNow()/timeLimit())); }
+function lettersSet(){ return proof?proof.cells.length:openCells.length; }
 function scoreFor(){
-  return Math.max(0, openCells.length*PTS_LETTER+speedBonus()-bounces*PTS_BOUNCE-Math.max(0,moves-par)*PTS_OVER);
+  const speed=proof?0:speedBonus();                       // no speed bonus on an unfinished page
+  return Math.max(0, lettersSet()*PTS_LETTER+speed-bounces*PTS_BOUNCE-Math.max(0,moves-par)*PTS_OVER);
 }
-function medalFor(){ const r=scoreFor()/maxScore(); return r>=.85?3:r>=.65?2:1; }
+function medalFor(){ if(proof) return 0; const r=scoreFor()/maxScore(); return r>=.85?3:r>=.65?2:1; }
 function winGame(){
   won=true; pauseClock(); renderTime(); clearHint();
   if(activeDay===dayNumber()) recordWin(medalFor());
@@ -1615,19 +1654,49 @@ function animateWin(){
   celebrationTimers.push(setTimeout(()=>{ boardEl.classList.remove("pressing"); boardEl.classList.add("celebrate"); },1300));
   celebrationTimers.push(setTimeout(showWin,1500));
 }
-function medalEmoji(m){ return m===3?"🥇":m===2?"🥈":"🥉"; }
+function medalEmoji(m){ return m===3?"🥇":m===2?"🥈":m===1?"🥉":"📄"; }
+
+/* Submit an unfinished page: score the letters that were set, then reveal the
+   authored solution — the player's blocks stay inked, the rest come in dashed. */
+function askSubmit(){
+  if(won) return;
+  if(isSolved()){ winGame(); return; }
+  const g=boardLetters(null), set=openCells.filter(([r,c])=>g[r][c]).length;
+  const wordsDone=spans.filter(sp=>sp.every(([r,c])=>g[r][c])).length;
+  $("confirmText").innerHTML=`You've set <b>${set} of ${openCells.length} letters</b> and finished <b>${wordsDone} of ${spans.length} words</b>. `+
+    `Submitting ends this puzzle and reveals the solution — you'll get a proof 📄 instead of a medal, and it still counts for your streak.`;
+  $("confirmModal").classList.add("show");
+}
+function submitProof(){
+  $("confirmModal").classList.remove("show");
+  pauseClock(); clearHint();
+  const g=boardLetters(null);
+  proof={cells:openCells.filter(([r,c])=>g[r][c]), yours:pieces.filter(p=>p.at).map(p=>p.id)};
+  // reveal: every block goes to its authored home
+  pieces.forEach(p=>{ p.rot=0; p.at=p.home.slice(); });
+  won=true;
+  if(activeDay===dayNumber()) recordWin(0);
+  saveState(); fullRender();
+  celebrationTimers.push(setTimeout(showWin,900));
+}
+$("submitBtn").addEventListener("click",askSubmit);
+$("confirmYes").addEventListener("click",submitProof);
+$("confirmNo").addEventListener("click",()=>$("confirmModal").classList.remove("show"));
+$("confirmModal").addEventListener("click",e=>{ if(e.target.id==="confirmModal") $("confirmModal").classList.remove("show"); });
 function showWin(){
   const m=medalFor(), score=scoreFor(), over=moves-par;
+  $("winTitle").textContent=proof?"Proof pulled":"Page printed";
   $("winPhrase").textContent=boardWords().join(" · ");
   $("medal").textContent=medalEmoji(m);
-  const max=maxScore(), letters=openCells.length, speed=speedBonus(), pct=Math.round(score/max*100), time=fmtTime(elapsedNow());
+  const max=maxScore(), letters=lettersSet(), speed=proof?0:speedBonus(), pct=Math.round(score/max*100), time=fmtTime(elapsedNow());
   $("winScore").innerHTML=`${score}<small>/ ${max}</small>`;
-  $("breakdown").textContent=
+  $("breakdown").textContent= proof ?
+    `You set ${letters} of ${openCells.length} letters in ${moves} move${moves===1?"":"s"} before submitting. The dashed blocks are the ones you were missing.` :
     `${pct}% of the maximum — ${moves} move${moves===1?"":"s"} against Par ${par}, `+
     `${bounces} bounce${bounces===1?"":"s"}, ${time} on the clock.`;
   $("bonus").innerHTML=
     `<span class="got">${letters} letters +${letters*PTS_LETTER}</span>`+
-    `<span class="${speed?"got":""}">Speed ${time} +${speed}</span>`+
+    (proof?"":`<span class="${speed?"got":""}">Speed ${time} +${speed}</span>`)+
     (bounces?`<span class="lost">${bounces} bounce${bounces===1?"":"s"} −${bounces*PTS_BOUNCE}</span>`:"")+
     (over>0?`<span class="lost">${over} over Par −${over*PTS_OVER}</span>`:"")+
     (hintLevel?`<span>💡 ${hintLevel} hint${hintLevel===1?"":"s"}</span>`:"");
@@ -1639,13 +1708,16 @@ function showWin(){
 
   // Share card: two lines of stats, the board's shape, the link. Bounces and
   // hints only appear when there were any.
-  const grid=activePuzzle.g.map(row=>row.split("").map(ch=>ch==="#"?"⬛":"🟨").join("")).join("\n");
+  const filled=new Set((proof?proof.cells:openCells).map(([r,c])=>r+","+c));
+  const grid=activePuzzle.g.map((row,r)=>row.split("").map((ch,c)=>ch==="#"?"⬛":filled.has(r+","+c)?"🟨":"⬜").join("")).join("\n");
   const extras=(bounces?` · 💥${bounces}`:"")+(hintLevel?` · 💡${hintLevel}`:"");
+  const mid = proof ? `${score}/${max} · ${letters}/${openCells.length} letters · ${moves} move${moves===1?"":"s"}`
+                    : `${score}/${max} · ${moves} move${moves===1?"":"s"} · ${time}`;
   $("share").textContent=
     `Typeset #${activeDay+1} ${"★".repeat(activePuzzle.stars)}${"☆".repeat(5-activePuzzle.stars)} ${medalEmoji(m)}\n`+
-    `${score}/${max} · ${moves} move${moves===1?"":"s"} · ${time}${s.currentStreak?` · 🔥${s.currentStreak}`:""}${extras}\n`+
+    `${mid}${s.currentStreak?` · 🔥${s.currentStreak}`:""}${extras}\n`+
     `${grid}\n${GAME_URL}`;
-  $("retryBtn").hidden=(m===3);
+  $("retryBtn").hidden=(m===3||!!proof);
   $("modal").classList.add("show");
 }
 
@@ -1735,9 +1807,9 @@ function init(){
     moves=saved.moves||0; bounces=saved.bounces||0; hintLevel=saved.hintLevel||0;
     firstPlaced=!!saved.firstPlaced; won=!!saved.won;
     history=Array.isArray(saved.history)?saved.history:[];
-    elapsed=saved.elapsed||0;
+    elapsed=saved.elapsed||0; proof=saved.proof||null;
   }else{
-    moves=0; bounces=0; hintLevel=0; firstPlaced=false; won=false; history=[]; elapsed=0;
+    moves=0; bounces=0; hintLevel=0; firstPlaced=false; won=false; history=[]; elapsed=0; proof=null;
   }
   runningSince=0; renderTime();
   hintPiece=null;
