@@ -519,7 +519,7 @@
       <div class="step"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg></div><div class="t">
         <b>Stuck?</b> <span>Hint glows the cells where one of your tray blocks belongs and pulses that block. Hints
         are noted on your share card. Or <b>Submit</b> the page as it stands: the solution is revealed, the letters
-        you set are scored, and you get a proof 📄 instead of a medal. It still counts for your streak.</span></div></div>
+        you set <b>in the right place</b> are scored, and you get a proof 📄 instead of a medal. It still counts for your streak.</span></div></div>
 
       <div class="step"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.5 6 .8-4.4 4.2 1.1 6-5.3-2.9L6.7 19.5l1.1-6L3.4 9.3l6-.8z"/></svg></div><div class="t">
         <b>Beat Par.</b> <span>Par is the number of blocks — one clean placement each. The clock starts on your
@@ -1157,7 +1157,7 @@ let openCells=[];    // [r,c] of every non-spacer cell
 let pieces=[];       // {id, base:[[dr,dc,ch]], rot, at:[r,c]|null, home:[r,c], type}
 let moves=0, bounces=0, hintLevel=0, par=0;
 let firstPlaced=false;   // once a block hits the board, tray rotations start costing
-let proof=null;          // set when the page was submitted unfinished: {cells:[[r,c]...], yours:[ids]}
+let proof=null;          // set when the page was submitted unfinished: {cells: letters in the RIGHT place, wrong: letters in the wrong place} as [r,c] lists
 let elapsed=0;           // ms on the clock, not counting the currently running stretch
 let runningSince=0;      // timestamp while the clock is running, else 0
 let won=false;
@@ -1318,7 +1318,7 @@ function blockEl(piece,ctx){
     const s=document.createElement("span"); s.textContent=ch; d.appendChild(s);
     el.appendChild(d);
   }
-  if(won) el.classList.add(proof&&!proof.yours.includes(piece.id)?"revealed":"inked");
+  if(won) el.classList.add(proof&&!pieceCorrect(piece)?"revealed":"inked");
   return el;
 }
 function renderBoardCells(){
@@ -1343,7 +1343,7 @@ function fullRender(){
   }
   if(inTray===0){
     const e=document.createElement("div"); e.className="tray-empty";
-    e.innerHTML=won?(proof?"<b>Proof pulled.</b> Dashed blocks are the ones you were missing.":"<b>All type set.</b> Page printed."):"Tray empty — every block is on the board.";
+    e.innerHTML=won?(proof?"<b>Proof pulled.</b> Inked blocks were in the right place; dashed ones are what you were missing.":"<b>All type set.</b> Page printed."):"Tray empty — every block is on the board.";
     trayEl.appendChild(e);
   }
   $("trayCount").textContent=inTray?`${inTray} block${inTray===1?"":"s"} left`:"";
@@ -1658,20 +1658,27 @@ function medalEmoji(m){ return m===3?"🥇":m===2?"🥈":m===1?"🥉":"📄"; }
 
 /* Submit an unfinished page: score the letters that were set, then reveal the
    authored solution — the player's blocks stay inked, the rest come in dashed. */
+// After the reveal a block is inked only if every one of its letters was already in the right cell.
+function pieceCorrect(piece){
+  if(!proof) return true;
+  const ok=new Set(proof.cells.map(([r,c])=>r+","+c));
+  return piece.base.every(([dr,dc])=>ok.has((piece.home[0]+dr)+","+(piece.home[1]+dc)));
+}
 function askSubmit(){
   if(won) return;
   if(isSolved()){ winGame(); return; }
   const g=boardLetters(null), set=openCells.filter(([r,c])=>g[r][c]).length;
-  const wordsDone=spans.filter(sp=>sp.every(([r,c])=>g[r][c])).length;
-  $("confirmText").innerHTML=`You've set <b>${set} of ${openCells.length} letters</b> and finished <b>${wordsDone} of ${spans.length} words</b>. `+
-    `Submitting ends this puzzle and reveals the solution — you'll get a proof 📄 instead of a medal, and it still counts for your streak.`;
+  // deliberately no word / right-place counts here — that would be a free hint
+  $("confirmText").innerHTML=`You've set <b>${set} of ${openCells.length} letters</b>. Submitting ends this puzzle and reveals the solution. `+
+    `Only letters sitting in the <b>right place</b> score; you'll get a proof 📄 instead of a medal, and it still counts for your streak.`;
   $("confirmModal").classList.add("show");
 }
 function submitProof(){
   $("confirmModal").classList.remove("show");
   pauseClock(); clearHint();
   const g=boardLetters(null);
-  proof={cells:openCells.filter(([r,c])=>g[r][c]), yours:pieces.filter(p=>p.at).map(p=>p.id)};
+  proof={cells:openCells.filter(([r,c])=>g[r][c]&&g[r][c]===activePuzzle.g[r][c]),
+         wrong:openCells.filter(([r,c])=>g[r][c]&&g[r][c]!==activePuzzle.g[r][c])};
   // reveal: every block goes to its authored home
   pieces.forEach(p=>{ p.rot=0; p.at=p.home.slice(); });
   won=true;
@@ -1691,7 +1698,9 @@ function showWin(){
   const max=maxScore(), letters=lettersSet(), speed=proof?0:speedBonus(), pct=Math.round(score/max*100), time=fmtTime(elapsedNow());
   $("winScore").innerHTML=`${score}<small>/ ${max}</small>`;
   $("breakdown").textContent= proof ?
-    `You set ${letters} of ${openCells.length} letters in ${moves} move${moves===1?"":"s"} before submitting. The dashed blocks are the ones you were missing.` :
+    `${letters} of ${openCells.length} letters were in the right place when you submitted`+
+    (proof.wrong.length?` — ${proof.wrong.length} more ${proof.wrong.length===1?"was":"were"} set in the wrong spot.`:".")+
+    ` Dashed blocks show what you were missing.` :
     `${pct}% of the maximum — ${moves} move${moves===1?"":"s"} against Par ${par}, `+
     `${bounces} bounce${bounces===1?"":"s"}, ${time} on the clock.`;
   $("bonus").innerHTML=
@@ -1708,8 +1717,9 @@ function showWin(){
 
   // Share card: two lines of stats, the board's shape, the link. Bounces and
   // hints only appear when there were any.
-  const filled=new Set((proof?proof.cells:openCells).map(([r,c])=>r+","+c));
-  const grid=activePuzzle.g.map((row,r)=>row.split("").map((ch,c)=>ch==="#"?"⬛":filled.has(r+","+c)?"🟨":"⬜").join("")).join("\n");
+  const right=new Set((proof?proof.cells:openCells).map(([r,c])=>r+","+c));
+  const wrong=new Set((proof?proof.wrong:[]).map(([r,c])=>r+","+c));
+  const grid=activePuzzle.g.map((row,r)=>row.split("").map((ch,c)=>ch==="#"?"⬛":right.has(r+","+c)?"🟨":wrong.has(r+","+c)?"🟥":"⬜").join("")).join("\n");
   const extras=(bounces?` · 💥${bounces}`:"")+(hintLevel?` · 💡${hintLevel}`:"");
   const mid = proof ? `${score}/${max} · ${letters}/${openCells.length} letters · ${moves} move${moves===1?"":"s"}`
                     : `${score}/${max} · ${moves} move${moves===1?"":"s"} · ${time}`;
