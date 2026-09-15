@@ -522,10 +522,10 @@
         back to the tray (free). Undo rewinds your last move.</span></div></div>
 
       <div class="step"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg></div><div class="t">
-        <b>Stuck? Use ink.</b> <span>You get <b>3 drops of ink</b> a day. Tap <b>Ink</b>, then any empty cell, and the
-        letter that belongs there is stamped in gold. The stamp stays until you cover it — and only the right letter
-        fits on it. Each drop costs <b>10 points</b>, and a page printed with ink tops out at 🥈. Ink isn't refunded
-        by Reset or Undo.</span></div></div>
+        <b>Stuck? Use ink.</b> <span>You start with <b>one drop of ink</b>, and another refills as you play — faster on
+        easy boards — up to a stock of three. Tap <b>Ink</b>, then any empty cell, and the letter that belongs there
+        is stamped in gold. The stamp stays until you cover it, and only the right letter fits on it. Each drop
+        costs <b>10 points</b>, and a page printed with ink tops out at 🥈.</span></div></div>
 
       <div class="step"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v12H4z"/><path d="M8 20h8"/><path d="M12 16v4"/></svg></div><div class="t">
         <b>Or hand it in.</b> <span><b>Submit</b> the page as it stands: the solution is revealed, the letters you set
@@ -1168,9 +1168,12 @@ let openCells=[];    // [r,c] of every non-spacer cell
 let pieces=[];       // {id, base:[[dr,dc,ch]], rot, at:[r,c]|null, home:[r,c], type}
 let moves=0, bounces=0, par=0;
 let inkUsed=0;           // ink drops spent today (never refunded — knowledge can't be un-learned)
+let ink=1;               // drops in stock right now
+let lastRefill=0;        // clock reading (ms) when the stock last grew — refills accrue from here
 let stamps=[];           // [[r,c]] cells whose solution letter has been revealed
 let inking=false;        // ink mode: next tap on an empty cell stamps it
-const INK_MAX=3;
+const INK_MAX=3, INK_START=1;
+function refillInterval(){ return timeLimit()/3; }   // a full time budget refills three drops
 let proof=null;          // set when the page was submitted unfinished: {cells: letters in the RIGHT place, wrong: letters in the wrong place} as [r,c] lists
 let elapsed=0;           // ms on the clock, not counting the currently running stretch
 let runningSince=0;      // timestamp while the clock is running, else 0
@@ -1202,7 +1205,7 @@ function saveState(){
   try{
     const all=allSaves();
     all[activeDay]={sig:sigOf(activePuzzle),pieces:pieces.map(p=>({rot:p.rot,at:p.at})),
-      moves,bounces,inkUsed,stamps,won,history,elapsed:elapsedNow(),proof};
+      moves,bounces,inkUsed,ink,lastRefill,stamps,won,history,elapsed:elapsedNow(),proof};
     localStorage.setItem(SAVE_KEY, JSON.stringify(all));
   }catch(e){ /* localStorage blocked — progress just won't persist */ }
 }
@@ -1369,8 +1372,10 @@ function fullRender(){
 }
 function updateControls(){
   $("undoBtn").disabled=won||history.length===0;
-  $("inkBtn").disabled=won||inkUsed>=INK_MAX;
-  $("drops").innerHTML=Array.from({length:INK_MAX},(_,i)=>`<i${i<inkUsed?' class="used"':""}></i>`).join("");
+  $("inkBtn").disabled=won||ink<=0;
+  const prog=ink<INK_MAX?Math.min(1,(elapsedNow()-lastRefill)/refillInterval()):0;
+  $("drops").innerHTML=Array.from({length:INK_MAX},(_,i)=>
+    i<ink?"<i></i>":i===ink?`<i class="used" style="opacity:${(.22+.6*prog).toFixed(2)}"></i>`:'<i class="used"></i>').join("");
   $("resetBtn").disabled=(moves===0&&history.length===0&&!won)||!!proof;   // a revealed day stays revealed
   $("submitBtn").disabled=won||!pieces.some(p=>p.at);
 }
@@ -1387,7 +1392,7 @@ function renderStamps(){
   }
 }
 function setInking(on){
-  inking=on&&!won&&inkUsed<INK_MAX;
+  inking=on&&!won&&ink>0;
   boardEl.classList.toggle("inking",inking);
   $("inkBtn").classList.toggle("on",inking);
   const bn=$("hintBanner");
@@ -1396,7 +1401,7 @@ function setInking(on){
 }
 function toggleInking(){
   if(won) return;
-  if(inkUsed>=INK_MAX){ toast("No ink left today"); return; }
+  if(ink<=0){ toast("Out of ink — it refills as you play"); return; }
   setInking(!inking);
 }
 function stampCell(r,c){
@@ -1406,6 +1411,8 @@ function stampCell(r,c){
   if(stamps.some(([a,b])=>a===r&&b===c)){ toast("Already stamped"); return; }
   startClock();
   stamps.push([r,c]); inkUsed++;
+  if(ink>=INK_MAX) lastRefill=elapsedNow();          // the refill timer starts from the moment a full stock is dipped into
+  ink--;
   setInking(false); saveState(); fullRender();
   const cell=boardEl.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`); if(cell) cell.classList.add("fresh");
   try{ navigator.vibrate&&navigator.vibrate(15); }catch(e){}
@@ -1435,7 +1442,7 @@ function resetBoard(){
   clearCelebrationState();
   pieces.forEach(p=>{ p.rot=p.k0; p.at=null; });
   moves=0; bounces=0; won=false; history=[]; proof=null;   // ink and stamps deliberately survive a reset
-  elapsed=0; runningSince=0; renderTime();
+  elapsed=0; runningSince=0; lastRefill=0; renderTime();
   setInking(false); $("modal").classList.remove("show");
   fullRender(); saveState();
 }
@@ -1448,7 +1455,19 @@ function elapsedNow(){ return elapsed+(runningSince?Date.now()-runningSince:0); 
 function startClock(){ if(!won&&!runningSince) runningSince=Date.now(); }
 function pauseClock(){ if(runningSince){ elapsed+=Date.now()-runningSince; runningSince=0; } }
 function fmtTime(ms){ const t=Math.floor(ms/1000); return Math.floor(t/60)+":"+String(t%60).padStart(2,"0"); }
-function renderTime(){ /* the clock isn't shown while playing — it only feeds the speed bonus */ }
+function renderTime(){ /* the clock isn't shown while playing — it only feeds the speed bonus and ink refills */ }
+// Ink refills one drop per interval of play time, never banking past a full stock.
+function refillInk(){
+  if(won) return;
+  const now=elapsedNow(), step=refillInterval();
+  if(ink>=INK_MAX){ lastRefill=now; return; }
+  let grew=false;
+  while(ink<INK_MAX && now-lastRefill>=step){ ink++; lastRefill+=step; grew=true; }
+  if(ink>=INK_MAX) lastRefill=now;
+  if(grew){ toast("Ink refilled 💧"); saveState(); }
+  updateControls();
+}
+setInterval(()=>{ if(runningSince) refillInk(); },1000);
 let resumeOnReturn=false;   // the clock was running when the page was hidden
 document.addEventListener("visibilitychange",()=>{
   if(document.hidden){ resumeOnReturn=!!runningSince; if(runningSince){ pauseClock(); saveState(); } }
@@ -1848,11 +1867,12 @@ function init(){
   if(saved){
     saved.pieces.forEach((q,i)=>{ if(pieces[i]){ pieces[i].rot=q.rot; pieces[i].at=q.at; } });
     moves=saved.moves||0; bounces=saved.bounces||0; inkUsed=saved.inkUsed||0; stamps=Array.isArray(saved.stamps)?saved.stamps:[];
+    ink=typeof saved.ink==="number"?saved.ink:Math.max(0,INK_START-inkUsed); lastRefill=saved.lastRefill||0;
     won=!!saved.won;
     history=Array.isArray(saved.history)?saved.history:[];
     elapsed=saved.elapsed||0; proof=saved.proof||null;
   }else{
-    moves=0; bounces=0; inkUsed=0; stamps=[]; won=false; history=[]; elapsed=0; proof=null;
+    moves=0; bounces=0; inkUsed=0; ink=INK_START; lastRefill=0; stamps=[]; won=false; history=[]; elapsed=0; proof=null;
   }
   runningSince=0; renderTime();
   inking=false; boardEl.classList.remove("inking"); $("inkBtn").classList.remove("on");
