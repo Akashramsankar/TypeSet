@@ -1772,7 +1772,7 @@ function showWin(){
   const right=new Set((proof?proof.cells:openCells).map(([r,c])=>r+","+c));
   const wrong=new Set((proof?proof.wrong:[]).map(([r,c])=>r+","+c));
   const grid=activePuzzle.g.map((row,r)=>row.split("").map((ch,c)=>ch==="#"?"⬛":right.has(r+","+c)?"🟨":wrong.has(r+","+c)?"🟥":"⬜").join("")).join("\n");
-  const extras=(bounces?` · 💥${bounces}`:"")+(inkUsed?` · 💧${inkUsed}`:"");
+  const extras=(bounces?` · 💥${bounces}`:"");   // ink is already in the score, so it stays off the card
   const mid = proof ? `${score}/${max} · ${letters}/${openCells.length} letters`
                     : `${score}/${max} · ${time}`;
   $("share").textContent=
