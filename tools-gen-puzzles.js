@@ -1,5 +1,6 @@
 /* TYPESET puzzle generator — offline tool, not loaded by the game.
-   Usage:  node tools-gen-puzzles.js 35   -> writes puzzles.js (paste its PUZZLES array into index.html)
+   Usage:  node tools-gen-puzzles.js 70   -> writes puzzles.js (paste its PUZZLES array into index.html)
+   Append-only: existing puzzles in index.html are kept as-is; pass a count larger than the current list to extend it.
    Needs two word lists next to it:
      enable.txt  https://raw.githubusercontent.com/dolph/dictionary/master/enable1.txt   (validation dictionary; also feeds words.js)
      g10k.txt    https://raw.githubusercontent.com/first20hours/google-10000-english/master/google-10000-english-usa-no-swears.txt  (frequency list -> "common" fill words)
@@ -13,7 +14,7 @@ const g10k=fs.readFileSync("g10k.txt","utf8").split("\n").map(s=>s.trim());
 const COMMON2="ad ah am an as at ax be by do go ha he hi id if in is it me my no of oh on or ow ox pa so to up us we ye".split(" ");
 const web2=new Set(fs.readFileSync("/usr/share/dict/words","utf8").split("\n").filter(w=>/^[a-z]{2,5}$/.test(w)));
 /* abbreviations / names / fragments that slip through the dictionaries */
-const BLOCK=new Set("las reg mel shaw ana mem casa sec dee ser del rom eng ons asp devel lib yahoo ala pas ain ave bio lol wow eco pic pics tex tec med mag mags ref refs spec specs sci soc mfg int ext pro pros exp est etc fax faxes tel vol vols mac mics doc docs ann ben dan don jan jim joe jon ken lee les lou max moe pat ray rob ron roy sam sal sol sue tim tom von wan yen yer yep yup ala als alt gen gov hey hrs ies ing ipod ism lat lbs log logs lts msg nat oct pty pvt res ret sep sim src std tba thu tue wed mon fri sat sun fwd gmt pst utc uni univ var vars ver vid vids vip wiki xml php sql cgi cms dns dvd faq faqs ftp gif gifs gnu html http https ibm ieee ipad ips jpg mba mlb mpg mtv nba nfl nhl obj pdf png ppm pmc rss sms tcp tgp url urls usb vhs wav xbox zip cc bb dd ee ff gg hh ii jj kk ll mm nn oo pp qq rr ss tt uu vv ww xx yy zz ac ad? ax? aa ka monte sri chile anime costa leone erica jane henry peter paris roman john james mary david mark paul lisa anna maria carl eric adam alex andy brad chad dave dean doug earl gary greg jack jake jeff jess jose josh juan kate kyle luis lynn matt mike neil nick pete phil rick ryan sean seth todd tony wade zach bush ford ohio texas utah iowa cuba iran iraq peru rome asia china india japan spain italy kenya tokyo delhi miami vegas tampa york maine idaho nokia sony intel cisco ebay honda mazda lexus volvo linux intel excel apple cody abby amy ann beth carl cole dana dean ella emma erin eve gina hugo ivan jody joel judy jill kim kurt leo lily luke lynn mae meg mia noah omar owen ross ruby ruth sara tara ted tina troy vera zoe hans otto olaf ali ari ben eli ian jay joy kay les lin liz mel ned pam pat ray reg rex rob ron roy sal sam sue tom von wes viv ala usa uk eu un nyc ny la ca fl tx nj pa dc oz cd cds dvd tv pc pcs vs etc inc ltd llc corp dept eg ie ok colin ralph lewis genoa dom phi mas leu psi dis rep con yok askoi tepoy sperm sex sexy porn nude rape damn hell ass arse crap piss tit tits boob boobs cum dick cock fuck shit anal anus nazi slut whore dildo penis vagina pussy bitch cunt fart poop jew jews arab arabs negro chink spic kike gook tard retard idiot ugly fat? cody abu ahmed ali amir arjun beta chi delta gamma theta omega sigma alpha iota zeta eta rho tau phi psi chi nu mu xi laura terry cad sen til cos pee dos gee gal gals lad lads ish sup yo ya ye? gonna wanna perry nam pac mil col bra dow mono naked inter meth coke dope weed alan sally whats thats dont cant wont isnt".split(" "));
+const BLOCK=new Set("las reg mel shaw ana mem casa sec dee ser del rom eng ons asp devel lib yahoo ala pas ain ave bio lol wow eco pic pics tex tec med mag mags ref refs spec specs sci soc mfg int ext pro pros exp est etc fax faxes tel vol vols mac mics doc docs ann ben dan don jan jim joe jon ken lee les lou max moe pat ray rob ron roy sam sal sol sue tim tom von wan yen yer yep yup ala als alt gen gov hey hrs ies ing ipod ism lat lbs log logs lts msg nat oct pty pvt res ret sep sim src std tba thu tue wed mon fri sat sun fwd gmt pst utc uni univ var vars ver vid vids vip wiki xml php sql cgi cms dns dvd faq faqs ftp gif gifs gnu html http https ibm ieee ipad ips jpg mba mlb mpg mtv nba nfl nhl obj pdf png ppm pmc rss sms tcp tgp url urls usb vhs wav xbox zip cc bb dd ee ff gg hh ii jj kk ll mm nn oo pp qq rr ss tt uu vv ww xx yy zz ac ad? ax? aa ka monte sri chile anime costa leone erica jane henry peter paris roman john james mary david mark paul lisa anna maria carl eric adam alex andy brad chad dave dean doug earl gary greg jack jake jeff jess jose josh juan kate kyle luis lynn matt mike neil nick pete phil rick ryan sean seth todd tony wade zach bush ford ohio texas utah iowa cuba iran iraq peru rome asia china india japan spain italy kenya tokyo delhi miami vegas tampa york maine idaho nokia sony intel cisco ebay honda mazda lexus volvo linux intel excel apple cody abby amy ann beth carl cole dana dean ella emma erin eve gina hugo ivan jody joel judy jill kim kurt leo lily luke lynn mae meg mia noah omar owen ross ruby ruth sara tara ted tina troy vera zoe hans otto olaf ali ari ben eli ian jay joy kay les lin liz mel ned pam pat ray reg rex rob ron roy sal sam sue tom von wes viv ala usa uk eu un nyc ny la ca fl tx nj pa dc oz cd cds dvd tv pc pcs vs etc inc ltd llc corp dept eg ie ok colin ralph lewis genoa dom phi mas leu psi dis rep con yok askoi tepoy sperm sex sexy porn nude rape damn hell ass arse crap piss tit tits boob boobs cum dick cock fuck shit anal anus nazi slut whore dildo penis vagina pussy bitch cunt fart poop jew jews arab arabs negro chink spic kike gook tard retard idiot ugly fat? cody abu ahmed ali amir arjun beta chi delta gamma theta omega sigma alpha iota zeta eta rho tau phi psi chi nu mu xi laura terry cad sen til cos pee dos gee gal gals lad lads ish sup yo ya ye? gonna wanna perry nam pac mil col bra dow mono naked inter meth coke dope weed alan sally whats thats dont cant wont isnt roger ware".split(" "));
 const common={2:COMMON2,3:[],4:[],5:[]};
 function okCommon(w){
   if(BLOCK.has(w)) return false;
@@ -147,8 +148,26 @@ function rotateCells(cells){ // 90° clockwise, cells [[dr,dc,ch]] within bbox
 
 /* ---- Build ---- */
 const N=+process.argv[2]||35;
+/* APPEND-ONLY: puzzles already published in index.html are the schedule that
+   players have seen. They are loaded here and kept verbatim; only indices
+   beyond them are generated. Never regenerate an existing entry — it would
+   silently swap a past (or today's) puzzle under players' feet.            */
 const PUZ=[];
-for(let i=0;i<N;i++){
+try{
+  const html=fs.readFileSync(require("path").join(__dirname,"index.html"),"utf8");
+  const m=html.match(/const PUZZLES = (\[[\s\S]*?\n\]);/);
+  if(m){
+    const existing=eval(m[1]);
+    for(const q of existing){
+      const words=[]; // rebuild the word list from the grid so the duplicate check still applies
+      const isOpen=(r,c)=>q.g[r][c]!=="#";
+      for(const sp of spansOf(isOpen)) words.push(sp.map(([r,c])=>q.g[r][c]).join("").toLowerCase());
+      PUZ.push(Object.assign({},q,{_words:words,_uncommon:[],_kept:true}));
+    }
+  }
+}catch(e){ console.error("could not read existing puzzles:",e.message); }
+console.error("keeping",PUZ.length,"published puzzles; generating",Math.max(0,N-PUZ.length),"new");
+for(let i=PUZ.length;i<N;i++){
   const tier=TIERS[i%TIERS.length];
   const layout=tier.layouts[Math.floor(i/TIERS.length)%tier.layouts.length];
   let res=null, pieces=null, seed=1000+i*97;
@@ -180,6 +199,7 @@ for(let i=0;i<N;i++){
 // report
 PUZ.forEach((p,i)=>{
   const comp={}; p.p.forEach(x=>{const t=x.s.length===1?"S":x.s.length===4?"Q":x.s.length===6?"M":x.s.length===2?"D":(x.s.every(([r])=>r===x.s[0][0])||x.s.every(([,c])=>c===x.s[0][1]))?"T":"L"; comp[t]=(comp[t]||0)+1;});
+  if(p._kept) return;
   console.error(`#${i+1} ${"★".repeat(p.stars)} ${p.tier} par=${p.p.length} rot=${p.p.filter(x=>x.k).length} ${JSON.stringify(comp)} words=${p._words.join(",")}${p._uncommon.length?"  UNCOMMON:"+p._uncommon.join(","):""}`);
   console.error("   "+p.g.join(" / "));
 });
