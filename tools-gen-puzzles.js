@@ -1,6 +1,7 @@
 /* TYPESET puzzle generator — offline tool, not loaded by the game.
    Usage:  node tools-gen-puzzles.js 70   -> writes puzzles.js (paste its PUZZLES array into index.html)
    Append-only: existing puzzles in index.html are kept as-is; pass a count larger than the current list to extend it.
+   --keep N  keep only the first N published puzzles (use ONLY for days nobody can have played yet).
    Needs two word lists next to it:
      enable.txt  https://raw.githubusercontent.com/dolph/dictionary/master/enable1.txt   (validation dictionary; also feeds words.js)
      g10k.txt    https://raw.githubusercontent.com/first20hours/google-10000-english/master/google-10000-english-usa-no-swears.txt  (frequency list -> "common" fill words)
@@ -14,7 +15,7 @@ const g10k=fs.readFileSync("g10k.txt","utf8").split("\n").map(s=>s.trim());
 const COMMON2="ad ah am an as at ax be by do go ha he hi id if in is it me my no of oh on or ow ox pa so to up us we ye".split(" ");
 const web2=new Set(fs.readFileSync("/usr/share/dict/words","utf8").split("\n").filter(w=>/^[a-z]{2,5}$/.test(w)));
 /* abbreviations / names / fragments that slip through the dictionaries */
-const BLOCK=new Set("las reg mel shaw ana mem casa sec dee ser del rom eng ons asp devel lib yahoo ala pas ain ave bio lol wow eco pic pics tex tec med mag mags ref refs spec specs sci soc mfg int ext pro pros exp est etc fax faxes tel vol vols mac mics doc docs ann ben dan don jan jim joe jon ken lee les lou max moe pat ray rob ron roy sam sal sol sue tim tom von wan yen yer yep yup ala als alt gen gov hey hrs ies ing ipod ism lat lbs log logs lts msg nat oct pty pvt res ret sep sim src std tba thu tue wed mon fri sat sun fwd gmt pst utc uni univ var vars ver vid vids vip wiki xml php sql cgi cms dns dvd faq faqs ftp gif gifs gnu html http https ibm ieee ipad ips jpg mba mlb mpg mtv nba nfl nhl obj pdf png ppm pmc rss sms tcp tgp url urls usb vhs wav xbox zip cc bb dd ee ff gg hh ii jj kk ll mm nn oo pp qq rr ss tt uu vv ww xx yy zz ac ad? ax? aa ka monte sri chile anime costa leone erica jane henry peter paris roman john james mary david mark paul lisa anna maria carl eric adam alex andy brad chad dave dean doug earl gary greg jack jake jeff jess jose josh juan kate kyle luis lynn matt mike neil nick pete phil rick ryan sean seth todd tony wade zach bush ford ohio texas utah iowa cuba iran iraq peru rome asia china india japan spain italy kenya tokyo delhi miami vegas tampa york maine idaho nokia sony intel cisco ebay honda mazda lexus volvo linux intel excel apple cody abby amy ann beth carl cole dana dean ella emma erin eve gina hugo ivan jody joel judy jill kim kurt leo lily luke lynn mae meg mia noah omar owen ross ruby ruth sara tara ted tina troy vera zoe hans otto olaf ali ari ben eli ian jay joy kay les lin liz mel ned pam pat ray reg rex rob ron roy sal sam sue tom von wes viv ala usa uk eu un nyc ny la ca fl tx nj pa dc oz cd cds dvd tv pc pcs vs etc inc ltd llc corp dept eg ie ok colin ralph lewis genoa dom phi mas leu psi dis rep con yok askoi tepoy sperm sex sexy porn nude rape damn hell ass arse crap piss tit tits boob boobs cum dick cock fuck shit anal anus nazi slut whore dildo penis vagina pussy bitch cunt fart poop jew jews arab arabs negro chink spic kike gook tard retard idiot ugly fat? cody abu ahmed ali amir arjun beta chi delta gamma theta omega sigma alpha iota zeta eta rho tau phi psi chi nu mu xi laura terry cad sen til cos pee dos gee gal gals lad lads ish sup yo ya ye? gonna wanna perry nam pac mil col bra dow mono naked inter meth coke dope weed alan sally whats thats dont cant wont isnt roger ware".split(" "));
+const BLOCK=new Set("las reg mel shaw ana mem casa sec dee ser del rom eng ons asp devel lib yahoo ala pas ain ave bio lol wow eco pic pics tex tec med mag mags ref refs spec specs sci soc mfg int ext pro pros exp est etc fax faxes tel vol vols mac mics doc docs ann ben dan don jan jim joe jon ken lee les lou max moe pat ray rob ron roy sam sal sol sue tim tom von wan yen yer yep yup ala als alt gen gov hey hrs ies ing ipod ism lat lbs log logs lts msg nat oct pty pvt res ret sep sim src std tba thu tue wed mon fri sat sun fwd gmt pst utc uni univ var vars ver vid vids vip wiki xml php sql cgi cms dns dvd faq faqs ftp gif gifs gnu html http https ibm ieee ipad ips jpg mba mlb mpg mtv nba nfl nhl obj pdf png ppm pmc rss sms tcp tgp url urls usb vhs wav xbox zip cc bb dd ee ff gg hh ii jj kk ll mm nn oo pp qq rr ss tt uu vv ww xx yy zz ac ad? ax? aa ka monte sri chile anime costa leone erica jane henry peter paris roman john james mary david mark paul lisa anna maria carl eric adam alex andy brad chad dave dean doug earl gary greg jack jake jeff jess jose josh juan kate kyle luis lynn matt mike neil nick pete phil rick ryan sean seth todd tony wade zach bush ford ohio texas utah iowa cuba iran iraq peru rome asia china india japan spain italy kenya tokyo delhi miami vegas tampa york maine idaho nokia sony intel cisco ebay honda mazda lexus volvo linux intel excel apple cody abby amy ann beth carl cole dana dean ella emma erin eve gina hugo ivan jody joel judy jill kim kurt leo lily luke lynn mae meg mia noah omar owen ross ruby ruth sara tara ted tina troy vera zoe hans otto olaf ali ari ben eli ian jay joy kay les lin liz mel ned pam pat ray reg rex rob ron roy sal sam sue tom von wes viv ala usa uk eu un nyc ny la ca fl tx nj pa dc oz cd cds dvd tv pc pcs vs etc inc ltd llc corp dept eg ie ok colin ralph lewis genoa dom phi mas leu psi dis rep con yok askoi tepoy sperm sex sexy porn nude rape damn hell ass arse crap piss tit tits boob boobs cum dick cock fuck shit anal anus nazi slut whore dildo penis vagina pussy bitch cunt fart poop jew jews arab arabs negro chink spic kike gook tard retard idiot ugly fat? cody abu ahmed ali amir arjun beta chi delta gamma theta omega sigma alpha iota zeta eta rho tau phi psi chi nu mu xi laura terry cad sen til cos pee dos gee gal gals lad lads ish sup yo ya ye? gonna wanna perry nam pac mil col bra dow mono naked inter meth coke dope weed alan sally whats swiss thats dont cant wont isnt roger ware".split(" "));
 const common={2:COMMON2,3:[],4:[],5:[]};
 function okCommon(w){
   if(BLOCK.has(w)) return false;
@@ -26,6 +27,7 @@ function okCommon(w){
   if(w.endsWith("er")&&web2.has(w.slice(0,-2))) return true;
   return false;
 }
+const rankOf=new Map(); g10k.forEach((w,i)=>{ if(!rankOf.has(w)) rankOf.set(w,i); });
 for(const w of g10k) if(/^[a-z]{3,5}$/.test(w)&&enable.has(w)&&okCommon(w)&&!common[w.length].includes(w)) common[w.length].push(w);
 console.error("common sizes",Object.fromEntries(Object.entries(common).map(([k,v])=>[k,v.length])));
 const wide={2:COMMON2,3:[],4:[],5:[]};
@@ -35,15 +37,21 @@ function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a
 function shuffle(arr,rng){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
 /* ---- Weekday tiers: spacer layouts + block composition ---- */
+/* Difficulty comes from how many words there are to find, how constrained the
+   pieces are, how common the words are, and how much rotation is needed.
+   Low tiers use lattice layouts: the spacers kill every short crossing, so the
+   board is a handful of 5-letter words and nothing else (no 2-letter words). */
+const RAILS=[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]];        // rows 1,3 + cols 0,2,4  -> 5 words, 19 cells
+const RAILS_T=[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]];      // transposed rails
+const HASH=[[1,1],[1,3],[3,1],[3,3]];                     // rows 0,2,4 + cols 0,2,4 -> 6 words, 21 cells
+const CORNERS=[[0,0],[0,4],[4,0],[4,4]];                  // 3,5,5,5,3 both ways    -> 10 words, 21 cells
+const DIAG=[[1,1],[3,3]], DIAG2=[[1,3],[3,1]];            // 5,3,5,3,5 both ways    -> 10 words, 23 cells
 const TIERS=[
- {name:"Easy",   stars:1, layouts:[[[0,0],[0,4],[4,0],[4,4],[2,1],[2,3]], [[0,1],[0,3],[4,1],[4,3],[2,0],[2,4]], [[0,2],[4,2],[2,0],[2,4],[1,1],[3,3]]],
-   weights:{S:5,D:5}, rot:0},
- {name:"Casual", stars:2, layouts:[[[0,0],[4,4],[0,4],[4,0],[2,2]], [[1,0],[3,4],[0,3],[4,1],[2,2]], [[0,1],[4,3],[1,4],[3,0],[2,2]]],
-   weights:{S:3,D:7}, rot:.25},
- {name:"Medium", stars:3, layouts:[[[0,0],[0,4],[4,0],[4,4]], [[0,2],[4,2],[2,0],[2,4]], [[1,1],[1,3],[3,1],[3,3]]],
-   weights:{S:1.5,D:6,T:2.5}, rot:.5},
- {name:"Hard",   stars:4, layouts:[[[0,0],[4,4],[1,3],[3,1]], [[0,4],[4,0],[1,1],[3,3]], [[0,2],[4,2],[2,0],[2,4]], [[1,2],[3,2],[2,0],[2,4]]],
-   weights:{D:4,T:4,Q:2}, rot:.6},
+ {name:"Easy",   stars:1, layouts:[RAILS, RAILS_T], weights:{S:1,D:5,T:5}, rot:0,   maxRank:2000},
+ {name:"Casual", stars:2, layouts:[HASH, RAILS, RAILS_T], weights:{S:1,D:5,T:4}, rot:.25, maxRank:3000},
+ {name:"Medium", stars:3, layouts:[DIAG, DIAG2, HASH], weights:{S:1,D:4,T:4,Q:1}, rot:.5, maxRank:5000},
+ {name:"Hard",   stars:4, layouts:[[[0,0],[4,4],[1,3],[3,1]], [[0,4],[4,0],[1,1],[3,3]], [[0,2],[4,2],[2,0],[2,4]], CORNERS],
+   weights:{D:3,T:4,Q:3}, rot:.6},
  {name:"Master", stars:5, layouts:[[[0,0],[2,2],[4,4]], [[0,0],[2,2]], [[0,4],[2,2],[4,0]], [[1,1],[3,3]], [[1,2],[3,2]]],
    weights:{D:1.5,T:2,L:3,Q:2,M:1.5}, rot:.75, rare:true},
 ];
@@ -68,7 +76,7 @@ function fill(spacers,rng,opts){
   const rare=/[qzxj]/;
   function cands(i,list){
     const s=spans[i]; const out=[];
-    for(const w of list){ if(used.has(w))continue; let ok=true;
+    for(const w of list){ if(used.has(w))continue; if(opts.maxRank&&(rankOf.get(w)??1e9)>=opts.maxRank&&w.length>2)continue; let ok=true;
       for(let k=0;k<s.length;k++){const ch=g[s[k][0]][s[k][1]]; if(ch&&ch!==w[k]){ok=false;break;}}
       if(ok)out.push(w);}
     return out;
@@ -148,6 +156,7 @@ function rotateCells(cells){ // 90° clockwise, cells [[dr,dc,ch]] within bbox
 
 /* ---- Build ---- */
 const N=+process.argv[2]||35;
+const KEEP=process.argv.includes("--keep")?+process.argv[process.argv.indexOf("--keep")+1]:Infinity;
 /* APPEND-ONLY: puzzles already published in index.html are the schedule that
    players have seen. They are loaded here and kept verbatim; only indices
    beyond them are generated. Never regenerate an existing entry — it would
@@ -157,7 +166,7 @@ try{
   const html=fs.readFileSync(require("path").join(__dirname,"index.html"),"utf8");
   const m=html.match(/const PUZZLES = (\[[\s\S]*?\n\]);/);
   if(m){
-    const existing=eval(m[1]);
+    const existing=eval(m[1]).slice(0,KEEP);
     for(const q of existing){
       const words=[]; // rebuild the word list from the grid so the duplicate check still applies
       const isOpen=(r,c)=>q.g[r][c]!=="#";
@@ -173,7 +182,7 @@ for(let i=PUZ.length;i<N;i++){
   let res=null, pieces=null, seed=1000+i*97;
   for(let attempt=0;attempt<400&&!pieces;attempt++){
     const rng=mulberry32(seed+attempt*7919);
-    res=fill(layout,rng,{wide:false, rare:!!tier.rare, branch:attempt<8?24:40, budget:250000});
+    res=fill(layout,rng,{wide:false, rare:!!tier.rare, maxRank:tier.maxRank, branch:attempt<8?24:40, budget:250000});
     if(!res)continue;
     // reject grids that reuse too many words from an earlier puzzle
     if(PUZ.some(q=>res.words.filter(w=>w.length>=3&&q._words.includes(w)).length>=3)){res=null;continue;}
