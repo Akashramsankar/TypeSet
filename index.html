@@ -137,8 +137,7 @@
   .clue-label{font-size:.66rem; letter-spacing:.12em; color:var(--ink-muted); text-transform:uppercase; font-weight:600;}
 
   /* ==================== STATS ROW ==================== */
-  .stats{display:grid; grid-template-columns:repeat(4,1fr); width:min(420px,100%); padding:0 4px;}
-  .stat.time .v{font-size:1.45rem;}
+  .stats{display:grid; grid-template-columns:repeat(3,1fr); width:min(420px,100%); padding:0 4px;}
   .stat{display:flex; flex-direction:column; align-items:center; gap:4px;}
   .stat .v{font-size:1.6rem; font-weight:800; letter-spacing:-.02em; line-height:1.1; color:var(--ink);}
   .stat .l{font-size:.64rem; letter-spacing:.1em; color:var(--ink-muted); text-transform:uppercase; font-weight:600;}
@@ -525,7 +524,6 @@
     <div class="stat"><span class="v" id="moves">0</span><span class="l">Moves</span></div>
     <div class="stat par"><span class="v" id="par">–</span><span class="l">Par</span></div>
     <div class="stat bounce"><span class="v" id="bounces">0</span><span class="l">Bounces</span></div>
-    <div class="stat time"><span class="v" id="time">0:00</span><span class="l">Time</span></div>
   </div>
 
   <div class="hint-banner" id="hintBanner"></div>
@@ -1400,8 +1398,7 @@ function elapsedNow(){ return elapsed+(runningSince?Date.now()-runningSince:0); 
 function startClock(){ if(!won&&!runningSince) runningSince=Date.now(); }
 function pauseClock(){ if(runningSince){ elapsed+=Date.now()-runningSince; runningSince=0; } }
 function fmtTime(ms){ const t=Math.floor(ms/1000); return Math.floor(t/60)+":"+String(t%60).padStart(2,"0"); }
-function renderTime(){ $("time").textContent=fmtTime(elapsedNow()); }
-setInterval(()=>{ if(runningSince) renderTime(); },1000);
+function renderTime(){ /* the clock isn't shown while playing — it only feeds the speed bonus */ }
 let resumeOnReturn=false;   // the clock was running when the page was hidden
 document.addEventListener("visibilitychange",()=>{
   if(document.hidden){ resumeOnReturn=!!runningSince; if(runningSince){ pauseClock(); saveState(); } }
@@ -1653,7 +1650,7 @@ function showWin(){
   const grid=activePuzzle.g.map(row=>row.split("").map(ch=>ch==="#"?"⬛":"🟨").join("")).join("\n");
   const hintTag=hintLevel?` · 💡${hintLevel}`:"";
   $("share").textContent=
-    `TYPESET #${activeDay+1} 🖋️\nBoard: ${"★".repeat(activePuzzle.stars)}${"☆".repeat(5-activePuzzle.stars)} (${activePuzzle.tier})\n`+
+    `TYPESET #${activeDay+1} 🖋️\nBoard: ${"★".repeat(activePuzzle.stars)}${"☆".repeat(5-activePuzzle.stars)}\n`+
     `Score: ${score}/${maxScore()} (${g})\nMoves: ${moves}/${par} [${bar}]\n`+
     `Time: ${fmtTime(elapsedNow())} (+${speedBonus()})\n`+
     `Clean Press: ${bounces===0?"YES":"NO"} (${bounces} Bounce${bounces===1?"":"s"})${hintTag}\n\n${grid}`;
@@ -1707,7 +1704,7 @@ function buildArchive(){
     const dstr=dateForDay(day).toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"});
     const badge = day===today ? `<span class="atoday">Today</span>` : "";
     const status = solved ? `<span class="as done">✓</span>` : started ? `<span class="as">▶</span>` : `<span class="as"></span>`;
-    row.innerHTML=`<span class="an">#${day+1}</span><span class="ad">${dstr}<small><span class="stars">${"★".repeat(pz.stars)}</span> ${pz.tier}</small></span>${badge}${status}`;
+    row.innerHTML=`<span class="an">#${day+1}</span><span class="ad">${dstr}<small><span class="stars">${"★".repeat(pz.stars)}</span></small></span>${badge}${status}`;
     row.addEventListener("click",()=>{ $("archiveModal").classList.remove("show"); loadDay(day); });
     list.appendChild(row);
   }
@@ -1731,7 +1728,7 @@ function init(){
   const isToday=activeDay===dayNumber();
   const dlabel=dateForDay(activeDay).toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"});
   $("dateLabel").innerHTML=`PUZZLE #${activeDay+1} · ${dlabel.toUpperCase()}`+(isToday?" · TODAY":"")+
-    ` · <span class="stars">${starsHTML(activePuzzle.stars)}</span> ${activePuzzle.tier.toUpperCase()}`;
+    ` · <span class="stars">${starsHTML(activePuzzle.stars)}</span>`;
 
   buildSpans();
   pieces=activePuzzle.p.map((q,i)=>({
