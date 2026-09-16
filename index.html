@@ -146,14 +146,15 @@
   .stat.bounce .v.hot{color:var(--bad);}
   /* ink stock: three drops that drain as they're used and fill back up as you play (--fill 0..1) */
   .stat.ink .v{display:inline-flex; align-items:center; gap:5px; height:1.76rem;}
-  .stat.ink .v i{position:relative; display:block; width:14px; height:19px; overflow:hidden;
-    border:2px solid var(--rule-strong); border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;
-    transform:rotate(180deg); transition:border-color .3s;}
-  .stat.ink .v i b{position:absolute; left:0; right:0; top:0; height:calc(var(--fill,0)*100%);
-    background:var(--gold); transition:height 1s linear;}
-  .stat.ink .v i.full{border-color:var(--gold);}
+  /* the same teardrop as the Ink button; the level rises inside the outline */
+  .stat.ink .v i{display:block; width:22px; height:22px;}
+  .stat.ink .v i svg{display:block; width:100%; height:100%; overflow:visible;}
+  .stat.ink .v i .rim{fill:none; stroke:var(--rule-strong); stroke-width:1.8; stroke-linejoin:round; transition:stroke .3s;}
+  .stat.ink .v i .lvl{fill:var(--gold); transform-box:fill-box; transform-origin:50% 100%;
+    transform:scaleY(var(--fill,0)); transition:transform 1s linear;}
+  .stat.ink .v i.full .rim{stroke:var(--gold);}
   .stat.ink .v i.pop{animation:inkpop .5s cubic-bezier(.2,.9,.2,1);}
-  @keyframes inkpop{0%{transform:rotate(180deg) scale(.8);}55%{transform:rotate(180deg) scale(1.25);}100%{transform:rotate(180deg) scale(1);}}
+  @keyframes inkpop{0%{transform:scale(.8);}55%{transform:scale(1.25);}100%{transform:scale(1);}}
 
   /* ==================== THE PRESS (board) ==================== */
   .stage{position:relative; padding:14px 30px;}
@@ -560,6 +561,9 @@
     </div>
   </div>
 
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <clipPath id="dropClip"><path d="M12 3s6.5 7 6.5 11.5a6.5 6.5 0 0 1-13 0C5.5 10 12 3 12 3z"/></clipPath>
+  </defs></svg>
   <div class="stats">
     <div class="stat words"><span class="v" id="words">0</span><span class="l">Words set</span></div>
     <div class="stat ink"><span class="v" id="drops" aria-label="Ink drops in stock"></span><span class="l">Ink</span></div>
@@ -1455,7 +1459,9 @@ function renderTime(){ /* the clock isn't shown while playing — it only feeds 
 // Drops are kept as persistent DOM so the fill level animates between ticks.
 function renderDrops(prog){
   const box=$("drops");
-  if(box.children.length!==INK_MAX) box.innerHTML=Array.from({length:INK_MAX},()=>"<i><b></b></i>").join("");
+  const DROP='<i><svg viewBox="0 0 24 24"><g clip-path="url(#dropClip)"><rect class="lvl" x="0" y="0" width="24" height="24"/></g>'+
+    '<path class="rim" d="M12 3s6.5 7 6.5 11.5a6.5 6.5 0 0 1-13 0C5.5 10 12 3 12 3z"/></svg></i>';
+  if(box.children.length!==INK_MAX) box.innerHTML=DROP.repeat(INK_MAX);
   Array.from(box.children).forEach((d,i)=>{
     const fill=i<ink?1:i===ink?prog:0;
     d.style.setProperty("--fill",fill.toFixed(3));
