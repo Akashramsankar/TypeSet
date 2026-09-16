@@ -634,7 +634,6 @@
       </div>
       <div class="share" id="share"></div>
       <button id="copyBtn">Share result</button>
-      <button id="retryBtn" class="secondary">Print it again</button>
     </div>
   </div>
 
@@ -1769,7 +1768,6 @@ function showWin(){
     `Typeset #${activeDay+1} ${"★".repeat(activePuzzle.stars)}${"☆".repeat(5-activePuzzle.stars)} ${medalEmoji(m)}\n`+
     `${mid}${s.currentStreak?` · 🔥${s.currentStreak}`:""}${extras}\n`+
     `${grid}\n${GAME_URL}`;
-  $("retryBtn").hidden=(m===3||!!proof);
   $("modal").classList.add("show");
 }
 
@@ -1777,7 +1775,6 @@ function showWin(){
 $("inkBtn").addEventListener("click",toggleInking);
 $("undoBtn").addEventListener("click",undoMove);
 $("resetBtn").addEventListener("click",resetBoard);
-$("retryBtn").addEventListener("click",resetBoard);
 async function shareResult(){
   const text=$("share").textContent;
   if(navigator.share && navigator.canShare && navigator.canShare({text})){
