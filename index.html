@@ -1355,7 +1355,7 @@ function updateControls(){
   else if(inking){ title.textContent="Tap an empty cell"; sub.textContent="Its letter gets stamped there · −10 points"; pill.textContent="Cancel"; }
   else if(ink<=0){ title.textContent="Out of ink"; sub.textContent=runningSince?`Next drop in ${secs}s`:"A drop refills as you play"; pill.textContent="Wait"; }
   else { title.textContent="Stuck? Use ink"; sub.textContent=`${ink} drop${ink===1?"":"s"} ready · reveals a letter for 10 pts${refillNote}`; pill.textContent="Use"; }
-  $("resetBtn").disabled=(moves===0&&history.length===0&&!won)||!!proof;   // a revealed day stays revealed
+  $("resetBtn").disabled=won||!pieces.some(p=>p.at);   // nothing to clear, or the page is done
   $("submitBtn").disabled=won||!pieces.some(p=>p.at);
 }
 function starsHTML(n){ return "★".repeat(n)+'<span class="off">'+"☆".repeat(5-n)+"</span>"; }
@@ -1415,12 +1415,15 @@ function undoMove(){
   moves=s.moves;
   fullRender(); saveState();
 }
+/* Clear the board: every block back to the tray. It's a shortcut for undoing
+   each move by hand, so it goes on the undo stack and the clock, bounces and
+   ink all carry on. A printed page stays printed. */
 function resetBoard(){
-  clearCelebrationState();
+  if(won||!pieces.some(p=>p.at)) return;
+  pushHistory();
   pieces.forEach(p=>{ p.rot=p.k0; p.at=null; });
-  moves=0; bounces=0; won=false; history=[]; proof=null;   // ink and stamps deliberately survive a reset
-  elapsed=0; runningSince=0; lastRefill=0; renderTime();
-  setInking(false); $("modal").classList.remove("show");
+  moves=0;
+  setInking(false);
   fullRender(); saveState();
 }
 function clearCelebrationState(){
