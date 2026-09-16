@@ -137,13 +137,23 @@
   .clue-label{font-size:.66rem; letter-spacing:.12em; color:var(--ink-muted); text-transform:uppercase; font-weight:600;}
 
   /* ==================== STATS ROW ==================== */
-  .stats{display:grid; grid-template-columns:repeat(2,1fr); width:min(420px,100%); padding:0 4px;}
+  .stats{display:grid; grid-template-columns:repeat(3,1fr); width:min(420px,100%); padding:0 4px;}
   .stat{display:flex; flex-direction:column; align-items:center; gap:4px;}
   .stat .v{font-size:1.6rem; font-weight:800; letter-spacing:-.02em; line-height:1.1; color:var(--ink);}
   .stat .l{font-size:.64rem; letter-spacing:.1em; color:var(--ink-muted); text-transform:uppercase; font-weight:600;}
   .stat.words .v{color:var(--accent-ink);}
   .stat.words .v small{font-size:1rem; font-weight:600; color:var(--ink-muted);}
   .stat.bounce .v.hot{color:var(--bad);}
+  /* ink stock: three drops that drain as they're used and fill back up as you play (--fill 0..1) */
+  .stat.ink .v{display:inline-flex; align-items:center; gap:5px; height:1.76rem;}
+  .stat.ink .v i{position:relative; display:block; width:14px; height:19px; overflow:hidden;
+    border:2px solid var(--rule-strong); border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;
+    transform:rotate(180deg); transition:border-color .3s;}
+  .stat.ink .v i b{position:absolute; left:0; right:0; top:0; height:calc(var(--fill,0)*100%);
+    background:var(--gold); transition:height 1s linear;}
+  .stat.ink .v i.full{border-color:var(--gold);}
+  .stat.ink .v i.pop{animation:inkpop .5s cubic-bezier(.2,.9,.2,1);}
+  @keyframes inkpop{0%{transform:rotate(180deg) scale(.8);}55%{transform:rotate(180deg) scale(1.25);}100%{transform:rotate(180deg) scale(1);}}
 
   /* ==================== THE PRESS (board) ==================== */
   .stage{position:relative; padding:14px 30px;}
@@ -275,36 +285,17 @@
   button.act:hover:not(:disabled){border-color:var(--ink); background:var(--hover);}
   button.act.on{background:var(--accent-soft); color:var(--accent-ink); border-color:var(--accent);}
   button.act:disabled{opacity:.55; cursor:default;}
-  /* ink drops: the day's stock, drained left to right as they're used */
-  /* ==================== INKWELL ==================== */
-  /* The hint system, kept in the player's eyeline right above the press. */
-  .inkwell{
-    width:min(420px,100%); display:flex; align-items:center; gap:14px; text-align:left;
-    background:var(--card); border:1px solid var(--rule); border-radius:var(--radius);
-    padding:10px 14px; cursor:pointer; color:var(--ink); font-family:inherit;
-    transition:border-color .15s ease, background .15s ease, opacity .15s ease;
+  /* Ink banner — sits right above the press while ink mode is on, so it's read
+     where the player is already looking (same banner as Currents' move hint). */
+  .hint-banner{
+    width:min(420px,100%); max-height:0; overflow:hidden; opacity:0;
+    background:var(--card); border:1px solid var(--gold); border-radius:var(--radius);
+    color:var(--gold); font-size:.88rem; font-weight:600; text-align:center;
+    transition:max-height .25s ease, opacity .25s ease, padding .25s ease, margin .25s ease;
+    padding:0 14px; margin:0;
   }
-  .inkwell:hover:not(:disabled){border-color:var(--gold);}
-  .inkwell.on{border-color:var(--gold); background:rgba(176,125,18,.08);}
-  .inkwell:disabled{cursor:default; opacity:.7;}
-  .inkwell .drops{display:inline-flex; gap:4px; flex-shrink:0;}
-  /* each drop is an outline that fills with ink from the bottom as it recharges (--fill 0..1) */
-  .inkwell .drops i{position:relative; display:block; width:16px; height:21px; overflow:hidden;
-    border:2px solid rgba(176,125,18,.35); border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;
-    transform:rotate(180deg); transition:transform .3s, border-color .3s;}
-  .inkwell .drops i b{position:absolute; left:0; right:0; top:0; height:calc(var(--fill,0)*100%);
-    background:var(--gold); transition:height 1s linear;}
-  .inkwell .drops i.full{border-color:var(--gold); box-shadow:inset 0 -3px 0 rgba(0,0,0,.12);}
-  .inkwell .drops i.pop{animation:inkpop .5s cubic-bezier(.2,.9,.2,1);}
-  @keyframes inkpop{0%{transform:rotate(180deg) scale(.8);}55%{transform:rotate(180deg) scale(1.25);}100%{transform:rotate(180deg) scale(1);}}
-  .inkwell .itext{flex:1; min-width:0; line-height:1.3;}
-  .inkwell .itext b{display:block; font-size:.92rem; font-weight:700; color:var(--ink);}
-  .inkwell .itext small{display:block; font-size:.74rem; color:var(--ink-muted); font-weight:500; margin-top:2px;}
-  .inkwell.on .itext b{color:var(--gold);}
-  .inkwell .ipill{flex-shrink:0; font-size:.72rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
-    border-radius:999px; padding:6px 12px; background:var(--gold); color:#fff;}
-  .inkwell.on .ipill{background:var(--card); color:var(--gold); border:1px solid var(--gold);}
-  .inkwell:disabled .ipill{background:var(--surface-2); color:var(--ink-muted);}
+  .hint-banner.show{max-height:200px; opacity:1; padding:10px 14px; margin:0 0 10px;
+    display:flex; align-items:center; justify-content:center; min-height:20px;}
 
   /* Submit: the day-ending action, styled like the modal primary */
   .submit-row{width:min(420px,100%);}
@@ -537,11 +528,15 @@
         <b>Move things around freely.</b> <span>Placed blocks can be dragged to a new spot (one move) or
         back to the tray (free). Undo rewinds your last move.</span></div></div>
 
-      <div class="step"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg></div><div class="t">
-        <b>Stuck? Use ink.</b> <span>You start with <b>one drop of ink</b>, and another refills as you play — faster on
-        easy boards — up to a stock of three. Tap <b>Ink</b>, then any empty cell, and the letter that belongs there
-        is stamped in gold. The stamp stays until you cover it, and only the right letter fits on it. Each drop
-        costs <b>10 points</b>, and a page printed with ink tops out at 🥈.</span></div></div>
+      <div class="step"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11V6a3 3 0 0 1 6 0v5"/><path d="M4 15a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2H4z"/><path d="M6 21h12"/></svg></div><div class="t">
+        <b>A head start.</b> <span>Boards up to 4★ come with a few letters <span class="gd">already stamped</span> in the
+        press. A stamp stays until you cover it, and only the right letter fits on it — so use them as anchors.
+        5★ boards come blank.</span></div></div>
+
+      <div class="step"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3s6.5 7 6.5 11.5a6.5 6.5 0 0 1-13 0C5.5 10 12 3 12 3z"/></svg></div><div class="t">
+        <b>Stuck? Use ink.</b> <span>You have <b>three drops of ink</b>, and a spent drop refills as you play — faster on
+        easy boards. Tap <b>Ink</b>, then any empty cell, and the letter that belongs there is stamped in gold, just
+        like a given. Each drop costs <b>10 points</b>, and a page printed with ink tops out at 🥈.</span></div></div>
 
       <div class="step"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v12H4z"/><path d="M8 20h8"/><path d="M12 16v4"/></svg></div><div class="t">
         <b>Or hand it in.</b> <span><b>Submit</b> the page as it stands: the solution is revealed, the letters you set
@@ -567,14 +562,11 @@
 
   <div class="stats">
     <div class="stat words"><span class="v" id="words">0</span><span class="l">Words set</span></div>
+    <div class="stat ink"><span class="v" id="drops" aria-label="Ink drops in stock"></span><span class="l">Ink</span></div>
     <div class="stat bounce"><span class="v" id="bounces">0</span><span class="l">Bounces</span></div>
   </div>
 
-  <button class="inkwell" id="inkBtn" type="button" aria-label="Use an ink drop to stamp a letter">
-    <span class="drops" id="drops"></span>
-    <span class="itext"><b id="inkTitle">Stuck? Use ink</b><small id="inkSub"></small></span>
-    <span class="ipill" id="inkPill">Use</span>
-  </button>
+  <div class="hint-banner" id="inkBanner">Tap an empty cell — its letter is stamped there for 10 points</div>
 
   <div class="stage" id="stage">
     <div id="board" aria-label="Press board">
@@ -591,6 +583,7 @@
   </div>
 
   <div class="controls">
+    <button class="act" id="inkBtn" type="button" aria-label="Use an ink drop to stamp a letter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3s6.5 7 6.5 11.5a6.5 6.5 0 0 1-13 0C5.5 10 12 3 12 3z"/></svg><span>Ink</span></button>
     <button class="act" id="undoBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg><span>Undo</span></button>
     <button class="act" id="resetBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg><span>Reset</span></button>
   </div>
@@ -611,7 +604,7 @@
   <div class="hint" id="modeHint">
     <span class="ac">Hold &amp; drag</span> blocks from the tray into the press. <span class="ac">Tap</span> a block to rotate it — letters turn
     with it. Every row and column must read as a word; a bad line <span class="gd">bounces</span> the block back.
-    Stuck? Spend an <span class="gd">ink drop</span> to stamp a cell's letter.
+    Only the right letter fits on a <span class="gd">stamped</span> cell. Stuck? Spend an <span class="gd">ink drop</span> to stamp another.
   </div>
 
   <div class="toast" id="toast"></div>
@@ -1142,9 +1135,13 @@ let moves=0, bounces=0;   // moves = placements; internal only (enables Reset/Un
 let inkUsed=0;           // ink drops spent today (never refunded — knowledge can't be un-learned)
 let ink=1;               // drops in stock right now
 let lastRefill=0;        // clock reading (ms) when the stock last grew — refills accrue from here
-let stamps=[];           // [[r,c]] cells whose solution letter has been revealed
+let stamps=[];           // [[r,c]] cells the player revealed with ink
+let givens=[];           // [[r,c]] cells stamped for free at the start (derived from the puzzle, never saved)
 let inking=false;        // ink mode: next tap on an empty cell stamps it
-const INK_MAX=3, INK_START=1;
+const INK_MAX=3, INK_START=3;
+const GIVENS_BY_STARS=[0,5,4,3,2,0];   // pre-stamped cells per tier; 5★ comes blank
+function allStamps(){ return givens.concat(stamps); }
+function isStamped(r,c){ return allStamps().some(([a,b])=>a===r&&b===c); }
 function refillInterval(){ return timeLimit()/3; }   // a full time budget refills three drops
 let proof=null;          // set when the page was submitted unfinished: {cells: letters in the RIGHT place, wrong: letters in the wrong place} as [r,c] lists
 let elapsed=0;           // ms on the clock, not counting the currently running stretch
@@ -1246,6 +1243,28 @@ function buildSpans(){
   for(let c=0;c<5;c++){ let run=[]; for(let r=0;r<=5;r++){ if(r<5&&open(r,c)) run.push([r,c]); else { if(run.length>=2) spans.push(run); run=[]; } } }
   for(let r=0;r<5;r++)for(let c=0;c<5;c++) if(open(r,c)) openCells.push([r,c]);
 }
+/* Givens: a few cells stamped before play starts. Chosen deterministically from
+   the puzzle so the archive shows the same board every time. Each given anchors
+   a different block, crossings (cells on two words) go first, and no two givens
+   touch — they sit in between, not in a clump. */
+function pickGivens(){
+  const n=GIVENS_BY_STARS[activePuzzle.stars]||0;
+  if(!n) return [];
+  let seed=0; for(const ch of sigOf(activePuzzle)) seed=(seed*31+ch.charCodeAt(0))>>>0;
+  const rnd=()=>{ seed=(seed+0x6D2B79F5)>>>0; let t=seed; t=Math.imul(t^(t>>>15),t|1); t^=t+Math.imul(t^(t>>>7),t|61); return ((t^(t>>>14))>>>0)/4294967296; };
+  const blockAt={}; pieces.forEach(p=>p.base.forEach(([dr,dc])=>{ blockAt[(p.home[0]+dr)+","+(p.home[1]+dc)]=p.id; }));
+  const crossings=c=>spans.filter(sp=>sp.some(([r,cc])=>r===c[0]&&cc===c[1])).length;
+  const cand=openCells.map(c=>({c,k:rnd(),x:crossings(c)})).sort((a,b)=>b.x-a.x||a.k-b.k);
+  const out=[], used=new Set();
+  for(const {c} of cand){
+    if(out.length>=n) break;
+    const b=blockAt[c.join(",")];
+    if(used.has(b)) continue;
+    if(out.some(([r,cc])=>Math.abs(r-c[0])+Math.abs(cc-c[1])===1)) continue;
+    out.push(c); used.add(b);
+  }
+  return out;
+}
 // Letters currently on the board, optionally ignoring one piece (the one being moved).
 function boardLetters(excludeId){
   const g=Array.from({length:5},()=>new Array(5).fill(""));
@@ -1346,15 +1365,9 @@ function fullRender(){
 function updateControls(){
   $("undoBtn").disabled=won||history.length===0;
   $("inkBtn").disabled=won||ink<=0;
-  const prog=ink<INK_MAX?Math.min(1,(elapsedNow()-lastRefill)/refillInterval()):0;
-  renderDrops(prog);
-  const secs=ink<INK_MAX?Math.max(0,Math.ceil((refillInterval()-(elapsedNow()-lastRefill))/1000)):0;
-  const refillNote=ink<INK_MAX?(runningSince?` · next in ${secs}s`:` · refills as you play`):"";
-  const title=$("inkTitle"), sub=$("inkSub"), pill=$("inkPill");
-  if(won){ title.textContent=proof?"Proof pulled":"Page printed"; sub.textContent=inkUsed?`${inkUsed} ink drop${inkUsed===1?"":"s"} used`:"No ink used"; pill.textContent="Done"; }
-  else if(inking){ title.textContent="Tap an empty cell"; sub.textContent="Its letter gets stamped there · −10 points"; pill.textContent="Cancel"; }
-  else if(ink<=0){ title.textContent="Out of ink"; sub.textContent=runningSince?`Next drop in ${secs}s`:"A drop refills as you play"; pill.textContent="Wait"; }
-  else { title.textContent="Stuck? Use ink"; sub.textContent=`${ink} drop${ink===1?"":"s"} ready · reveals a letter for 10 pts${refillNote}`; pill.textContent="Use"; }
+  $("inkBtn").classList.toggle("on",inking);
+  $("inkBanner").classList.toggle("show",inking);
+  renderDrops(ink<INK_MAX?Math.min(1,(elapsedNow()-lastRefill)/refillInterval()):0);
   $("resetBtn").disabled=won||!pieces.some(p=>p.at);   // nothing to clear, or the page is done
   $("submitBtn").disabled=won||!pieces.some(p=>p.at);
 }
@@ -1365,7 +1378,7 @@ function starsHTML(n){ return "★".repeat(n)+'<span class="off">'+"☆".repeat(
    and its solution letter is stamped there. Costs points, survives Reset.  */
 function renderStamps(){
   boardEl.querySelectorAll(".cell.stamped").forEach(c=>{ c.classList.remove("stamped","fresh"); c.textContent=""; });
-  for(const [r,c] of stamps){
+  for(const [r,c] of allStamps()){
     const cell=boardEl.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`); if(!cell) continue;
     cell.classList.add("stamped"); cell.innerHTML=`<span>${activePuzzle.g[r][c]}</span>`;
   }
@@ -1373,19 +1386,21 @@ function renderStamps(){
 function setInking(on){
   inking=on&&!won&&ink>0;
   boardEl.classList.toggle("inking",inking);
-  $("inkBtn").classList.toggle("on",inking);
   updateControls();
 }
 function toggleInking(){
   if(won) return;
-  if(ink<=0){ toast("Out of ink — it refills as you play"); return; }
+  if(ink<=0){
+    const secs=Math.max(0,Math.ceil((refillInterval()-(elapsedNow()-lastRefill))/1000));
+    toast(runningSince?`Out of ink — next drop in ${secs}s`:"Out of ink — a drop refills as you play"); return;
+  }
   setInking(!inking);
 }
 function stampCell(r,c){
   if(!inking||won) return;
   const g=boardLetters(null);
   if(g[r][c]){ toast("That cell is already set"); return; }
-  if(stamps.some(([a,b])=>a===r&&b===c)){ toast("Already stamped"); return; }
+  if(isStamped(r,c)){ toast("Already stamped"); return; }
   startClock();
   stamps.push([r,c]); inkUsed++;
   if(ink>=INK_MAX) lastRefill=elapsedNow();          // the refill timer starts from the moment a full stock is dipped into
@@ -1398,7 +1413,7 @@ function stampCell(r,c){
 function stampConflict(piece,rot,r0,c0){
   for(const [dr,dc,ch] of cellsAt(piece,rot)){
     const r=r0+dr,c=c0+dc;
-    if(stamps.some(([a,b])=>a===r&&b===c)&&activePuzzle.g[r][c]!==ch) return activePuzzle.g[r][c];
+    if(isStamped(r,c)&&activePuzzle.g[r][c]!==ch) return activePuzzle.g[r][c];
   }
   return null;
 }
@@ -1850,6 +1865,7 @@ function init(){
     id:i, base:q.s.map(([dr,dc],j)=>[dr,dc,q.l[j]]), rot:q.k, k0:q.k, at:null, home:q.at.slice(), type:shapeType(q.s)
   }));
   renderBoardCells();
+  givens=pickGivens();
 
   const saved=loadState(activeDay);
   if(saved){
@@ -1863,7 +1879,7 @@ function init(){
     moves=0; bounces=0; inkUsed=0; ink=INK_START; lastRefill=0; stamps=[]; won=false; history=[]; elapsed=0; proof=null;
   }
   runningSince=0; renderTime();
-  inking=false; boardEl.classList.remove("inking"); $("inkBtn").classList.remove("on");
+  inking=false; boardEl.classList.remove("inking");
   fullRender();
   if(won) showWin();   // already solved — show the result instead of replaying the press
 }
