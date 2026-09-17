@@ -179,13 +179,17 @@
   /* ink mode: empty cells invite a tap; a stamped cell shows its letter faintly */
   #board.inking .cell:not(.iron):not(.stamped){cursor:pointer; box-shadow:inset 0 0 0 2px var(--gold-glow); animation:inkpulse 1.1s ease-in-out infinite;}
   @keyframes inkpulse{0%,100%{box-shadow:inset 0 0 0 2px var(--gold-glow);}50%{box-shadow:inset 0 0 0 5px var(--gold-glow);}}
-  .cell.stamped{display:flex; align-items:center; justify-content:center; font-weight:700; font-size:calc(var(--cell)*.5);
-    color:var(--gold); background:rgba(176,125,18,.08); box-shadow:inset 0 0 0 2px var(--gold-glow);}
-  .cell.stamped span{opacity:.9; transform:rotate(-8deg); font-family:var(--font-display);}
+  /* A stamped cell is still an EMPTY slot: dashed edge + hollow watermark letter, so it
+     reads as "a block with this letter goes here", never as a tile already set. */
+  .cell.stamped{display:flex; align-items:center; justify-content:center; font-weight:700; font-size:calc(var(--cell)*.52);
+    color:var(--gold); background:var(--slot);
+    box-shadow:inset 0 1px 3px rgba(27,25,22,.08); outline:2px dashed var(--gold); outline-offset:-4px;}
+  .cell.stamped span{opacity:.55; transform:rotate(-8deg); font-family:var(--font-display);
+    color:transparent; -webkit-text-stroke:1.5px var(--gold); paint-order:stroke;}
   @keyframes stamp{0%{transform:scale(1.6) rotate(-8deg); opacity:0;}60%{transform:scale(.95) rotate(-8deg); opacity:1;}100%{transform:scale(1) rotate(-8deg);}}
   .cell.stamped.fresh span{animation:stamp .35s cubic-bezier(.2,.9,.2,1);}
   /* a gold letter someone tried to cover with the wrong tile: flare and shake */
-  .cell.stamped.deny{animation:deny .5s ease; background:rgba(176,125,18,.22); box-shadow:inset 0 0 0 3px var(--gold);}
+  .cell.stamped.deny{animation:deny .5s ease; background:rgba(176,125,18,.18); outline-style:solid;}
   .cell.stamped.deny span{animation:deny-span .5s ease;}
   @keyframes deny{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
   @keyframes deny-span{0%,100%{transform:rotate(-8deg) scale(1)}50%{transform:rotate(-8deg) scale(1.35)}}
@@ -477,8 +481,8 @@
   .facts .f{display:flex; align-items:center; gap:12px; background:var(--surface-2);
     border:1px solid var(--rule); border-radius:var(--radius); padding:10px 12px;}
   .facts .k{flex:0 0 30px; display:flex; align-items:center; justify-content:center; height:30px; color:var(--accent);}
-  .facts .k.st,.stamp-demo{color:var(--gold); background:rgba(176,125,18,.1); box-shadow:inset 0 0 0 2px var(--gold-glow);}
-  .facts .k.st span{transform:rotate(-8deg); font-family:var(--font-display);}
+  .facts .k.st,.stamp-demo{color:var(--gold); background:var(--slot); border-radius:6px; outline:2px dashed var(--gold); outline-offset:-3px;}
+  .facts .k.st span{transform:rotate(-8deg); font-family:var(--font-display); font-weight:700; font-size:1rem; opacity:.6; color:transparent; -webkit-text-stroke:1.2px var(--gold);}
   .facts .k svg{width:22px; height:22px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
   .facts .v{font-size:.84rem; line-height:1.45; color:var(--ink-muted);}
   .facts .v b{color:var(--ink); display:block; font-size:.9rem; margin-bottom:1px;}
@@ -663,7 +667,7 @@
           <div class="sic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11V6a3 3 0 0 1 6 0v5"/><path d="M4 15a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2H4z"/><path d="M6 21h12"/></svg></div>
           <h3>Anchors &amp; ink</h3>
           <div class="facts">
-            <div class="f"><div class="k st"><span>E</span></div><div class="v"><b>Givens</b>Every board opens with a few gold letters. They're fixed: a block can only cover one if it puts the same letter there.</div></div>
+            <div class="f"><div class="k st"><span>E</span></div><div class="v"><b>Givens</b>Every board opens with a few gold letters. Those cells are still empty — a block has to go on top, and only one that puts the same letter there fits.</div></div>
             <div class="f"><div class="k"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3s6.5 7 6.5 11.5a6.5 6.5 0 0 1-13 0C5.5 10 12 3 12 3z"/></svg></div><div class="v"><b>Ink</b>Three drops, refilling as you play. Tap Ink, then an empty cell: its letter is stamped for 10 points — and no 🥇.</div></div>
           </div>
         </div>
@@ -703,6 +707,8 @@
     <div class="stat bounce"><span class="v" id="bounces">0</span><span class="l">Bounces</span></div>
   </div>
 
+  <div class="hint-banner" id="givenBanner"><span>That gold cell is still empty — a block with that letter has to sit on top of it.</span>
+    <button class="banner-x" id="givenDismiss" type="button" aria-label="Dismiss" title="Dismiss"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
   <div class="hint-banner" id="inkBanner"><span>Tap an empty cell — its letter is stamped there for 10 points</span>
     <button class="banner-x" id="inkCancel" type="button" aria-label="Cancel ink mode" title="Cancel ink"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
 
@@ -1292,6 +1298,7 @@ let lastRefill=0;        // clock reading (ms) when the stock last grew — refi
 let stamps=[];           // [[r,c]] cells the player revealed with ink
 let givens=[];           // [[r,c]] cells stamped for free at the start (derived from the puzzle, never saved)
 let inking=false;        // ink mode: next tap on an empty cell stamps it
+let givenHintDismissed=false;   // "only gold cells left" banner closed for this board state
 const INK_MAX=3, INK_START=3;
 const GIVENS_BY_STARS=[0,5,4,3,2,2];   // pre-stamped cells per tier; even 5★ gets a couple
 function allStamps(){ return givens.concat(stamps); }
@@ -1526,6 +1533,13 @@ function updateControls(){
   $("inkBtn").disabled=won||lock||ink<=0;
   $("inkBtn").classList.toggle("on",inking);
   $("inkBanner").classList.toggle("show",inking);
+  // The classic misread: gold cells treated as already set, board built around them.
+  // Fires when an empty gold cell is walled in: every open neighbour holds a tile.
+  const g=boardLetters(null);
+  const walled=!won&&!lock&&allStamps().some(([r,c])=>!g[r][c]&&[[r-1,c],[r+1,c],[r,c-1],[r,c+1]]
+    .every(([a,b])=>a<0||a>4||b<0||b>4||isSpacer(a,b)||g[a][b]));
+  if(!walled) givenHintDismissed=false;                   // re-arm once the board changes shape
+  $("givenBanner").classList.toggle("show",walled&&!givenHintDismissed);
   renderDrops(ink<INK_MAX?Math.min(1,(elapsedNow()-lastRefill)/refillInterval()):0);
   $("resetBtn").disabled=won||lock||!pieces.some(p=>p.at);   // nothing to clear, or the page is done
   $("submitBtn").disabled=won||lock||!pieces.some(p=>p.at);
@@ -1905,8 +1919,11 @@ function askSubmit(){
   if(won) return;
   if(isSolved()){ winGame(); return; }
   const g=boardLetters(null), set=openCells.filter(([r,c])=>g[r][c]).length;
+  const goldOpen=allStamps().filter(([r,c])=>!g[r][c]).length;
   // deliberately no word / right-place counts here — that would be a free hint
-  $("confirmText").innerHTML=`You've set <b>${set} of ${openCells.length} letters</b>. Submitting ends this puzzle and reveals the solution. `+
+  $("confirmText").innerHTML=`You've set <b>${set} of ${openCells.length} letters</b>. `+
+    (goldOpen?`<b>${goldOpen} gold cell${goldOpen===1?" is":"s are"} still empty</b> — a block with that letter has to go on top. `:"")+
+    `Submitting ends this puzzle and reveals the solution. `+
     `Only letters sitting in the <b>right place</b> score; you'll get a proof 📄 instead of a medal, and it still counts for your streak.`;
   $("confirmModal").classList.add("show");
 }
@@ -2024,6 +2041,7 @@ document.addEventListener("keydown",e=>{
   if(inking){ setInking(false); e.preventDefault(); }
 });
 $("inkCancel").addEventListener("click",()=>setInking(false));
+$("givenDismiss").addEventListener("click",()=>{ givenHintDismissed=true; $("givenBanner").classList.remove("show"); });
 
 /* ---------------- Puzzle archive ---------------- */
 function buildArchive(){
