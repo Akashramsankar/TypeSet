@@ -184,6 +184,11 @@
   .cell.stamped span{opacity:.9; transform:rotate(-8deg); font-family:var(--font-display);}
   @keyframes stamp{0%{transform:scale(1.6) rotate(-8deg); opacity:0;}60%{transform:scale(.95) rotate(-8deg); opacity:1;}100%{transform:scale(1) rotate(-8deg);}}
   .cell.stamped.fresh span{animation:stamp .35s cubic-bezier(.2,.9,.2,1);}
+  /* a gold letter someone tried to cover with the wrong tile: flare and shake */
+  .cell.stamped.deny{animation:deny .5s ease; background:rgba(176,125,18,.22); box-shadow:inset 0 0 0 3px var(--gold);}
+  .cell.stamped.deny span{animation:deny-span .5s ease;}
+  @keyframes deny{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+  @keyframes deny-span{0%,100%{transform:rotate(-8deg) scale(1)}50%{transform:rotate(-8deg) scale(1.35)}}
 
   /* A letter block: rigid cluster of joined tiles. --u / --g = tile size and gap for its context. */
   .block{
@@ -231,6 +236,7 @@
   .ghost .bcell{border-color:var(--accent); background:var(--card); transition:none;
     box-shadow:0 12px 18px rgba(27,25,22,.28), inset 0 1px 0 var(--block-face);}
   .ghost .bcell.jr::after,.ghost .bcell.jd::before{display:none;}
+  .ghost .bcell.clash{border-color:var(--bad); background:rgba(201,96,90,.18); color:var(--bad);}
 
   /* rejected placement */
   .block.bounce .bcell{background:rgba(201,96,90,.18); border-color:var(--bad); color:var(--bad);}
@@ -657,7 +663,7 @@
           <div class="sic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11V6a3 3 0 0 1 6 0v5"/><path d="M4 15a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2H4z"/><path d="M6 21h12"/></svg></div>
           <h3>Anchors &amp; ink</h3>
           <div class="facts">
-            <div class="f"><div class="k st"><span>E</span></div><div class="v"><b>Givens</b>Every board opens with a few gold letters. Only that letter fits on a stamp.</div></div>
+            <div class="f"><div class="k st"><span>E</span></div><div class="v"><b>Givens</b>Every board opens with a few gold letters. They're fixed: a block can only cover one if it puts the same letter there.</div></div>
             <div class="f"><div class="k"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3s6.5 7 6.5 11.5a6.5 6.5 0 0 1-13 0C5.5 10 12 3 12 3z"/></svg></div><div class="v"><b>Ink</b>Three drops, refilling as you play. Tap Ink, then an empty cell: its letter is stamped for 10 points — and no 🥇.</div></div>
           </div>
         </div>
@@ -739,7 +745,7 @@
   <div class="hint" id="modeHint">
     <span class="ac">Hold &amp; drag</span> blocks from the tray into the press. <span class="ac">Tap</span> a block to rotate it — letters turn
     with it. Every row and column must read as a word; a bad line <span class="gd">bounces</span> the block back.
-    Only the right letter fits on a <span class="gd">stamped</span> cell. Stuck? Spend an <span class="gd">ink drop</span> to stamp another.
+    A <span class="gd">gold</span> letter is fixed — only a block with that letter there can cover it. Stuck? Spend an <span class="gd">ink drop</span> to stamp another.
   </div>
 
   <div class="coach" id="coach" role="status">
@@ -1434,8 +1440,8 @@ function checkPlacement(piece,rot,r0,c0){
     const r=r0+dr,c=c0+dc;
     if(r<0||r>4||c<0||c>4||isSpacer(r,c)||g[r][c]) return {ok:false,reason:"fit"};
   }
-  const stamped=stampConflict(piece,rot,r0,c0);
-  if(stamped) return {ok:false,reason:"stamp",word:stamped};
+  const clash=stampConflict(piece,rot,r0,c0);
+  if(clash) return {ok:false,reason:"stamp",clash};
   for(const [dr,dc,ch] of cells) g[r0+dr][c0+dc]=ch;
   const touched=new Set(cells.map(([dr,dc])=>(r0+dr)+","+(c0+dc)));
   for(const sp of spans){
@@ -1562,13 +1568,20 @@ function stampCell(r,c){
   const cell=boardEl.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`); if(cell) cell.classList.add("fresh");
   try{ navigator.vibrate&&navigator.vibrate(15); }catch(e){}
 }
-// A stamped cell only accepts its own letter.
+// A stamped cell only accepts its own letter. Returns the first clash as {r,c,want,got}.
 function stampConflict(piece,rot,r0,c0){
   for(const [dr,dc,ch] of cellsAt(piece,rot)){
     const r=r0+dr,c=c0+dc;
-    if(isStamped(r,c)&&activePuzzle.g[r][c]!==ch) return activePuzzle.g[r][c];
+    if(isStamped(r,c)&&activePuzzle.g[r][c]!==ch) return {r,c,want:activePuzzle.g[r][c],got:ch};
   }
   return null;
+}
+// Point at the gold letter the player just tried to cover with the wrong tile.
+function denyStamp(clash){
+  toast(`That gold ${clash.want} is fixed — the block puts ${clash.got} there`,true);
+  const cell=boardEl.querySelector(`.cell[data-r="${clash.r}"][data-c="${clash.c}"]`);
+  if(cell){ cell.classList.remove("deny"); void cell.offsetWidth; cell.classList.add("deny"); }
+  try{ navigator.vibrate&&navigator.vibrate([20,40,20]); }catch(e){}
 }
 
 /* ---------------- Moves ---------------- */
@@ -1646,7 +1659,7 @@ function placePiece(piece,r0,c0){
   const res=checkPlacement(piece,piece.rot,r0,c0);
   if(!res.ok){
     if(res.reason==="fit"){ return false; }              // physically blocked — not a move
-    if(res.reason==="stamp"){ toast(`That cell is stamped “${res.word}”`); return false; }
+    if(res.reason==="stamp"){ denyStamp(res.clash); return false; }
     startClock();
     // invalid seam: bounce to the tray with a thud
     pushHistory();
@@ -1692,7 +1705,7 @@ function rotatePiece(piece){
   if(!res.ok){
     piece.at=null;
     if(res.reason==="word"){ bounces++; thud(); toast(`“${res.word}” isn't a word`,true); }
-    else if(res.reason==="stamp") toast(`That cell is stamped “${res.word}” — back to the tray`);
+    else if(res.reason==="stamp") denyStamp(res.clash);
     else toast("No room to turn it there — back to the tray");
   }
   animateSpin(piece.id); fullRender(); saveState();
@@ -1763,13 +1776,19 @@ function moveGhost(x,y){
   if(key===drag.lastKey) return;                    // same target cell as last frame — nothing to redraw
   drag.lastKey=key;
   boardEl.querySelectorAll(".cell.drop-ok,.cell.drop-bad").forEach(c=>c.classList.remove("drop-ok","drop-bad"));
+  ghost.querySelectorAll(".bcell.clash").forEach(t=>t.classList.remove("clash"));
   drag.target=null;
   if(!valid) return;
   const ok=clearanceOnly(drag.piece,drag.piece.rot,r0,c0);
   drag.target=[r0,c0,ok];
-  for(const [dr,dc] of cells){
-    const cell=boardEl.querySelector(`.cell[data-r="${r0+dr}"][data-c="${c0+dc}"]`);
-    if(cell) cell.classList.add(ok?"drop-ok":"drop-bad");
+  for(const [dr,dc,ch] of cellsAt(drag.piece,drag.piece.rot)){
+    const r=r0+dr,c=c0+dc;
+    const cell=boardEl.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+    if(!cell) continue;
+    const misStamp=ok&&isStamped(r,c)&&activePuzzle.g[r][c]!==ch;   // wrong letter over a gold one
+    cell.classList.add(ok&&!misStamp?"drop-ok":"drop-bad");
+    // the ghost hides the board cell, so the offending tile itself goes red
+    if(misStamp){ const t=ghost.querySelector(`.bcell[data-dr="${dr}"][data-dc="${dc}"]`); if(t) t.classList.add("clash"); }
   }
 }
 function abandonDrag(){
@@ -2061,7 +2080,7 @@ const TUT_STEPS=[
   {t:"Welcome", next:"Show me",
    x:"This is <b>Typeset</b> — a 5×5 letterpress. Fill it so <b>every row and column reads as a word</b>. The dark iron cells split a line in two. One quick page and you'll have it."},
   {t:"Drag it in", piece:0, cells:[[2,3],[2,4]], on:"place",
-   x:"A block's letters move together. <b>Press and hold</b> the <b>PE</b> block and drop it on the glowing cells — its E lands on the <span class='gd'>gold E</span>, a letter the board gives you for free."},
+   x:"A block's letters move together. <b>Press and hold</b> the <b>PE</b> block and drop it on the glowing cells — its E lands on the <span class='gd'>gold E</span>. Gold letters are fixed — only a block that puts an E there can cover it."},
   {t:"Tap to turn", piece:1, on:"rotate",
    x:"This block isn't the right way round. <b>Tap it</b> to turn it 90° — the letters turn with it, and turning is always free."},
   {t:"Now drop it", piece:1, cells:[[1,2],[2,1],[2,2]], on:"place",
