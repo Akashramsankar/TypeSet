@@ -427,20 +427,109 @@
   .arch-row .as{font-size:.95rem; min-width:20px; text-align:right; color:var(--ink-muted);}
   .arch-row .as.done{color:var(--good);}
 
-  /* how-to-play */
-  .rules{text-align:left; max-height:86vh; overflow-y:auto;}
-  .rules h2{text-align:center; margin-bottom:14px;}
-  .rules .goal{background:var(--surface-2); border:1px solid var(--rule); border-radius:var(--radius);
-    padding:12px 14px; font-size:.9rem; line-height:1.5; margin-bottom:6px; color:var(--ink-soft);}
-  .rules .goal b{color:var(--ink);}
-  .rules .step{display:flex; gap:12px; margin:14px 0; align-items:flex-start;}
-  .rules .ic{flex:0 0 28px; display:flex; justify-content:center; color:var(--accent); margin-top:1px;}
-  .rules .ic svg{width:22px; height:22px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
-  .rules .step .t{font-size:.9rem; line-height:1.5; color:var(--ink-soft);}
-  .rules .step .t b{color:var(--ink);}
-  .rules .step .t .gd{color:var(--gold); font-weight:600;}
-  .rules .step .t .bd{color:var(--bad); font-weight:600;}
-  .rules button{margin-top:18px;}
+  /* ==================== HOW TO PLAY: CONCISE DECK ====================
+     Four short slides, Tumbler-style: an icon, a title, two sentences and a
+     small visual. Teaching from scratch is the walkthrough's job (below), so
+     this is a reference the player flips through, not a manual. */
+  .rules{max-height:86vh; overflow-y:auto; display:flex; flex-direction:column; min-height:min(440px,72vh);}
+  .rules h2{margin-bottom:10px;}
+  .slide{display:none; flex-direction:column; align-items:center; justify-content:center; gap:12px; flex:1;}
+  .slide.on{display:flex; animation:slideIn .28s ease;}
+  @keyframes slideIn{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);}}
+  .slide .sic{color:var(--accent); line-height:1;}
+  .slide .sic svg{width:34px; height:34px; stroke:currentColor; fill:none; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round;}
+  .slide h3{font-family:var(--font-display); font-weight:800; font-size:1.45rem; letter-spacing:-.015em;
+    line-height:1.15; color:var(--ink); margin:0;}
+  .slide .sd{color:var(--ink-soft); font-size:.92rem; line-height:1.55; margin:0; max-width:320px;}
+  .slide .sd b{color:var(--ink);}
+  .slide .note{font-size:.8rem; color:var(--ink-muted); line-height:1.5; max-width:320px; margin:0;}
+  .slide .note b{color:var(--ink-soft);}
+  .slide .bd{color:var(--bad); font-weight:600;}
+  .slide .gd{color:var(--gold); font-weight:600;}
+
+  /* mini press: the real board's look at demo size */
+  .mini{display:grid; grid-template-columns:repeat(3,30px); gap:4px; padding:5px;
+    background:var(--grid-bg); border-radius:8px;}
+  .mini i,.dblock i,.facts .k.st{
+    width:30px; height:30px; border-radius:5px; display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-ui); font-weight:700; font-size:.9rem; font-style:normal; color:var(--ink);}
+  .mini i{background:var(--slot);}
+  .mini i.fe{background:var(--iron); background-image:repeating-linear-gradient(135deg,transparent 0 4px,rgba(255,255,255,.07) 4px 6px);}
+  .demo-label{font-size:.76rem; color:var(--ink-muted); font-style:italic;}
+
+  /* a domino before and after one quarter turn */
+  .demo-turn{display:flex; align-items:center; gap:14px;}
+  .demo-turn .arrow{color:var(--ink-faint); display:flex;}
+  .demo-turn .arrow svg{width:20px; height:20px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
+  .dblock{display:grid; gap:2px;}
+  .dblock.h{grid-template-columns:repeat(2,30px);}
+  .dblock.v{grid-template-columns:30px;}
+  .dblock i{background:var(--block); border:2px solid var(--block-edge);}
+
+  /* fact rows (anchors & ink) */
+  .facts{display:flex; flex-direction:column; gap:8px; width:100%; text-align:left;}
+  .facts .f{display:flex; align-items:center; gap:12px; background:var(--surface-2);
+    border:1px solid var(--rule); border-radius:var(--radius); padding:10px 12px;}
+  .facts .k{flex:0 0 30px; display:flex; align-items:center; justify-content:center; height:30px; color:var(--accent);}
+  .facts .k.st,.stamp-demo{color:var(--gold); background:rgba(176,125,18,.1); box-shadow:inset 0 0 0 2px var(--gold-glow);}
+  .facts .k.st span{transform:rotate(-8deg); font-family:var(--font-display);}
+  .facts .k svg{width:22px; height:22px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
+  .facts .v{font-size:.84rem; line-height:1.45; color:var(--ink-muted);}
+  .facts .v b{color:var(--ink); display:block; font-size:.9rem; margin-bottom:1px;}
+
+  /* scoring ledger */
+  .ledger{width:100%; text-align:left;}
+  .ledger div{display:flex; justify-content:space-between; align-items:baseline; gap:12px; padding:8px 2px;
+    border-bottom:1px solid var(--rule); font-size:.86rem; color:var(--ink-soft);}
+  .ledger div:last-child{border-bottom:none;}
+  .ledger b{color:var(--ink); font-weight:700; white-space:nowrap; font-variant-numeric:tabular-nums;}
+  .ledger b.up{color:var(--good);}
+  .ledger b.dn{color:var(--bad);}
+  .ledger div.full{justify-content:center; color:var(--ink); font-weight:600; letter-spacing:.01em;}
+
+  /* deck nav: dots, then Next, then the walkthrough link */
+  .deck-nav{display:flex; flex-direction:column; align-items:center; gap:10px; margin-top:16px; width:100%;}
+  .dots{display:flex; gap:8px; margin-bottom:2px;}
+  .dots button{width:8px; height:8px; padding:0; margin:0; border:none; border-radius:50%;
+    background:var(--rule-strong); cursor:pointer; transition:background .2s, transform .2s;}
+  .dots button:hover{background:var(--ink-faint);}
+  .dots button.on,.dots button.on:hover{background:var(--accent); transform:scale(1.3);}
+  .deck-nav > button{margin-top:0;}
+
+  /* ==================== INTERACTIVE WALKTHROUGH ====================
+     A coach card pinned to the bottom of the viewport scripts one practice
+     round on the live board; spotlights mark the one block that is live and
+     the cells it belongs on. */
+  .coach{position:fixed; left:50%; bottom:16px; transform:translateX(-50%) translateY(20px);
+    width:min(420px,calc(100% - 32px)); background:var(--card); color:var(--ink);
+    border:1px solid var(--accent); border-radius:var(--radius); padding:14px 16px;
+    box-shadow:var(--shadow-card); text-align:left; z-index:40;
+    opacity:0; pointer-events:none; transition:opacity .3s ease, transform .3s ease;}
+  .coach.show{opacity:1; transform:translateX(-50%) translateY(0); pointer-events:auto;}
+  .coach .ct{font-size:.66rem; letter-spacing:.12em; color:var(--accent-ink); text-transform:uppercase; font-weight:600; margin-bottom:5px;}
+  .coach .cx{font-size:.9rem; line-height:1.5; color:var(--ink-soft);}
+  .coach .cx b{color:var(--ink);}
+  .coach .cx .gd{color:var(--gold); font-weight:600;}
+  .coach .cx .bd{color:var(--bad); font-weight:600;}
+  .coach .crow{display:flex; gap:8px; margin-top:13px; align-items:center;}
+  .coach .cp{font-size:.66rem; color:var(--ink-muted); margin-right:auto; letter-spacing:.1em; font-weight:600; text-transform:uppercase;}
+  .coach button{padding:9px 16px; border-radius:999px; cursor:pointer; font-weight:600; font-size:.85rem; font-family:inherit;
+    transition:background .15s ease, color .15s ease, border-color .15s ease;}
+  .coach .skip{background:var(--card); border:1px solid var(--rule); color:var(--ink-muted);}
+  .coach .skip:hover{color:var(--ink); border-color:var(--ink);}
+  .coach .next{background:var(--ink); border:1px solid var(--ink); color:var(--card);}
+  .coach .next:hover{background:#322f2a;}
+  body.tut{padding-bottom:200px;}   /* keep the tray clear of the coach card */
+
+  /* spotlights: the live block glows, the rest of the tray waits, target cells pulse */
+  @keyframes tutpulse{0%,100%{box-shadow:0 0 0 2px var(--accent), 0 0 0 5px var(--accent-glow);}
+    50%{box-shadow:0 0 0 2px var(--accent), 0 0 0 10px var(--accent-glow);}}
+  .block.tut-spot{border-radius:10px; animation:tutpulse 1.5s ease-in-out infinite; z-index:6;}
+  .block.tut-off{pointer-events:none; cursor:default;}
+  .block.tut-off.in-tray{opacity:.22;}
+  @keyframes tutcell{0%,100%{box-shadow:inset 0 0 0 2px var(--accent);}50%{box-shadow:inset 0 0 0 5px var(--accent);}}
+  .cell.tut-target{background:var(--accent-soft); animation:tutcell 1.5s ease-in-out infinite;}
+  .cell.tut-target.drop-ok,.cell.tut-target.drop-bad{animation:none;}
 
   /* ==================== DARK MODE ==================== */
   /* Follows the OS unless the user picks a theme (data-theme on <html>). */
@@ -464,6 +553,7 @@
     :root:not([data-theme="light"]) .toast:not(.bad){color:var(--paper);}
     :root:not([data-theme="light"]) .win button:hover:not(.secondary):not(.arch-row){background:#dcd7cd;}
     :root:not([data-theme="light"]) button.submit:hover:not(:disabled){background:#dcd7cd;}
+    :root:not([data-theme="light"]) .coach .next:hover{background:#dcd7cd;}
   }
   :root[data-theme="dark"]{
     color-scheme:dark;
@@ -484,6 +574,7 @@
   :root[data-theme="dark"] .toast:not(.bad){color:var(--paper);}
   :root[data-theme="dark"] .win button:hover:not(.secondary):not(.arch-row){background:#dcd7cd;}
   :root[data-theme="dark"] button.submit:hover:not(:disabled){background:#dcd7cd;}
+  :root[data-theme="dark"] .coach .next:hover{background:#dcd7cd;}
 
   /* ==================== FOCUS ==================== */
   :focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
@@ -537,56 +628,62 @@
       <button class="x-close" type="button" aria-label="Close how to play" title="Close how to play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       <div class="win rules">
         <h2>How to play</h2>
-        <div class="goal"><b>Goal:</b> Fill the 5×5 press with the letter blocks from the tray so that every
-          row and column reads as a word. When the last cell is set, the press slams down and prints your page.</div>
 
-        <div class="step"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><path d="M17 14v6M14 17h6"/></svg></div><div class="t">
-          <b>Drag blocks onto the board.</b> <span>Letters in a block are bound together — a domino, tromino,
-          L-block or 2×2 quad always moves as one piece. On a phone, <b>press and hold</b> a block to pick it up
-          (a quick swipe scrolls the page). Drop it on empty cells.</span></div></div>
+        <div class="slide on">
+          <div class="sic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg></div>
+          <h3>Set the type</h3>
+          <p class="sd">Fill the press so <b>every row and column reads as a word</b>. The dark iron cells split a line — letters either side of one are separate words.</p>
+          <div class="mini" aria-hidden="true">
+            <i class="fe"></i><i>A</i><i class="fe"></i>
+            <i>I</i><i>N</i><i>K</i>
+            <i class="fe"></i><i>T</i><i class="fe"></i>
+          </div>
+          <div class="demo-label">INK across · ANT down</div>
+        </div>
 
-        <div class="step"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg></div><div class="t">
-          <b>Tap a block to rotate it.</b> <span>It turns 90° clockwise and the letters turn with it, so <b>TH</b>
-          becomes T-over-H, then <b>HT</b>. Rotating is always free, in the tray or on the board.</span></div></div>
+        <div class="slide">
+          <div class="sic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg></div>
+          <h3>Blocks move as one</h3>
+          <p class="sd"><b>Drag</b> a block into the press — on a phone, press and hold it first. <b>Tap</b> a block to turn it 90°; the letters turn with it.</p>
+          <div class="demo-turn" aria-hidden="true">
+            <div class="dblock h"><i>T</i><i>H</i></div>
+            <div class="arrow"><svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></div>
+            <div class="dblock v"><i>T</i><i>H</i></div>
+          </div>
+          <p class="note">Moving and turning are free. Complete a line that isn't a word and the block <span class="bd">bounces back</span> to the tray.</p>
+        </div>
 
-        <div class="step"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg></div><div class="t">
-          <b>Every line must be a word.</b> <span>The dark <b>iron spacers</b> split rows and columns — letters on
-          either side of one are separate words. Once a block completes a line, that line is checked: if it
-          isn't a word, the block <span class="bd">bounces back</span> to the tray with a thud.</span></div></div>
+        <div class="slide">
+          <div class="sic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11V6a3 3 0 0 1 6 0v5"/><path d="M4 15a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2H4z"/><path d="M6 21h12"/></svg></div>
+          <h3>Anchors &amp; ink</h3>
+          <div class="facts">
+            <div class="f"><div class="k st"><span>E</span></div><div class="v"><b>Givens</b>Boards up to 4★ open with a few gold letters. Only that letter fits on a stamp.</div></div>
+            <div class="f"><div class="k"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3s6.5 7 6.5 11.5a6.5 6.5 0 0 1-13 0C5.5 10 12 3 12 3z"/></svg></div><div class="v"><b>Ink</b>Three drops, refilling as you play. Tap Ink, then an empty cell: its letter is stamped for 10 points — and no 🥇.</div></div>
+          </div>
+        </div>
 
-        <div class="step"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 15l7-7 7 7"/><path d="M12 8v13"/><path d="M4 3h16"/></svg></div><div class="t">
-          <b>Move things around freely.</b> <span>Placed blocks can be dragged to a new spot (one move) or
-          back to the tray (free). Undo rewinds your last move.</span></div></div>
+        <div class="slide">
+          <div class="sic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16"/><path d="M6 19V9"/><path d="M11 19V5"/><path d="M16 19v-8"/></svg></div>
+          <h3>The scorecard</h3>
+          <div class="ledger">
+            <div><span>Each letter set</span><b class="up">+10</b></div>
+            <div><span>Speed bonus, draining over 3 min a star</span><b class="up">+60</b></div>
+            <div><span>Each bounce, each ink drop</span><b class="dn">−10</b></div>
+            <div class="full">🥇 85% &nbsp;·&nbsp; 🥈 65% &nbsp;·&nbsp; 🥉 any finish</div>
+          </div>
+          <p class="note"><b>Submit</b> an unfinished page for a proof 📄 — right letters score, streak still counts. ★ 1–5 rates the day; the cycle repeats.</p>
+        </div>
 
-        <div class="step"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11V6a3 3 0 0 1 6 0v5"/><path d="M4 15a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2H4z"/><path d="M6 21h12"/></svg></div><div class="t">
-          <b>A head start.</b> <span>Boards up to 4★ come with a few letters <span class="gd">already stamped</span> in the
-          press. A stamp stays until you cover it, and only the right letter fits on it — so use them as anchors.
-          5★ boards come blank.</span></div></div>
-
-        <div class="step"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3s6.5 7 6.5 11.5a6.5 6.5 0 0 1-13 0C5.5 10 12 3 12 3z"/></svg></div><div class="t">
-          <b>Stuck? Use ink.</b> <span>You have <b>three drops of ink</b>, and a spent drop refills as you play — faster on
-          easy boards. Tap <b>Ink</b>, then any empty cell, and the letter that belongs there is stamped in gold, just
-          like a given. Each drop costs <b>10 points</b>, and a page printed with ink tops out at 🥈.</span></div></div>
-
-        <div class="step"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v12H4z"/><path d="M8 20h8"/><path d="M12 16v4"/></svg></div><div class="t">
-          <b>Or hand it in.</b> <span><b>Submit</b> the page as it stands: the solution is revealed, the letters you set
-          <b>in the right place</b> are scored, and you get a proof 📄 instead of a medal. It still counts for your streak.</span></div></div>
-
-        <div class="step"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.5 6 .8-4.4 4.2 1.1 6-5.3-2.9L6.7 19.5l1.1-6L3.4 9.3l6-.8z"/></svg></div><div class="t">
-          <b>The clock.</b> <span>It starts on your first move and pauses whenever you leave the page. Moving blocks
-          around is free — only bounces, ink and time cost points.</span></div></div>
-
-        <div class="step"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16"/><path d="M6 19V9"/><path d="M11 19V5"/><path d="M16 19v-8"/></svg></div><div class="t">
-          <b>Score &amp; ink medals.</b> <span>Every letter you set is worth <b>10 points</b>, plus a <b>speed bonus of up
-          to 60</b> that drains over the board's time budget — 3 minutes per star, so a 3★ board gives you 9 minutes.
-          Each bounce and each ink drop costs 10. Your medal comes from the total:
-  <b>85%</b> of the maximum earns 🥇, <b>65%</b> earns 🥈, and any finish is 🥉.</span></div></div>
-
-        <div class="step"><div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.5 6 .8-4.4 4.2 1.1 6-5.3-2.9L6.7 19.5l1.1-6L3.4 9.3l6-.8z"/></svg></div><div class="t">
-          <b>Difficulty cycles.</b> <span>The <span class="gd">★ stars</span> in the header rate the board from 1 to 5 —
-          bigger, more rigid blocks and longer words as they climb — then the cycle starts again at 1★.</span></div></div>
-
-        <button id="rulesClose">Got it — set the type</button>
+        <div class="deck-nav">
+          <div class="dots" id="deckDots">
+            <button type="button" class="on" data-slide="0" aria-label="Slide 1"></button>
+            <button type="button" data-slide="1" aria-label="Slide 2"></button>
+            <button type="button" data-slide="2" aria-label="Slide 3"></button>
+            <button type="button" data-slide="3" aria-label="Slide 4"></button>
+          </div>
+          <button id="deckNext" type="button">Next</button>
+          <button id="replayTut" class="secondary" type="button">Replay the walkthrough</button>
+        </div>
       </div>
     </div>
   </div>
@@ -643,6 +740,16 @@
     <span class="ac">Hold &amp; drag</span> blocks from the tray into the press. <span class="ac">Tap</span> a block to rotate it — letters turn
     with it. Every row and column must read as a word; a bad line <span class="gd">bounces</span> the block back.
     Only the right letter fits on a <span class="gd">stamped</span> cell. Stuck? Spend an <span class="gd">ink drop</span> to stamp another.
+  </div>
+
+  <div class="coach" id="coach" role="status">
+    <div class="ct" id="coachTitle">Walkthrough</div>
+    <div class="cx" id="coachText"></div>
+    <div class="crow">
+      <span class="cp" id="coachProg"></span>
+      <button class="skip" id="coachSkip" type="button">Skip</button>
+      <button class="next" id="coachNext" type="button">Next</button>
+    </div>
   </div>
 
   <div class="toast" id="toast"></div>
@@ -1190,6 +1297,7 @@ let runningSince=0;      // timestamp while the clock is running, else 0
 let won=false;
 let history=[];          // snapshots for Undo
 let celebrationTimers=[];
+let tutorialMode=false, tutStep=0;   // scripted walkthrough on the practice board (see below)
 let PITCH=64, CELL=58;   // measured from the DOM after render
 
 /* ---------------- Puzzle selection (by date) ----------------
@@ -1212,6 +1320,7 @@ function allSaves(){
   try{ return JSON.parse(localStorage.getItem(SAVE_KEY)||"{}")||{}; }catch(e){ return {}; }
 }
 function saveState(){
+  if(tutorialMode) return;   // the practice board never touches real progress
   try{
     const all=allSaves();
     all[activeDay]={sig:sigOf(activePuzzle),pieces:pieces.map(p=>({rot:p.rot,at:p.at})),
@@ -1289,6 +1398,7 @@ function buildSpans(){
    a different block, crossings (cells on two words) go first, and no two givens
    touch — they sit in between, not in a clump. */
 function pickGivens(){
+  if(activePuzzle.gi) return activePuzzle.gi.map(c=>c.slice());   // authored givens (the walkthrough board)
   const n=GIVENS_BY_STARS[activePuzzle.stars]||0;
   if(!n) return [];
   let seed=0; for(const ch of sigOf(activePuzzle)) seed=(seed*31+ch.charCodeAt(0))>>>0;
@@ -1402,15 +1512,17 @@ function fullRender(){
   const b=$("bounces"); b.textContent=bounces; b.classList.toggle("hot",bounces>0);
   renderStamps();
   updateControls();
+  if(tutorialMode) tutDecorate();   // blocks are re-created on every render, so re-mark the live one
 }
 function updateControls(){
-  $("undoBtn").disabled=won||history.length===0;
-  $("inkBtn").disabled=won||ink<=0;
+  const lock=tutorialMode;          // the walkthrough script owns the board
+  $("undoBtn").disabled=won||lock||history.length===0;
+  $("inkBtn").disabled=won||lock||ink<=0;
   $("inkBtn").classList.toggle("on",inking);
   $("inkBanner").classList.toggle("show",inking);
   renderDrops(ink<INK_MAX?Math.min(1,(elapsedNow()-lastRefill)/refillInterval()):0);
-  $("resetBtn").disabled=won||!pieces.some(p=>p.at);   // nothing to clear, or the page is done
-  $("submitBtn").disabled=won||!pieces.some(p=>p.at);
+  $("resetBtn").disabled=won||lock||!pieces.some(p=>p.at);   // nothing to clear, or the page is done
+  $("submitBtn").disabled=won||lock||!pieces.some(p=>p.at);
 }
 function starsHTML(n){ return "★".repeat(n)+'<span class="off">'+"☆".repeat(5-n)+"</span>"; }
 
@@ -1547,6 +1659,7 @@ function placePiece(piece,r0,c0){
   startClock(); pushHistory();
   piece.at=[r0,c0]; moves++;
   fullRender(); saveState();
+  if(tutorialMode){ tutCheck(); return true; }   // the script decides what comes next
   if(isSolved()) winGame();
   return true;
 }
@@ -1569,6 +1682,7 @@ function rotatePiece(piece){
     pushHistory();
     piece.rot=next;                                       // rotating is always free
     animateSpin(piece.id); fullRender(); saveState();
+    if(tutorialMode) tutCheck();
     return;
   }
   // rotating on the board: it must still fit and still read as words, else it drops to the tray
@@ -1582,6 +1696,7 @@ function rotatePiece(piece){
     else toast("No room to turn it there — back to the tray");
   }
   animateSpin(piece.id); fullRender(); saveState();
+  if(tutorialMode){ tutCheck(); return; }
   if(res.ok&&isSolved()) winGame();
 }
 function animateSpin(id){
@@ -1598,7 +1713,7 @@ let drag=null;   // {piece, el, ghost, grab:[dr,dc], startX, startY, moved, lift
 function pointerDownBlock(e,el){
   if(won||e.button>0) return;
   const piece=pieces.find(p=>p.id===+el.dataset.id);
-  if(!piece||drag) return;
+  if(!piece||drag||tutLocked(piece)) return;
   const cell=e.target.closest(".bcell");
   const grab=cell?[+cell.dataset.dr,+cell.dataset.dc]:[0,0];
   const touch=e.pointerType==="touch";
@@ -1700,7 +1815,7 @@ document.addEventListener("pointercancel",pointerCancelBlock);
 document.addEventListener("keydown",e=>{
   if(e.key!=="Enter"&&e.key!==" ") return;
   const b=e.target.closest&&e.target.closest(".block"); if(!b) return;
-  e.preventDefault(); const p=pieces.find(x=>x.id===+b.dataset.id); if(p) rotatePiece(p);
+  e.preventDefault(); const p=pieces.find(x=>x.id===+b.dataset.id); if(p&&!tutLocked(p)) rotatePiece(p);
 });
 
 /* ---------------- Sound & haptics ---------------- */
@@ -1743,7 +1858,7 @@ function scoreFor(){
 function medalFor(){ if(proof) return 0; const r=scoreFor()/maxScore(); return (r>=.85&&inkUsed===0)?3:r>=.65?2:1; }
 function winGame(){
   won=true; pauseClock(); renderTime(); setInking(false);
-  if(activeDay===dayNumber()) recordWin(medalFor());
+  if(!tutorialMode && activeDay===dayNumber()) recordWin(medalFor());
   saveState(); updateControls();
   animateWin();
 }
@@ -1755,7 +1870,7 @@ function animateWin(){
     boardEl.querySelectorAll(".block").forEach(b=>b.classList.add("inked"));
   },380));
   celebrationTimers.push(setTimeout(()=>{ boardEl.classList.remove("pressing"); boardEl.classList.add("celebrate"); },1300));
-  celebrationTimers.push(setTimeout(showWin,1500));
+  celebrationTimers.push(setTimeout(tutorialMode?tutFinish:showWin,1500));
 }
 function medalEmoji(m){ return m===3?"🥇":m===2?"🥈":m===1?"🥉":"📄"; }
 
@@ -1857,9 +1972,22 @@ async function shareResult(){
 $("copyBtn").addEventListener("click",shareResult);
 $("modal").addEventListener("click",e=>{ if(e.target.id==="modal") $("modal").classList.remove("show"); });
 
-// rules modal
-$("helpBtn").addEventListener("click",()=>$("rulesModal").classList.add("show"));
-$("rulesClose").addEventListener("click",()=>$("rulesModal").classList.remove("show"));
+/* ---------------- How to play: the concise deck ----------------
+   Four slides behind the ? button. The first visit gets the walkthrough
+   instead (see below); this is what a returning player flips through. */
+const SLIDES=document.querySelectorAll("#rulesModal .slide").length;
+let slide=0;
+function showSlide(i){
+  slide=Math.max(0,Math.min(SLIDES-1,i));
+  document.querySelectorAll("#rulesModal .slide").forEach((el,k)=>el.classList.toggle("on",k===slide));
+  document.querySelectorAll("#deckDots button").forEach((el,k)=>el.classList.toggle("on",k===slide));
+  $("deckNext").textContent = slide===SLIDES-1 ? "Got it — set the type" : "Next";
+  document.querySelector("#rulesModal .win").scrollTop=0;
+}
+function openRules(){ showSlide(0); $("rulesModal").classList.add("show"); }
+$("helpBtn").addEventListener("click",openRules);
+$("deckNext").addEventListener("click",()=>{ if(slide===SLIDES-1) $("rulesModal").classList.remove("show"); else showSlide(slide+1); });
+$("deckDots").addEventListener("click",e=>{ const b=e.target.closest("button"); if(b) showSlide(+b.dataset.slide); });
 $("rulesModal").addEventListener("click",e=>{ if(e.target.id==="rulesModal") $("rulesModal").classList.remove("show"); });
 
 // Every modal card carries an x in its corner: one handler dismisses whichever
@@ -1898,7 +2026,7 @@ function buildArchive(){
     list.appendChild(row);
   }
 }
-$("calBtn").addEventListener("click",()=>{ buildArchive(); $("archiveModal").classList.add("show"); });
+$("calBtn").addEventListener("click",()=>{ if(tutorialMode) return; buildArchive(); $("archiveModal").classList.add("show"); });
 $("archClose").addEventListener("click",()=>$("archiveModal").classList.remove("show"));
 $("archiveModal").addEventListener("click",e=>{ if(e.target.id==="archiveModal") $("archiveModal").classList.remove("show"); });
 
@@ -1909,6 +2037,145 @@ function toast(msg,bad){
   clearTimeout(toastTimer);
   toastTimer=setTimeout(()=>t.className="toast",1800);
 }
+
+/* ---------------- Interactive walkthrough ----------------
+   A practice board that is not part of the daily rotation, so replaying it
+   never spoils a real puzzle. It runs on the live engine: each step unlocks
+   exactly one block and glows the cells it belongs on, and the player's own
+   drag or tap moves the script along. tutorialMode gates saveState, the
+   controls and the win card so nothing leaks into the real game. */
+const TUTORIAL={
+  stars:1, tier:"Walkthrough",
+  g:["#####","##D##","#TYPE","##E##","#####"],
+  gi:[[2,4]],                                     // one given, so the first drop has an anchor
+  p:[
+    {s:[[0,0],[0,1]],l:"PE",at:[2,3],k:0},        // drag lesson: already the right way round
+    {s:[[0,1],[1,0],[1,1]],l:"DTY",at:[1,1],k:3}, // turn lesson: one tap from its home orientation
+    {s:[[0,0]],l:"E",at:[3,2],k:0}                // the last cell brings the press down
+  ]
+};
+/* Each step: coach copy, the one live block (index into TUTORIAL.p), the cells
+   to glow while it is still in the tray, and the action that completes it.
+   Steps without an action show a Next button instead. */
+const TUT_STEPS=[
+  {t:"Welcome", next:"Show me",
+   x:"This is <b>Typeset</b> — a 5×5 letterpress. Fill it so <b>every row and column reads as a word</b>. The dark iron cells split a line in two. One quick page and you'll have it."},
+  {t:"Drag it in", piece:0, cells:[[2,3],[2,4]], on:"place",
+   x:"A block's letters move together. <b>Press and hold</b> the <b>PE</b> block and drop it on the glowing cells — its E lands on the <span class='gd'>gold E</span>, a letter the board gives you for free."},
+  {t:"Tap to turn", piece:1, on:"rotate",
+   x:"This block isn't the right way round. <b>Tap it</b> to turn it 90° — the letters turn with it, and turning is always free."},
+  {t:"Now drop it", piece:1, cells:[[1,2],[2,1],[2,2]], on:"place",
+   x:"That's the shape. Drop it on the glowing cells to finish <b>TYPE</b> across. Had that line not been a word, the block would have <span class='bd'>bounced back</span> to the tray."},
+  {t:"One cell left", piece:2, cells:[[3,2]], on:"place",
+   x:"Set the last letter and the press comes down."}
+];
+const TUT_TOTAL=TUT_STEPS.length;
+
+function coach(title,text,{next=null,prog="",skip=true}={}){
+  $("coachTitle").textContent=title;
+  $("coachText").innerHTML=text;
+  $("coachProg").textContent=prog;
+  const nb=$("coachNext");
+  if(next){ nb.style.display=""; nb.textContent=next; } else nb.style.display="none";
+  $("coachSkip").style.display=skip?"":"none";
+  $("coach").classList.add("show");
+}
+function hideCoach(){ $("coach").classList.remove("show"); }
+function atHome(p){ return !!p.at && p.at[0]===p.home[0] && p.at[1]===p.home[1]; }
+// Only the step's block responds; everything else waits.
+function tutLocked(piece){
+  if(!tutorialMode) return false;
+  const st=TUT_STEPS[tutStep];
+  return !st || st.piece==null || pieces[st.piece]!==piece;
+}
+// Spotlights are re-applied after every render (blocks are rebuilt each time).
+function tutDecorate(){
+  document.querySelectorAll(".block.tut-spot,.block.tut-off").forEach(b=>b.classList.remove("tut-spot","tut-off"));
+  boardEl.querySelectorAll(".cell.tut-target").forEach(c=>c.classList.remove("tut-target"));
+  const st=TUT_STEPS[tutStep]; if(!st) return;
+  const live=st.piece!=null?pieces[st.piece]:null;
+  document.querySelectorAll(".block").forEach(b=>b.classList.add(live&&+b.dataset.id===live.id?"tut-spot":"tut-off"));
+  if(st.cells&&live&&!live.at) st.cells.forEach(([r,c])=>{
+    const el=boardEl.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`); if(el) el.classList.add("tut-target");
+  });
+}
+/* The coach is pinned over the bottom of the viewport, so on a phone it would
+   sit on the tray. Pad the page by the card's height and scroll the tray up
+   to just above it — board and tray both stay in view. */
+function tutScroll(){
+  const tray=document.querySelector(".tray-card"), pad=$("coach").offsetHeight+28;
+  document.body.style.paddingBottom=pad+"px";
+  tray.style.scrollMarginBottom=pad+"px";
+  tray.scrollIntoView({behavior:"smooth",block:"end"});
+}
+function tutGo(step){
+  tutStep=step; hideCoach(); tutDecorate();
+  const st=TUT_STEPS[step]; if(!st) return;
+  setTimeout(()=>{
+    if(!tutorialMode||tutStep!==step) return;
+    coach(st.t,st.x,{next:st.on?null:(st.next||"Next"),prog:`${step+1} / ${TUT_TOTAL}`});
+    tutScroll();
+  },120);
+}
+/* Called after every place / rotate on the practice board. State-based rather
+   than event-based, so a stray tap or a wrong drop can't desync the script. */
+function tutCheck(){
+  const st=TUT_STEPS[tutStep];
+  if(!st||!st.on){ tutDecorate(); return; }
+  const p=pieces[st.piece];
+  if(st.on==="place"&&p.at&&!atHome(p)){          // legal, but not the lesson: back to the tray
+    p.at=null; history=[];
+    toast("Not there — drop it on the glowing cells");
+    fullRender(); return;
+  }
+  const done = st.on==="rotate" ? p.rot===0 : atHome(p)&&p.rot===0;
+  if(!done){ tutDecorate(); return; }
+  if(tutStep+1<TUT_STEPS.length) tutGo(tutStep+1);
+  else { tutStep=TUT_STEPS.length; hideCoach(); tutDecorate(); if(isSolved()) winGame(); }
+}
+function startTutorial(){
+  $("rulesModal").classList.remove("show"); $("modal").classList.remove("show");
+  pauseClock(); saveState();                      // bank the real board before swapping it out
+  clearCelebrationState();
+  tutorialMode=true; tutStep=0;
+  activePuzzle=TUTORIAL;
+  document.body.classList.add("tut");
+  $("dateLabel").textContent="WALKTHROUGH · A PRACTICE PAGE";
+  buildSpans();
+  pieces=TUTORIAL.p.map((q,i)=>({
+    id:i, base:q.s.map(([dr,dc],j)=>[dr,dc,q.l[j]]), rot:q.k, k0:q.k, at:null, home:q.at.slice(), type:shapeType(q.s)
+  }));
+  renderBoardCells();
+  givens=pickGivens();
+  moves=0; bounces=0; inkUsed=0; ink=INK_START; lastRefill=0; stamps=[];
+  won=false; history=[]; elapsed=0; runningSince=0; proof=null;
+  inking=false; boardEl.classList.remove("inking");
+  fullRender();
+  tutGo(0);
+}
+// The press has come down on the practice page: one closing card, then today's puzzle.
+function tutFinish(){
+  if(!tutorialMode) return;
+  coach("Page printed 🎉",
+    "That's Typeset: rows and columns that read as words, and the press prints the page. On a real board, <b>Ink</b> stamps a letter when you're stuck, and <b>Submit</b> hands in an unfinished page. Today's puzzle is ready.",
+    {next:"Play today's puzzle",skip:false});   // nothing left to skip
+  tutScroll();
+}
+function endTutorial(){
+  tutorialMode=false; tutStep=0;
+  hideCoach(); clearCelebrationState();
+  document.body.classList.remove("tut"); document.body.style.paddingBottom="";
+  document.querySelectorAll(".block.tut-spot,.block.tut-off").forEach(b=>b.classList.remove("tut-spot","tut-off"));
+  init();                                          // rebuild today's board and any saved progress
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+$("coachNext").addEventListener("click",()=>{
+  const st=TUT_STEPS[tutStep];
+  if(!st){ endTutorial(); return; }                // the closing card
+  if(!st.on) tutGo(tutStep+1);
+});
+$("coachSkip").addEventListener("click",endTutorial);
+$("replayTut").addEventListener("click",startTutorial);
 
 /* ---------------- Init ---------------- */
 function init(){
@@ -1952,11 +2219,12 @@ function loadDay(day){
 activeDay=Math.max(0,dayNumber());
 init();
 
-// First visit: open the rules once.
+// First visit: run the walkthrough once (over the now-ready real board).
+// After that the ? button opens the concise deck instead.
 try{
   if(!localStorage.getItem("typeset_seen")){
     localStorage.setItem("typeset_seen","1");
-    $("rulesModal").classList.add("show");
+    startTutorial();
   }
 }catch(e){ /* localStorage blocked (e.g. file://) — skip */ }
 
