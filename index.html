@@ -145,6 +145,11 @@
   .stat.words .v small{font-size:1rem; font-weight:600; color:var(--ink-muted);}
   .stat.bounce .v.hot{color:var(--bad);}
   /* ink stock: up to three drops (one to start) that drain as they're used and fill back up as you play (--fill 0..1) */
+  /* the header stock doubles as the Ink button — a thumb goes there first */
+  button.stat.ink{background:transparent; border:1px solid transparent; border-radius:10px; padding:4px 10px; margin:-4px -10px; cursor:pointer; font:inherit; color:inherit; transition:background .15s ease, border-color .15s ease;}
+  button.stat.ink:hover:not(:disabled){background:var(--hover);}
+  button.stat.ink.on{background:var(--accent-soft); border-color:var(--accent);}
+  button.stat.ink:disabled{cursor:default;}
   .stat.ink .v{display:inline-flex; align-items:center; gap:5px; height:1.76rem;}
   /* the same teardrop as the Ink button; the level rises inside the outline */
   .stat.ink .v i{display:block; width:22px; height:22px;}
@@ -712,7 +717,7 @@
   </defs></svg>
   <div class="stats">
     <div class="stat words"><span class="v" id="words">0</span><span class="l">Words set</span></div>
-    <div class="stat ink"><span class="v" id="drops" aria-label="Ink drops in stock"></span><span class="l">Ink</span></div>
+    <button class="stat ink" id="inkStat" type="button" aria-label="Ink drops in stock — tap to use one"><span class="v" id="drops"></span><span class="l">Ink</span></button>
     <div class="stat bounce"><span class="v" id="bounces">0</span><span class="l">Bounces</span></div>
   </div>
 
@@ -1540,9 +1545,9 @@ function updateControls(){
   const lock=tutorialMode;          // the walkthrough script owns the board
   $("undoBtn").disabled=won||lock||history.length===0;
   // Out of ink is not "disabled": the button stays tappable so it can say when the next drop lands.
-  $("inkBtn").disabled=won||lock;
+  $("inkBtn").disabled=won||lock; $("inkStat").disabled=won||lock;
   $("inkBtn").classList.toggle("empty",!won&&!lock&&ink<=0);
-  $("inkBtn").classList.toggle("on",inking);
+  $("inkBtn").classList.toggle("on",inking); $("inkStat").classList.toggle("on",inking);
   $("inkBanner").classList.toggle("show",inking);
   // The classic misread: gold cells treated as already set, board built around them.
   // Fires when an empty gold cell is walled in: every open neighbour holds a tile.
@@ -1573,7 +1578,7 @@ function setInking(on){
   updateControls();
 }
 function toggleInking(){
-  if(won) return;
+  if(won||tutorialMode) return;
   if(ink<=0){
     const secs=Math.max(0,Math.ceil((refillInterval()-(elapsedNow()-lastRefill))/1000));
     const mins=Math.round(refillInterval()/60000);
@@ -1997,6 +2002,7 @@ function showWin(){
 
 /* ---------------- UI wiring ---------------- */
 $("inkBtn").addEventListener("click",toggleInking);
+$("inkStat").addEventListener("click",toggleInking);
 $("undoBtn").addEventListener("click",undoMove);
 $("resetBtn").addEventListener("click",resetBoard);
 async function shareResult(){
