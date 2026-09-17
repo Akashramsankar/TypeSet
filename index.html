@@ -144,7 +144,7 @@
   .stat.words .v{color:var(--accent-ink);}
   .stat.words .v small{font-size:1rem; font-weight:600; color:var(--ink-muted);}
   .stat.bounce .v.hot{color:var(--bad);}
-  /* ink stock: three drops that drain as they're used and fill back up as you play (--fill 0..1) */
+  /* ink stock: up to three drops (one to start) that drain as they're used and fill back up as you play (--fill 0..1) */
   .stat.ink .v{display:inline-flex; align-items:center; gap:5px; height:1.76rem;}
   /* the same teardrop as the Ink button; the level rises inside the outline */
   .stat.ink .v i{display:block; width:22px; height:22px;}
@@ -296,6 +296,9 @@
   button.act:hover:not(:disabled){border-color:var(--ink); background:var(--hover);}
   button.act.on{background:var(--accent-soft); color:var(--accent-ink); border-color:var(--accent);}
   button.act:disabled{opacity:.55; cursor:default;}
+  /* Ink with an empty stock: dimmed like disabled, but still answers a tap with the refill countdown */
+  button.act.empty{opacity:.55;}
+  button.act.empty svg{stroke-dasharray:3 2;}
   /* Ink banner — sits right above the press while ink mode is on, so it's read
      where the player is already looking (same banner as Currents' move hint). */
   .hint-banner{
@@ -674,7 +677,7 @@
           <h3>Anchors &amp; ink</h3>
           <div class="facts">
             <div class="f"><div class="k st"><span>E</span></div><div class="v"><b>Givens</b>Every board opens with a few gold letters. Those cells are still empty — a block has to go on top, and only one that puts the same letter there fits.</div></div>
-            <div class="f"><div class="k"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3s6.5 7 6.5 11.5a6.5 6.5 0 0 1-13 0C5.5 10 12 3 12 3z"/></svg></div><div class="v"><b>Ink</b>Three drops, refilling as you play. Tap Ink, then an empty cell: its letter is stamped for 10 points — and no 🥇.</div></div>
+            <div class="f"><div class="k"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3s6.5 7 6.5 11.5a6.5 6.5 0 0 1-13 0C5.5 10 12 3 12 3z"/></svg></div><div class="v"><b>Ink</b>One drop to start, refilling up to three as you play. Tap Ink, then an empty cell: its letter is stamped for 10 points — and no 🥇.</div></div>
           </div>
         </div>
 
@@ -1305,7 +1308,7 @@ let stamps=[];           // [[r,c]] cells the player revealed with ink
 let givens=[];           // [[r,c]] cells stamped for free at the start (derived from the puzzle, never saved)
 let inking=false;        // ink mode: next tap on an empty cell stamps it
 let givenHintDismissed=false;   // "only gold cells left" banner closed for this board state
-const INK_MAX=3, INK_START=3;
+const INK_MAX=3, INK_START=1;   // one drop to open with; play earns the rest
 const GIVENS_BY_STARS=[0,5,4,3,2,2];   // pre-stamped cells per tier; even 5★ gets a couple
 function allStamps(){ return givens.concat(stamps); }
 function isStamped(r,c){ return allStamps().some(([a,b])=>a===r&&b===c); }
@@ -1536,7 +1539,9 @@ function fullRender(){
 function updateControls(){
   const lock=tutorialMode;          // the walkthrough script owns the board
   $("undoBtn").disabled=won||lock||history.length===0;
-  $("inkBtn").disabled=won||lock||ink<=0;
+  // Out of ink is not "disabled": the button stays tappable so it can say when the next drop lands.
+  $("inkBtn").disabled=won||lock;
+  $("inkBtn").classList.toggle("empty",!won&&!lock&&ink<=0);
   $("inkBtn").classList.toggle("on",inking);
   $("inkBanner").classList.toggle("show",inking);
   // The classic misread: gold cells treated as already set, board built around them.
@@ -1571,7 +1576,8 @@ function toggleInking(){
   if(won) return;
   if(ink<=0){
     const secs=Math.max(0,Math.ceil((refillInterval()-(elapsedNow()-lastRefill))/1000));
-    toast(runningSince?`Out of ink — next drop in ${secs}s`:"Out of ink — a drop refills as you play"); return;
+    const mins=Math.round(refillInterval()/60000);
+    toast(runningSince?`Out of ink — next drop in ${secs}s`:`Out of ink — a drop refills every ${mins} min while you play`); return;
   }
   setInking(!inking);
 }
