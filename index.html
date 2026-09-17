@@ -657,7 +657,7 @@
           <div class="sic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11V6a3 3 0 0 1 6 0v5"/><path d="M4 15a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2H4z"/><path d="M6 21h12"/></svg></div>
           <h3>Anchors &amp; ink</h3>
           <div class="facts">
-            <div class="f"><div class="k st"><span>E</span></div><div class="v"><b>Givens</b>Boards up to 4★ open with a few gold letters. Only that letter fits on a stamp.</div></div>
+            <div class="f"><div class="k st"><span>E</span></div><div class="v"><b>Givens</b>Every board opens with a few gold letters. Only that letter fits on a stamp.</div></div>
             <div class="f"><div class="k"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3s6.5 7 6.5 11.5a6.5 6.5 0 0 1-13 0C5.5 10 12 3 12 3z"/></svg></div><div class="v"><b>Ink</b>Three drops, refilling as you play. Tap Ink, then an empty cell: its letter is stamped for 10 points — and no 🥇.</div></div>
           </div>
         </div>
@@ -1287,7 +1287,7 @@ let stamps=[];           // [[r,c]] cells the player revealed with ink
 let givens=[];           // [[r,c]] cells stamped for free at the start (derived from the puzzle, never saved)
 let inking=false;        // ink mode: next tap on an empty cell stamps it
 const INK_MAX=3, INK_START=3;
-const GIVENS_BY_STARS=[0,5,4,3,2,0];   // pre-stamped cells per tier; 5★ comes blank
+const GIVENS_BY_STARS=[0,5,4,3,2,2];   // pre-stamped cells per tier; even 5★ gets a couple
 function allStamps(){ return givens.concat(stamps); }
 function isStamped(r,c){ return allStamps().some(([a,b])=>a===r&&b===c); }
 function refillInterval(){ return timeLimit()/3; }   // a full time budget refills three drops
