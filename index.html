@@ -343,6 +343,11 @@
   @keyframes fadeIn{from{opacity:0}to{opacity:1}}
   .confirm .ctext{color:var(--ink-soft); font-size:.92rem; line-height:1.55; margin:6px 0 14px;}
   .confirm .ctext b{color:var(--ink);}
+  /* Ready gate: the board stays blurred behind it so no one studies it off the clock */
+  #readyModal{backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);}
+  .ready .rsub{font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; font-weight:600; color:var(--ink-muted); margin:0 0 4px;}
+  .ready .rsub .stars{color:var(--accent-ink);}
+  .ready .winstats{margin:16px 0 14px; padding:14px 0; border-bottom:1px solid var(--rule);}
 
   .hint{color:var(--ink-muted); font-size:.8rem; text-align:center; width:min(420px,100%); line-height:1.5;}
   .hint .ac{color:var(--accent-ink); font-weight:600;}
@@ -758,6 +763,24 @@
         <div class="ctext" id="confirmText"></div>
         <button id="confirmYes">Submit and reveal</button>
         <button id="confirmNo" class="secondary">Keep working</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="readyModal">
+    <div class="win-wrap">
+      <div class="win confirm ready">
+        <h2 id="readyTitle">Today's page</h2>
+        <div class="rsub" id="readySub"></div>
+        <div class="winstats">
+          <div class="srow">
+            <div class="scell"><b id="rdPlayed">0</b><span>Played</span></div>
+            <div class="scell"><b id="rdStreak">0</b><span>Streak</span></div>
+            <div class="scell"><b id="rdMax">0</b><span>Max streak</span></div>
+          </div>
+        </div>
+        <div class="ctext" id="readyText">The clock starts when you begin — a quicker page earns a speed bonus.</div>
+        <button id="readyStart" type="button">Start</button>
       </div>
     </div>
   </div>
@@ -1646,7 +1669,6 @@ function clearCelebrationState(){
 function elapsedNow(){ return elapsed+(runningSince?Date.now()-runningSince:0); }
 function startClock(){ if(!won&&!runningSince) runningSince=Date.now(); }
 function pauseClock(){ if(runningSince){ elapsed+=Date.now()-runningSince; runningSince=0; } }
-function fmtTime(ms){ const t=Math.floor(ms/1000); return Math.floor(t/60)+":"+String(t%60).padStart(2,"0"); }
 function renderTime(){ /* the clock isn't shown while playing — it only feeds the speed bonus and ink refills */ }
 // Ink refills one drop per interval of play time, never banking past a full stock.
 // Drops are kept as persistent DOM so the fill level animates between ticks.
@@ -1966,17 +1988,17 @@ function showWin(){
   $("winTitle").textContent=proof?"Proof pulled":"Page printed";
   $("winPhrase").textContent=boardWords().join(" · ");
   $("medal").textContent=medalEmoji(m);
-  const max=maxScore(), letters=lettersSet(), speed=proof?0:speedBonus(), pct=Math.round(score/max*100), time=fmtTime(elapsedNow());
+  const max=maxScore(), letters=lettersSet(), speed=proof?0:speedBonus(), pct=Math.round(score/max*100);
   $("winScore").innerHTML=`${score}<small>/ ${max}</small>`;
   $("breakdown").textContent= proof ?
     `${letters} of ${openCells.length} letters were in the right place when you submitted`+
     (proof.wrong.length?` — ${proof.wrong.length} more ${proof.wrong.length===1?"was":"were"} set in the wrong spot.`:".")+
     ` Dashed blocks show what you were missing.` :
     `${pct}% of the maximum — ${bounces} bounce${bounces===1?"":"s"}, `+
-    `${inkUsed} ink drop${inkUsed===1?"":"s"}, ${time} on the clock.`;
+    `${inkUsed} ink drop${inkUsed===1?"":"s"}.`;
   $("bonus").innerHTML=
     `<span class="got">${letters} letters +${letters*PTS_LETTER}</span>`+
-    (proof?"":`<span class="${speed?"got":""}">Speed ${time} +${speed}</span>`)+
+    (proof?"":`<span class="${speed?"got":""}">Speed +${speed}</span>`)+
     (bounces?`<span class="lost">${bounces} bounce${bounces===1?"":"s"} −${bounces*PTS_BOUNCE}</span>`:"")+
     (inkUsed?`<span class="lost">${inkUsed} ink drop${inkUsed===1?"":"s"} −${inkUsed*PTS_INK}</span>`:`<span class="got">No ink</span>`);
   const s=loadStats(), curKey=medalKey(m);
@@ -1992,7 +2014,7 @@ function showWin(){
   const grid=activePuzzle.g.map((row,r)=>row.split("").map((ch,c)=>ch==="#"?"⬛":right.has(r+","+c)?"🟨":wrong.has(r+","+c)?"🟥":"⬜").join("")).join("\n");
   const extras=(bounces?` · 💥${bounces}`:"");   // ink is already in the score, so it stays off the card
   const mid = proof ? `${score}/${max} · ${letters}/${openCells.length} letters`
-                    : `${score}/${max} · ${time}`;
+                    : `${score}/${max}`;
   $("share").textContent=
     `Typeset #${activeDay+1} ${"★".repeat(activePuzzle.stars)}${"☆".repeat(5-activePuzzle.stars)} ${medalEmoji(m)}\n`+
     `${mid}${s.currentStreak?` · 🔥${s.currentStreak}`:""}${extras}\n`+
@@ -2054,7 +2076,7 @@ document.addEventListener("click",e=>{
 // with nothing open it steps out of ink mode.
 document.addEventListener("keydown",e=>{
   if(e.key!=="Escape"&&e.key!=="Esc") return;
-  const open=document.querySelectorAll(".modal.show");
+  const open=document.querySelectorAll(".modal.show:not(#readyModal)");
   if(open.length){ open[open.length-1].classList.remove("show"); e.preventDefault(); return; }
   if(inking){ setInking(false); e.preventDefault(); }
 });
@@ -2189,7 +2211,7 @@ function tutCheck(){
   else { tutStep=TUT_STEPS.length; hideCoach(); tutDecorate(); if(isSolved()) winGame(); }
 }
 function startTutorial(){
-  $("rulesModal").classList.remove("show"); $("modal").classList.remove("show");
+  $("rulesModal").classList.remove("show"); $("modal").classList.remove("show"); $("readyModal").classList.remove("show");
   pauseClock(); saveState();                      // bank the real board before swapping it out
   clearCelebrationState();
   tutorialMode=true; tutStep=0;
@@ -2263,9 +2285,23 @@ function init(){
   inking=false; boardEl.classList.remove("inking");
   fullRender();
   if(won) showWin();   // already solved — show the result instead of replaying the press
-  else if(document.hidden) resumeOnReturn=true;   // the clock runs from the moment the board is up, not the first move
-  else startClock();
+  else showReady();    // the clock starts from the ready card, not the first move
 }
+// Ready card: the board waits, blurred, until the player says go.
+function showReady(){
+  const isToday=activeDay===dayNumber(), s=loadStats();
+  const resuming=elapsed>0 || moves>0 || history.length>0;
+  $("readyTitle").textContent=isToday?"Today's page":`Puzzle #${activeDay+1}`;
+  $("readySub").innerHTML=(isToday?`Puzzle #${activeDay+1} · `:"")+`<span class="stars">${starsHTML(activePuzzle.stars)}</span>`;
+  $("rdPlayed").textContent=s.played;
+  $("rdStreak").textContent=s.currentStreak;
+  $("rdMax").textContent=s.maxStreak;
+  $("readyText").textContent=resuming?"The clock is paused — it picks up where you left off.":
+    "The clock starts when you begin — a quicker page earns a speed bonus.";
+  $("readyStart").textContent=resuming?"Resume":"Start";
+  $("readyModal").classList.add("show");
+}
+$("readyStart").addEventListener("click",()=>{ $("readyModal").classList.remove("show"); startClock(); });
 /* Switch the board to a given puzzle day (from the archive). */
 function loadDay(day){
   pauseClock(); saveState();
