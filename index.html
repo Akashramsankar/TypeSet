@@ -2263,6 +2263,8 @@ function init(){
   inking=false; boardEl.classList.remove("inking");
   fullRender();
   if(won) showWin();   // already solved — show the result instead of replaying the press
+  else if(document.hidden) resumeOnReturn=true;   // the clock runs from the moment the board is up, not the first move
+  else startClock();
 }
 /* Switch the board to a given puzzle day (from the archive). */
 function loadDay(day){
