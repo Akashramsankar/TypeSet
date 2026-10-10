@@ -109,18 +109,19 @@
   .sub.meta .stars .off{color:var(--rule-strong);}
 
   /* Corner icon buttons */
-  .help-btn,.cal-btn,.theme-btn{
+  .help-btn,.cal-btn,.theme-btn,.lb-btn{
     position:absolute; top:calc(8px + var(--safe-top-inset));
     background:transparent; color:var(--ink); border:none;
     width:38px; height:38px; border-radius:999px; cursor:pointer;
     display:inline-flex; align-items:center; justify-content:center; line-height:1;
     z-index:10; transition:background .15s ease, color .15s ease;
   }
-  .help-btn:hover,.cal-btn:hover,.theme-btn:hover{background:var(--surface-2);}
+  .help-btn:hover,.cal-btn:hover,.theme-btn:hover,.lb-btn:hover{background:var(--surface-2);}
   .help-btn{left:calc(-6px + var(--safe-left-inset)); font-family:var(--font-display); font-weight:800; font-size:1.15rem;}
   .cal-btn{left:calc(32px + var(--safe-left-inset));}
   .theme-btn{right:-6px;}
-  .cal-btn svg,.theme-btn svg{width:19px; height:19px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; pointer-events:none;}
+  .lb-btn{right:32px;}
+  .cal-btn svg,.theme-btn svg,.lb-btn svg{width:19px; height:19px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; pointer-events:none;}
   .theme-btn .ico-moon{display:none;}
   :root[data-theme="dark"] .theme-btn .ico-sun{display:none;}
   :root[data-theme="dark"] .theme-btn .ico-moon{display:inline-block;}
@@ -450,6 +451,43 @@
   .arch-row .as{font-size:.95rem; min-width:20px; text-align:right; color:var(--ink-muted);}
   .arch-row .as.done{color:var(--good);}
 
+  /* daily leaderboard */
+  .lb{max-height:86vh; overflow-y:auto;}
+  .lb-list{display:flex; flex-direction:column; gap:6px; margin-bottom:6px; text-align:left;}
+  .lb-row{display:flex; align-items:center; gap:10px; background:var(--surface-2); border:1px solid var(--rule);
+    border-radius:var(--radius); padding:9px 12px; font-size:.88rem;}
+  .lb-row.you{border-color:var(--accent); background:var(--accent-soft);}
+  .lb-row.gap{margin-top:8px;}
+  .lb-row .lr{font-family:var(--font-display); font-weight:800; min-width:26px; color:var(--accent-ink);}
+  .lb-row .ln{flex:1; min-width:0; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .lb-row .ln small{font-size:.58rem; letter-spacing:.1em; font-weight:600; color:var(--accent-ink); text-transform:uppercase; margin-left:6px;}
+  .lb-row .lm{font-size:1rem;}
+  .lb-row .ls{font-family:var(--font-display); font-weight:800; min-width:34px; text-align:right;}
+  .lb-row .lt{font-size:.72rem; color:var(--ink-muted); min-width:36px; text-align:right; font-variant-numeric:tabular-nums;}
+  .lb .arch-sub .stars{color:var(--gold);}
+  .lb .arch-sub .stars .off{color:var(--rule-strong);}
+  .lb-empty{color:var(--ink-muted); font-size:.88rem; padding:18px 0; text-align:center;}
+  .lb-msg{color:var(--ink-soft); font-size:.88rem; line-height:1.5; margin:14px 0 0;}
+  .lb-msg b{color:var(--ink);}
+  .lb-msg .lnk{background:none; border:none; padding:0; margin:0; display:inline; width:auto; color:var(--accent-ink);
+    font:inherit; font-weight:600; text-decoration:underline; cursor:pointer;}
+  .win .lb-msg .lnk:hover{background:none;}
+
+  /* name card: a dedicated step the first time a result can be posted */
+  .nameplate .rsub{font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; font-weight:600; color:var(--accent-ink); margin:0 0 4px;}
+  .nameplate .ntext{color:var(--ink-soft); font-size:.92rem; line-height:1.55; margin:6px 0 16px;}
+  .nameplate .npreview{text-align:left; margin-bottom:14px;}
+  .nameplate .npreview[hidden]{display:none;}
+  .nameplate .npreview .ln.ph{color:var(--ink-muted); font-weight:500;}
+  .nameplate input{display:block; width:100%; font-family:var(--font-display); font-weight:700; font-size:1.25rem;
+    text-align:center; color:var(--ink); background:var(--surface-2); border:1px solid var(--rule-strong);
+    border-radius:var(--radius); padding:13px 16px; transition:border-color .15s ease, box-shadow .15s ease;}
+  .nameplate input::placeholder{color:var(--ink-faint); font-weight:600;}
+  .nameplate input:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft);}
+  .nameplate input.shake{animation:nameShake .32s ease; border-color:var(--bad);}
+  @keyframes nameShake{25%{transform:translateX(-6px)}50%{transform:translateX(5px)}75%{transform:translateX(-3px)}}
+  .nameplate .nfoot{font-size:.72rem; color:var(--ink-muted); margin-top:12px;}
+
   /* ==================== HOW TO PLAY: CONCISE DECK ====================
      Four short slides, Tumbler-style: an icon, a title, two sentences and a
      small visual. Teaching from scratch is the walkthrough's job (below), so
@@ -634,6 +672,12 @@
     <button class="theme-btn" id="themeBtn" type="button" aria-label="Switch to dark mode" title="Theme">
       <svg class="ico ico-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M18.7 5.3l-1.8 1.8M7.1 16.9l-1.8 1.8"/></svg>
       <svg class="ico ico-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
+    </button>
+    <button class="lb-btn" id="lbBtn" type="button" aria-label="Today's leaderboard" title="Today's leaderboard">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"></path>
+        <path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"></path>
+      </svg>
     </button>
     <h1>Typeset</h1>
     <div class="sub">Daily letterpress puzzle</div>
@@ -823,6 +867,44 @@
         </div>
         <div class="share" id="share"></div>
         <button id="copyBtn">Share result</button>
+        <div id="lbJoin" hidden>
+          <div class="lb-msg" id="lbJoinMsg"></div>
+          <button id="lbJoinOpen" class="secondary" type="button">Today's leaderboard</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="lbModal">
+    <div class="win-wrap">
+      <button class="x-close" type="button" aria-label="Close leaderboard" title="Close leaderboard"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <div class="win lb">
+        <h2>Today's leaderboard</h2>
+        <div class="arch-sub" id="lbSub"></div>
+        <div class="lb-list" id="lbList"></div>
+        <div class="lb-msg" id="lbYou"></div>
+        <button id="lbClose" class="secondary" type="button">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="nameModal">
+    <div class="win-wrap">
+      <button class="x-close" type="button" aria-label="Close" title="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <div class="win nameplate">
+        <div class="rsub">Today's leaderboard</div>
+        <h2 id="nameTitle">Sign your page</h2>
+        <div class="ntext" id="nameText"></div>
+        <div class="lb-row you npreview" id="namePreview">
+          <span class="lr">#</span><span class="ln"></span><span class="lm"></span><span class="ls"></span><span class="lt"></span>
+        </div>
+        <form id="nameForm" novalidate>
+          <input id="nameInput" maxlength="16" placeholder="Your name" autocomplete="nickname" autocapitalize="words"
+                 spellcheck="false" enterkeyhint="done" aria-label="Your name for the leaderboard" />
+          <button type="submit" id="nameSave">Post to leaderboard</button>
+        </form>
+        <button id="nameSkip" class="secondary" type="button">Not now</button>
+        <div class="nfoot">Shown to everyone on the board. You can change it any time.</div>
       </div>
     </div>
   </div>
@@ -2019,6 +2101,7 @@ function showWin(){
     `Typeset #${activeDay+1} ${"★".repeat(activePuzzle.stars)}${"☆".repeat(5-activePuzzle.stars)} ${medalEmoji(m)}\n`+
     `${mid}${s.currentStreak?` · 🔥${s.currentStreak}`:""}${extras}\n`+
     `${grid}\n${GAME_URL}`;
+  lbAfterWin();
   $("modal").classList.add("show");
 }
 
@@ -2106,6 +2189,198 @@ function buildArchive(){
 $("calBtn").addEventListener("click",()=>{ if(tutorialMode) return; buildArchive(); $("archiveModal").classList.add("show"); });
 $("archClose").addEventListener("click",()=>$("archiveModal").classList.remove("show"));
 $("archiveModal").addEventListener("click",e=>{ if(e.target.id==="archiveModal") $("archiveModal").classList.remove("show"); });
+
+/* ---------------- Daily leaderboard ----------------
+   One public board per day, stored in Tumbler's Firebase under
+   typeset/daily/{day}/{playerId}. Only the live result on today's puzzle posts,
+   once per player per day (the first result stands), ranked by score then time.
+   Firebase is fetched on first use, so a plain visit stays light. */
+const FIREBASE_CONFIG={
+  apiKey:"AIzaSyD5C8uPGGb_jMuA0ceP5VlWChMV-Ggfles",
+  authDomain:"tumbler-51e42.firebaseapp.com",
+  databaseURL:"https://tumbler-51e42-default-rtdb.asia-southeast1.firebasedatabase.app/",
+  projectId:"tumbler-51e42",
+  appId:"1:907072959576:web:641facf27c204c7bb8862d",
+};
+const LB_PID_KEY="typeset_pid", LB_NAME_KEY="typeset_name", LB_POSTED_KEY="typeset_lb_posted", LB_ASKED_KEY="typeset_lb_asked";
+const LB_SHOW=50, LB_TIMEOUT=8000;
+function lbGet(k){ try{ return localStorage.getItem(k)||""; }catch(e){ return ""; } }
+function lbSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){ /* storage blocked */ } }
+function cleanName(s){ return String(s||"").replace(/[\u0000-\u001f\u007f<>]/g,"").replace(/\s+/g," ").trim().slice(0,16); }
+let lbName=cleanName(lbGet(LB_NAME_KEY));
+let lbPidCache="";
+function lbPid(){
+  if(lbPidCache) return lbPidCache;
+  let id=lbGet(LB_PID_KEY);
+  if(!/^[a-z0-9]{12,}$/.test(id)){
+    id=Array.from(crypto.getRandomValues(new Uint8Array(16)),b=>(b%36).toString(36)).join("");
+    lbSet(LB_PID_KEY,id);
+  }
+  return lbPidCache=id;
+}
+function lbSetName(n){ lbName=n; lbSet(LB_NAME_KEY,n); }
+function loadScript(src){
+  return new Promise((res,rej)=>{ const s=document.createElement("script"); s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s); });
+}
+// Firebase reads never reject while offline — they just wait — so every call gets a deadline.
+function withTimeout(p,ms){ return Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(new Error("timeout")),ms))]); }
+let lbDbPromise=null;
+function lbDb(){
+  if(!lbDbPromise){
+    const base="https://www.gstatic.com/firebasejs/10.7.1/";
+    lbDbPromise=loadScript(base+"firebase-app-compat.js")
+      .then(()=>loadScript(base+"firebase-database-compat.js"))
+      .then(()=>(firebase.apps.length?firebase.app():firebase.initializeApp(FIREBASE_CONFIG)).database())
+      .catch(e=>{ lbDbPromise=null; throw e; });
+  }
+  return withTimeout(lbDbPromise,LB_TIMEOUT);
+}
+async function lbPost(day,entry){
+  const db=await lbDb();
+  entry.at=firebase.database.ServerValue.TIMESTAMP;
+  const ref=db.ref(`typeset/daily/${day}/${lbPid()}`);
+  await withTimeout(ref.transaction(cur=>cur===null?entry:undefined),LB_TIMEOUT);   // first result stands
+  lbSet(LB_POSTED_KEY,String(day));
+}
+async function lbFetch(day){
+  const db=await lbDb();
+  const snap=await withTimeout(db.ref(`typeset/daily/${day}`).once("value"),LB_TIMEOUT);
+  const rows=[];
+  snap.forEach(c=>{
+    const v=c.val()||{};
+    if(typeof v.s==="number") rows.push({pid:c.key, n:cleanName(v.n)||"Anonymous", s:v.s|0, m:v.m|0, t:v.t|0, at:+v.at||0});
+  });
+  rows.sort((a,b)=>b.s-a.s||a.t-b.t||a.at-b.at);
+  return rows;
+}
+function fmtTime(sec){ return Math.floor(sec/60)+":"+String(sec%60).padStart(2,"0"); }
+function lbRow(r,rank,me){
+  const el=document.createElement("div");
+  el.className="lb-row"+(r.pid===me?" you":"");
+  el.innerHTML=`<span class="lr">${rank}</span><span class="ln"></span><span class="lm">${medalEmoji(r.m)}</span>`+
+    `<span class="ls">${r.s}</span><span class="lt">${fmtTime(r.t)}</span>`;
+  el.querySelector(".ln").textContent=r.n;
+  if(r.pid===me) el.querySelector(".ln").insertAdjacentHTML("beforeend","<small>You</small>");
+  return el;
+}
+function renderLbYou(day){
+  const you=$("lbYou");
+  if(!lbName){ you.textContent="Finish today's page to put your name on the board."; return; }
+  you.innerHTML=`Playing as <b></b> · <button class="lnk" type="button" id="lbRename">Change name</button>`+
+    (lbGet(LB_POSTED_KEY)===String(day)?"":"<br>Finish today's page to post your score.");
+  you.querySelector("b").textContent=lbName;
+  $("lbRename").onclick=()=>openNameCard("rename",day,null);
+}
+async function openLeaderboard(){
+  const day=Math.max(0,dayNumber()), list=$("lbList");
+  $("lbSub").innerHTML=`Puzzle #${day+1} · <span class="stars">${starsHTML(puzzleForDay(day).stars)}</span><br>Ranked by score, then time`;
+  list.innerHTML=`<div class="lb-empty">Loading…</div>`;
+  renderLbYou(day);
+  $("lbModal").classList.add("show");
+  try{
+    const rows=await lbFetch(day), me=lbPid();
+    list.innerHTML="";
+    if(!rows.length){ list.innerHTML=`<div class="lb-empty">No one's on the board yet — finish today's page to be first.</div>`; return; }
+    rows.slice(0,LB_SHOW).forEach((r,i)=>list.appendChild(lbRow(r,i+1,me)));
+    const mine=rows.findIndex(r=>r.pid===me);
+    if(mine>=LB_SHOW){ const el=lbRow(rows[mine],mine+1,me); el.classList.add("gap"); list.appendChild(el); }
+  }catch(e){
+    list.innerHTML=`<div class="lb-empty">Couldn't reach the leaderboard. Check your connection and try again.</div>`;
+  }
+}
+// Win card: today's live result posts itself once a name is known; archive replays never post.
+// With no name yet, the name card opens over the result once per day.
+function lbCurrentEntry(){ return {s:scoreFor(), m:medalFor(), t:Math.round(elapsedNow()/1000)}; }
+function lbAfterWin(){
+  const day=dayNumber(), box=$("lbJoin");
+  box.hidden=activeDay!==day;
+  if(box.hidden) return;
+  if(lbGet(LB_POSTED_KEY)===String(day)){ lbShowRank(day); return; }
+  if(lbName){ lbSubmit(day,lbCurrentEntry()); return; }
+  lbShowJoinLink(day);
+  if(lbGet(LB_ASKED_KEY)===String(day)) return;
+  lbSet(LB_ASKED_KEY,String(day));
+  const entry=lbCurrentEntry();
+  // let the score land first, then ask
+  celebrationTimers.push(setTimeout(()=>{
+    if(activeDay===day && $("modal").classList.contains("show")) openNameCard("join",day,entry);
+  },700));
+}
+function lbShowJoinLink(day){
+  $("lbJoinMsg").innerHTML=`You're not on today's leaderboard yet. <button class="lnk" type="button" id="lbAdd">Add your name</button>`;
+  $("lbAdd").onclick=()=>openNameCard("join",day,lbCurrentEntry());
+}
+async function lbSubmit(day,entry){
+  const msg=$("lbJoinMsg");
+  entry=Object.assign({n:lbName},entry);
+  msg.textContent="Posting to today's leaderboard…";
+  try{ await lbPost(day,entry); await lbShowRank(day); }
+  catch(e){
+    msg.innerHTML=`Couldn't reach the leaderboard. <button class="lnk" type="button" id="lbRetry">Try again</button>`;
+    $("lbRetry").onclick=()=>lbSubmit(day,entry);
+  }
+}
+async function lbShowRank(day){
+  const msg=$("lbJoinMsg");
+  msg.textContent="Checking today's leaderboard…";
+  try{
+    const rows=await lbFetch(day), i=rows.findIndex(r=>r.pid===lbPid());
+    msg.innerHTML=i<0?"You're on today's leaderboard.":`You're <b>#${i+1}</b> of ${rows.length} on today's leaderboard.`;
+  }catch(e){ msg.textContent="You're on today's leaderboard."; }
+}
+
+/* Name card: one dedicated step for joining the board (mode "join", with the
+   result about to be posted shown as a preview row) and for renaming later. */
+let nameCtx=null;
+function renderNamePreview(){
+  const n=cleanName($("nameInput").value), ln=$("namePreview").querySelector(".ln");
+  ln.textContent=n||"Your name"; ln.classList.toggle("ph",!n);
+}
+function openNameCard(mode,day,entry){
+  nameCtx={mode,day,entry};
+  const join=mode==="join";
+  $("nameTitle").textContent=join?"Sign your page":"Change your name";
+  $("nameText").textContent=join?
+    "Pick a name to post today's result. Everyone who finishes today's puzzle is ranked by score, then time.":
+    "This is the name other players see next to your result.";
+  $("nameSave").textContent=join?"Post to leaderboard":"Save name";
+  $("nameSkip").textContent=join?"Not now":"Cancel";
+  const pv=$("namePreview");
+  pv.hidden=!entry;
+  if(entry){
+    pv.querySelector(".lm").textContent=medalEmoji(entry.m);
+    pv.querySelector(".ls").textContent=entry.s;
+    pv.querySelector(".lt").textContent=fmtTime(entry.t);
+  }
+  $("nameInput").value=lbName; $("nameInput").classList.remove("shake");
+  renderNamePreview();
+  $("nameModal").classList.add("show");
+  setTimeout(()=>$("nameInput").focus(),60);
+}
+function closeNameCard(){ $("nameModal").classList.remove("show"); nameCtx=null; }
+$("nameInput").addEventListener("input",()=>{ $("nameInput").classList.remove("shake"); renderNamePreview(); });
+$("nameForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const input=$("nameInput"), n=cleanName(input.value);
+  if(!n){ input.classList.remove("shake"); void input.offsetWidth; input.classList.add("shake"); input.focus(); return; }
+  const ctx=nameCtx; if(!ctx) return;
+  lbSetName(n); closeNameCard();
+  if(ctx.mode==="join"){
+    if(ctx.day===dayNumber()) lbSubmit(ctx.day,ctx.entry);
+    return;
+  }
+  if(lbGet(LB_POSTED_KEY)===String(ctx.day)){
+    try{ const db=await lbDb(); await withTimeout(db.ref(`typeset/daily/${ctx.day}/${lbPid()}/n`).set(n),LB_TIMEOUT); }
+    catch(err){ toast("Couldn't update your name",true); }
+  }
+  openLeaderboard();
+});
+$("nameSkip").addEventListener("click",closeNameCard);
+$("nameModal").addEventListener("click",e=>{ if(e.target.id==="nameModal") closeNameCard(); });
+$("lbBtn").addEventListener("click",()=>{ if(tutorialMode) return; openLeaderboard(); });
+$("lbJoinOpen").addEventListener("click",openLeaderboard);
+$("lbClose").addEventListener("click",()=>$("lbModal").classList.remove("show"));
+$("lbModal").addEventListener("click",e=>{ if(e.target.id==="lbModal") $("lbModal").classList.remove("show"); });
 
 let toastTimer;
 function toast(msg,bad){
