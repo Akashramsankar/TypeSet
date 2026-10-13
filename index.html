@@ -2193,7 +2193,7 @@ $("archiveModal").addEventListener("click",e=>{ if(e.target.id==="archiveModal")
 /* ---------------- Daily leaderboard ----------------
    One public board per day, stored in Tumbler's Firebase under
    typeset/daily/{day}/{playerId}. Only the live result on today's puzzle posts,
-   once per player per day (the first result stands), ranked by score then time.
+   once per player per day (the first result stands), ranked by score, then medal, then time.
    Firebase is fetched on first use, so a plain visit stays light. */
 const FIREBASE_CONFIG={
   apiKey:"AIzaSyD5C8uPGGb_jMuA0ceP5VlWChMV-Ggfles",
@@ -2250,7 +2250,7 @@ async function lbFetch(day){
     const v=c.val()||{};
     if(typeof v.s==="number") rows.push({pid:c.key, n:cleanName(v.n)||"Anonymous", s:v.s|0, m:v.m|0, t:v.t|0, at:+v.at||0});
   });
-  rows.sort((a,b)=>b.s-a.s||a.t-b.t||a.at-b.at);
+  rows.sort((a,b)=>b.s-a.s||b.m-a.m||a.t-b.t||a.at-b.at);
   return rows;
 }
 function fmtTime(sec){ return Math.floor(sec/60)+":"+String(sec%60).padStart(2,"0"); }
@@ -2273,7 +2273,7 @@ function renderLbYou(day){
 }
 async function openLeaderboard(){
   const day=Math.max(0,dayNumber()), list=$("lbList");
-  $("lbSub").innerHTML=`Puzzle #${day+1} · <span class="stars">${starsHTML(puzzleForDay(day).stars)}</span><br>Ranked by score, then time`;
+  $("lbSub").innerHTML=`Puzzle #${day+1} · <span class="stars">${starsHTML(puzzleForDay(day).stars)}</span><br>Ranked by score, then medal, then time`;
   list.innerHTML=`<div class="lb-empty">Loading…</div>`;
   renderLbYou(day);
   $("lbModal").classList.add("show");
@@ -2341,7 +2341,7 @@ function openNameCard(mode,day,entry){
   const join=mode==="join";
   $("nameTitle").textContent=join?"Sign your page":"Change your name";
   $("nameText").textContent=join?
-    "Pick a name to post today's result. Everyone who finishes today's puzzle is ranked by score, then time.":
+    "Pick a name to post today's result. Everyone who finishes today's puzzle is ranked by score, then medal, then time.":
     "This is the name other players see next to your result.";
   $("nameSave").textContent=join?"Post to leaderboard":"Save name";
   $("nameSkip").textContent=join?"Not now":"Cancel";
