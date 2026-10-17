@@ -453,6 +453,14 @@
 
   /* daily leaderboard */
   .lb{max-height:86vh; overflow-y:auto;}
+  /* Today | Yesterday — underline tabs, as in Tumbler's leaderboard */
+  .lb-tabs{display:flex; border-bottom:1px solid var(--rule); margin:0 0 14px;}
+  .win .lb-tab{flex:1; width:auto; margin:0 0 -1px; padding:10px 6px; border:none; border-bottom:2px solid transparent; border-radius:0;
+    background:transparent; color:var(--ink-muted); font-family:var(--font-ui); font-size:.82rem; font-weight:600;
+    transition:color .15s, border-color .15s;}
+  .win .lb-tab:hover{background:transparent; color:var(--ink);}
+  .win .lb-tab:active{transform:none;}
+  .win .lb-tab.on{color:var(--accent-ink); border-bottom-color:var(--accent);}
   .lb-list{display:flex; flex-direction:column; gap:6px; margin-bottom:6px; text-align:left;}
   .lb-row{display:flex; align-items:center; gap:10px; background:var(--surface-2); border:1px solid var(--rule);
     border-radius:var(--radius); padding:9px 12px; font-size:.88rem;}
@@ -879,7 +887,11 @@
     <div class="win-wrap">
       <button class="x-close" type="button" aria-label="Close leaderboard" title="Close leaderboard"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       <div class="win lb">
-        <h2>Today's leaderboard</h2>
+        <h2>Leaderboard</h2>
+        <div class="lb-tabs" role="tablist" aria-label="Leaderboard day">
+          <button class="lb-tab on" type="button" role="tab" data-ago="0" aria-selected="true">Today</button>
+          <button class="lb-tab" type="button" role="tab" data-ago="1" aria-selected="false">Yesterday</button>
+        </div>
         <div class="arch-sub" id="lbSub"></div>
         <div class="lb-list" id="lbList"></div>
         <div class="lb-msg" id="lbYou"></div>
@@ -2703,27 +2715,39 @@ function lbRow(r,rank,me){
   return el;
 }
 function renderLbYou(day){
-  const you=$("lbYou");
-  if(!lbName){ you.textContent="Finish today's page to put your name on the board."; return; }
+  const you=$("lbYou"), isToday=day===dayNumber();
+  if(!lbName){ you.textContent=isToday?"Finish today's page to put your name on the board.":""; return; }
   you.innerHTML=`Playing as <b></b> · <button class="lnk" type="button" id="lbRename">Change name</button>`+
-    (lbGet(LB_POSTED_KEY)===String(day)?"":"<br>Finish today's page to post your score.");
+    (!isToday||lbGet(LB_POSTED_KEY)===String(day)?"":"<br>Finish today's page to post your score.");
   you.querySelector("b").textContent=lbName;
-  $("lbRename").onclick=()=>openNameCard("rename",day,null);
+  $("lbRename").onclick=()=>openNameCard("rename",dayNumber(),null);   // a rename only touches today's entry
 }
-async function openLeaderboard(){
-  const day=Math.max(0,dayNumber()), list=$("lbList");
-  $("lbSub").innerHTML=`Puzzle #${day+1} · <span class="stars">${starsHTML(puzzleForDay(day).stars)}</span><br>Ranked by score, then medal, then time`;
+// ago: 0 = today's board, 1 = yesterday's (read-only — only today's live result ever posts).
+let lbReq=0, lbAgo=0;
+async function openLeaderboard(ago=0){
+  const today=Math.max(0,dayNumber());
+  if(today<1) ago=0;
+  lbAgo=ago;
+  const day=today-ago, list=$("lbList"), req=++lbReq;
+  document.querySelector(".lb-tabs").hidden=today<1;   // launch day: nothing to look back on
+  document.querySelectorAll(".lb-tab").forEach(t=>{
+    const on=+t.dataset.ago===ago; t.classList.toggle("on",on); t.setAttribute("aria-selected",on);
+  });
+  const dstr=dateForDay(day).toLocaleDateString(undefined,{month:"short",day:"numeric"});
+  $("lbSub").innerHTML=`Puzzle #${day+1} · ${dstr} · <span class="stars">${starsHTML(puzzleForDay(day).stars)}</span><br>Ranked by score, then medal, then time`;
   list.innerHTML=`<div class="lb-empty">Loading…</div>`;
   renderLbYou(day);
   $("lbModal").classList.add("show");
   try{
     const rows=await lbFetch(day), me=lbPid();
+    if(req!==lbReq) return;   // the player switched tabs while this was loading
     list.innerHTML="";
-    if(!rows.length){ list.innerHTML=`<div class="lb-empty">No one's on the board yet — finish today's page to be first.</div>`; return; }
+    if(!rows.length){ list.innerHTML=`<div class="lb-empty">${ago?"No one made yesterday's board.":"No one's on the board yet — finish today's page to be first."}</div>`; return; }
     rows.slice(0,LB_SHOW).forEach((r,i)=>list.appendChild(lbRow(r,i+1,me)));
     const mine=rows.findIndex(r=>r.pid===me);
     if(mine>=LB_SHOW){ const el=lbRow(rows[mine],mine+1,me); el.classList.add("gap"); list.appendChild(el); }
   }catch(e){
+    if(req!==lbReq) return;
     list.innerHTML=`<div class="lb-empty">Couldn't reach the leaderboard. Check your connection and try again.</div>`;
   }
 }
@@ -2812,12 +2836,13 @@ $("nameForm").addEventListener("submit",async e=>{
     try{ const db=await lbDb(); await withTimeout(db.ref(`typeset/daily/${ctx.day}/${lbPid()}/n`).set(n),LB_TIMEOUT); }
     catch(err){ toast("Couldn't update your name",true); }
   }
-  openLeaderboard();
+  openLeaderboard(lbAgo);
 });
 $("nameSkip").addEventListener("click",closeNameCard);
 $("nameModal").addEventListener("click",e=>{ if(e.target.id==="nameModal") closeNameCard(); });
 $("lbBtn").addEventListener("click",()=>{ if(tutorialMode) return; openLeaderboard(); });
-$("lbJoinOpen").addEventListener("click",openLeaderboard);
+$("lbJoinOpen").addEventListener("click",()=>openLeaderboard());
+document.querySelectorAll(".lb-tab").forEach(t=>t.addEventListener("click",()=>openLeaderboard(+t.dataset.ago)));
 $("lbClose").addEventListener("click",()=>$("lbModal").classList.remove("show"));
 $("lbModal").addEventListener("click",e=>{ if(e.target.id==="lbModal") $("lbModal").classList.remove("show"); });
 
