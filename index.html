@@ -1853,6 +1853,26 @@ const GAME_URL="https://akashramsankar.github.io/TypeSet/";   // appended to the
 
 /* ---------------- Dictionary ---------------- */
 const DICT=new Set((window.TYPESET_WORDS||"").split(" "));
+// words.js can fail or arrive truncated on a flaky connection, leaving DICT
+// empty. Until it's in, words aren't judged; keep retrying in the background.
+function dictReady(){ return DICT.size>1000; }
+let dictLoading=false, dictRetryTimer=null, dictAttempt=0;
+function loadDict(){
+  if(dictReady()||dictLoading) return;
+  clearTimeout(dictRetryTimer);
+  dictLoading=true;
+  const s=document.createElement("script");
+  s.src="words.js?r="+Date.now();                       // dodge any truncated cached copy
+  const done=()=>{
+    dictLoading=false; s.remove();
+    for(const w of (window.TYPESET_WORDS||"").split(" ")) if(w) DICT.add(w);
+    if(!dictReady()) dictRetryTimer=setTimeout(loadDict,Math.min(30000,2000*2**dictAttempt++));
+  };
+  s.onload=done; s.onerror=done;
+  document.head.appendChild(s);
+}
+if(!dictReady()) loadDict();
+window.addEventListener("online",()=>{ dictAttempt=0; loadDict(); });
 
 /* ---------------- State ---------------- */
 const $=id=>document.getElementById(id);
@@ -2025,6 +2045,7 @@ function checkPlacement(piece,rot,r0,c0){
     if(!sp.some(([r,c])=>touched.has(r+","+c))) continue;
     if(!sp.every(([r,c])=>g[r][c])) continue;          // not enclosed yet — judged later
     const w=sp.map(([r,c])=>g[r][c]).join("");
+    if(!dictReady()) return {ok:false,reason:"nodict"};
     if(!DICT.has(w.toLowerCase())) return {ok:false,reason:"word",word:w};
   }
   return {ok:true};
@@ -2246,6 +2267,7 @@ function placePiece(piece,r0,c0){
   if(!res.ok){
     if(res.reason==="fit"){ return false; }              // physically blocked — not a move
     if(res.reason==="stamp"){ denyStamp(res.clash); return false; }
+    if(res.reason==="nodict"){ dictUnavailable(); return false; }   // not the player's fault — no penalty
     startClock();
     // invalid seam: bounce to the tray with a thud
     pushHistory();
@@ -2286,6 +2308,7 @@ function rotatePiece(piece){
   }
   // rotating on the board: it must still fit and still read as words, else it drops to the tray
   const res=checkPlacement(piece,next,piece.at[0],piece.at[1]);
+  if(res.reason==="nodict"){ dictUnavailable(); return; }   // leave it as it was
   pushHistory();
   piece.rot=next;
   if(!res.ok){
@@ -2847,6 +2870,10 @@ $("lbClose").addEventListener("click",()=>$("lbModal").classList.remove("show"))
 $("lbModal").addEventListener("click",e=>{ if(e.target.id==="lbModal") $("lbModal").classList.remove("show"); });
 
 let toastTimer;
+function dictUnavailable(){
+  toast("Dictionary didn't load — check your connection",true);
+  dictAttempt=0; loadDict();
+}
 function toast(msg,bad){
   const t=$("toast"); t.textContent=msg;
   t.className="toast show"+(bad?" bad":"");
