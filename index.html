@@ -2668,7 +2668,7 @@ $("archiveModal").addEventListener("click",e=>{ if(e.target.id==="archiveModal")
    One public board per day, stored in Tumbler's Firebase under
    typeset/daily/{day}/{playerId}. Only the live result on today's puzzle posts,
    once per player per day (the first result stands), ranked by score, then medal, then time.
-   Firebase is fetched on first use, so a plain visit stays light. */
+   Firebase also records each visit against the player's persistent Typeset ID. */
 const FIREBASE_CONFIG={
   apiKey:"AIzaSyD5C8uPGGb_jMuA0ceP5VlWChMV-Ggfles",
   authDomain:"tumbler-51e42.firebaseapp.com",
@@ -2709,6 +2709,15 @@ function lbDb(){
   }
   return withTimeout(lbDbPromise,LB_TIMEOUT);
 }
+async function markTypesetVisit(){
+  try{
+    const db=await lbDb();
+    const profile={lastUpdated:firebase.database.ServerValue.TIMESTAMP};
+    if(lbName) profile.name=lbName;
+    await withTimeout(db.ref(`typeset/userProfile/${lbPid()}`).update(profile),LB_TIMEOUT);
+  }catch(e){ /* Visit tracking is best effort and must not block the game. */ }
+}
+void markTypesetVisit();
 async function lbPost(day,entry){
   const db=await lbDb();
   entry.at=firebase.database.ServerValue.TIMESTAMP;
