@@ -2252,10 +2252,17 @@ function refillInk(){
 }
 setInterval(()=>{ if(runningSince){ refillInk(); updateControls(); } },1000);
 let resumeOnReturn=false;   // the clock was running when the page was hidden
+const BOOT_DAY=dayNumber();  // a tab resumed on a later day may be running an old build — reload it
+function reloadIfStale(){
+  if(dayNumber()===BOOT_DAY) return false;
+  saveState(); location.reload(); return true;
+}
 document.addEventListener("visibilitychange",()=>{
   if(document.hidden){ resumeOnReturn=!!runningSince; if(runningSince){ pauseClock(); saveState(); } }
+  else if(reloadIfStale()) return;
   else if(resumeOnReturn){ resumeOnReturn=false; startClock(); }
 });
+window.addEventListener("pageshow",e=>{ if(e.persisted) reloadIfStale(); });   // restored from the back/forward cache
 window.addEventListener("pagehide",()=>{ if(runningSince){ pauseClock(); saveState(); } });
 function timeLimit(){ return activePuzzle.stars*3*60*1000; }   // 3 minutes per star
 
@@ -2724,6 +2731,7 @@ async function lbPost(day,entry){
   const ref=db.ref(`typeset/daily/${day}/${lbPid()}`);
   await withTimeout(ref.transaction(cur=>cur===null?entry:undefined),LB_TIMEOUT);   // first result stands
   lbSet(LB_POSTED_KEY,String(day));
+  void markTypesetVisit();   // a posted score always comes with a profile
 }
 async function lbFetch(day){
   const db=await lbDb();
