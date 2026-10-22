@@ -109,19 +109,20 @@
   .sub.meta .stars .off{color:var(--rule-strong);}
 
   /* Corner icon buttons */
-  .help-btn,.cal-btn,.theme-btn,.lb-btn{
+  .help-btn,.cal-btn,.stats-btn,.theme-btn,.lb-btn{
     position:absolute; top:calc(8px + var(--safe-top-inset));
     background:transparent; color:var(--ink); border:none;
     width:38px; height:38px; border-radius:999px; cursor:pointer;
     display:inline-flex; align-items:center; justify-content:center; line-height:1;
     z-index:10; transition:background .15s ease, color .15s ease;
   }
-  .help-btn:hover,.cal-btn:hover,.theme-btn:hover,.lb-btn:hover{background:var(--surface-2);}
+  .help-btn:hover,.cal-btn:hover,.stats-btn:hover,.theme-btn:hover,.lb-btn:hover{background:var(--surface-2);}
   .help-btn{left:calc(-6px + var(--safe-left-inset)); font-family:var(--font-display); font-weight:800; font-size:1.15rem;}
   .cal-btn{left:calc(32px + var(--safe-left-inset));}
+  .stats-btn{left:calc(70px + var(--safe-left-inset));}
   .theme-btn{right:-6px;}
   .lb-btn{right:32px;}
-  .cal-btn svg,.theme-btn svg,.lb-btn svg{width:19px; height:19px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; pointer-events:none;}
+  .cal-btn svg,.stats-btn svg,.theme-btn svg,.lb-btn svg{width:19px; height:19px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; pointer-events:none;}
   .theme-btn .ico-moon{display:none;}
   :root[data-theme="dark"] .theme-btn .ico-sun{display:none;}
   :root[data-theme="dark"] .theme-btn .ico-moon{display:inline-block;}
@@ -432,6 +433,14 @@
   .winstats .sdist .gd b{color:var(--ink);}
   .winstats .sdist .gd.cur{color:var(--accent-ink);}
   .winstats .sdist .gd.cur b{color:var(--accent-ink);}
+  .winstats.standalone{margin-top:6px; padding-top:0; border-top:none;}
+  .sempty{color:var(--ink-muted); font-size:.82rem;}
+
+  /* countdown to tomorrow's page */
+  .next-page{margin:14px 0 0; padding-top:12px; border-top:1px solid var(--rule); display:flex; flex-direction:column; align-items:center; gap:2px;}
+  .next-page[hidden]{display:none;}
+  .next-page .nl{font-size:.64rem; color:var(--ink-muted); letter-spacing:.1em; text-transform:uppercase; font-weight:600;}
+  .next-page .nt{font-family:var(--font-display); font-size:1.5rem; font-weight:800; letter-spacing:-.01em; color:var(--ink); font-variant-numeric:tabular-nums;}
 
   /* archive list */
   .archive{max-height:86vh; overflow-y:auto;}
@@ -450,6 +459,7 @@
     border-radius:999px; padding:2px 7px; text-transform:uppercase;}
   .arch-row .as{font-size:.95rem; min-width:20px; text-align:right; color:var(--ink-muted);}
   .arch-row .as.done{color:var(--good);}
+  .arch-row .as.medal{font-size:1.1rem; color:inherit;}
 
   /* daily leaderboard */
   .lb{max-height:86vh; overflow-y:auto;}
@@ -677,6 +687,9 @@
         <path d="M16 14h.01"></path>
       </svg>
     </button>
+    <button class="stats-btn" id="statsBtn" type="button" aria-label="Statistics" title="Statistics">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M12 20V4M19 20v-7"/></svg>
+    </button>
     <button class="theme-btn" id="themeBtn" type="button" aria-label="Switch to dark mode" title="Theme">
       <svg class="ico ico-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M18.7 5.3l-1.8 1.8M7.1 16.9l-1.8 1.8"/></svg>
       <svg class="ico ico-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
@@ -691,6 +704,25 @@
     <div class="sub">Daily letterpress puzzle</div>
     <div class="sub meta" id="dateLabel"></div>
   </header>
+
+  <div class="modal" id="statsModal">
+    <div class="win-wrap">
+      <button class="x-close" type="button" aria-label="Close statistics" title="Close statistics"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <div class="win">
+        <h2>Statistics</h2>
+        <div class="winstats standalone">
+          <div class="srow">
+            <div class="scell"><b id="smPlayed">0</b><span>Played</span></div>
+            <div class="scell"><b id="smStreak">0</b><span>Streak</span></div>
+            <div class="scell"><b id="smMax">0</b><span>Max streak</span></div>
+          </div>
+          <div class="sdist" id="smDist"></div>
+        </div>
+        <div class="next-page" id="smNext" hidden><span class="nl">Next page in</span><b class="nt"></b></div>
+        <button id="statsClose" class="secondary" type="button">Close</button>
+      </div>
+    </div>
+  </div>
 
   <div class="modal" id="archiveModal">
     <div class="win-wrap">
@@ -873,6 +905,7 @@
           </div>
           <div class="sdist" id="stDist"></div>
         </div>
+        <div class="next-page" id="winNext" hidden><span class="nl">Next page in</span><b class="nt"></b></div>
         <div class="share" id="share"></div>
         <button id="copyBtn">Share result</button>
         <div id="lbJoin" hidden>
@@ -1954,6 +1987,16 @@ function loadStats(){
   return s;
 }
 function medalKey(m){ return m===3?"gold":m===2?"silver":m===1?"bronze":"proof"; }
+// The stored streak only resets on the next win; a missed day already breaks it.
+function liveStreak(s){ return s.lastWonDay>=dayNumber()-1 ? s.currentStreak : 0; }
+function renderStats(prefix, s, curKey){
+  $(prefix+"Played").textContent=s.played;
+  $(prefix+"Streak").textContent=liveStreak(s);
+  $(prefix+"Max").textContent=s.maxStreak;
+  $(prefix+"Dist").innerHTML = s.played===0
+    ? `<span class="sempty">Finish today's page to start your medal count.</span>`
+    : GRADE_KEYS.map(([k,l])=>`<span class="gd${k===curKey?" cur":""}">${l} <b>${s.dist[k]||0}</b></span>`).join("");
+}
 // Records exactly one win per day; called from winGame (the live win moment only).
 function recordWin(medal){
   const s=loadStats(), day=dayNumber();
@@ -2564,11 +2607,9 @@ function showWin(){
     (proof?"":`<span class="${speed?"got":""}">Speed +${speed}</span>`)+
     (bounces?`<span class="lost">${bounces} bounce${bounces===1?"":"s"} −${bounces*PTS_BOUNCE}</span>`:"")+
     (inkUsed?`<span class="lost">${inkUsed} ink drop${inkUsed===1?"":"s"} −${inkUsed*PTS_INK}</span>`:`<span class="got">No ink</span>`);
-  const s=loadStats(), curKey=medalKey(m);
-  $("stPlayed").textContent=s.played;
-  $("stStreak").textContent=s.currentStreak;
-  $("stMax").textContent=s.maxStreak;
-  $("stDist").innerHTML=GRADE_KEYS.map(([k,l])=>`<span class="gd${k===curKey?" cur":""}">${l} <b>${s.dist[k]||0}</b></span>`).join("");
+  const s=loadStats();
+  renderStats("st", s, medalKey(m));
+  showNextPage("winNext", activeDay===BOOT_DAY);
 
   // Share card: two lines of stats, the board's shape, the link. Bounces and
   // hints only appear when there were any.
@@ -2612,6 +2653,40 @@ async function shareResult(){
 $("copyBtn").addEventListener("click",shareResult);
 $("modal").addEventListener("click",e=>{ if(e.target.id==="modal") $("modal").classList.remove("show"); });
 
+/* ---------------- Next-page countdown ----------------
+   Under the stats once today's page is done. It counts to the moment
+   dayNumber() rolls over; past that, a tap loads the new page. */
+let nextTimer=0;
+function showNextPage(id,on){
+  $(id).hidden=!on;
+  if(on){ tickNextPage(); if(!nextTimer) nextTimer=setInterval(tickNextPage,1000); }
+}
+function tickNextPage(){
+  const live=[...document.querySelectorAll(".modal.show .next-page:not([hidden])")];
+  if(!live.length){ clearInterval(nextTimer); nextTimer=0; return; }
+  const left=Math.max(0,Math.ceil((dateForDay(BOOT_DAY+1)-Date.now())/1000));
+  live.forEach(el=>{
+    el.querySelector(".nl").textContent=left?"Next page in":"A new page is ready";
+    el.querySelector(".nt").textContent=left?
+      Math.floor(left/3600)+":"+String(Math.floor(left/60)%60).padStart(2,"0")+":"+String(left%60).padStart(2,"0") : "Tap to open";
+    el.style.cursor=left?"":"pointer";
+  });
+}
+document.addEventListener("click",e=>{
+  if(e.target.closest&&e.target.closest(".next-page") && dayNumber()!==BOOT_DAY) reloadIfStale();
+});
+
+/* ---------------- Statistics ---------------- */
+$("statsBtn").addEventListener("click",()=>{
+  if(tutorialMode) return;
+  const s=loadStats();
+  renderStats("sm", s, null);
+  $("statsModal").classList.add("show");
+  showNextPage("smNext", s.lastWonDay===BOOT_DAY);
+});
+$("statsClose").addEventListener("click",()=>$("statsModal").classList.remove("show"));
+$("statsModal").addEventListener("click",e=>{ if(e.target.id==="statsModal") $("statsModal").classList.remove("show"); });
+
 /* ---------------- How to play: the concise deck ----------------
    Four slides behind the ? button. The first visit gets the walkthrough
    instead (see below); this is what a returning player flips through. */
@@ -2648,6 +2723,14 @@ $("inkCancel").addEventListener("click",()=>setInking(false));
 $("givenDismiss").addEventListener("click",()=>{ givenHintDismissed=true; $("givenBanner").classList.remove("show"); });
 
 /* ---------------- Puzzle archive ---------------- */
+// Medal of a finished save — medalFor()'s sums, from the numbers the save kept.
+function savedMedal(s,pz){
+  if(s.proof) return 0;
+  const open=pz.g.join("").replace(/#/g,"").length, max=open*PTS_LETTER+PTS_SPEED;
+  const speed=Math.round(PTS_SPEED*Math.max(0,1-(s.elapsed||0)/(pz.stars*3*60*1000)));
+  const r=Math.max(0,open*PTS_LETTER+speed-(s.bounces||0)*PTS_BOUNCE-(s.inkUsed||0)*PTS_INK)/max;
+  return (r>=.85&&!s.inkUsed)?3:r>=.65?2:1;
+}
 function buildArchive(){
   const today=Math.max(0,dayNumber());
   const saves=allSaves();
@@ -2661,7 +2744,7 @@ function buildArchive(){
     row.className="arch-row"+(day===activeDay?" current":"");
     const dstr=dateForDay(day).toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"});
     const badge = day===today ? `<span class="atoday">Today</span>` : "";
-    const status = solved ? `<span class="as done">✓</span>` : started ? `<span class="as">▶</span>` : `<span class="as"></span>`;
+    const status = solved ? `<span class="as medal">${medalEmoji(savedMedal(s,pz))}</span>` : started ? `<span class="as">▶</span>` : `<span class="as"></span>`;
     row.innerHTML=`<span class="an">#${day+1}</span><span class="ad">${dstr}<small><span class="stars">${"★".repeat(pz.stars)}</span></small></span>${badge}${status}`;
     row.addEventListener("click",()=>{ $("archiveModal").classList.remove("show"); loadDay(day); });
     list.appendChild(row);
@@ -3077,7 +3160,7 @@ function showReady(){
   $("readyTitle").textContent=isToday?"Today's page":`Puzzle #${activeDay+1}`;
   $("readySub").innerHTML=(isToday?`Puzzle #${activeDay+1} · `:"")+`<span class="stars">${starsHTML(activePuzzle.stars)}</span>`;
   $("rdPlayed").textContent=s.played;
-  $("rdStreak").textContent=s.currentStreak;
+  $("rdStreak").textContent=liveStreak(s);
   $("rdMax").textContent=s.maxStreak;
   $("readyText").textContent=resuming?"The clock is paused — it picks up where you left off.":
     "The clock starts when you begin — a quicker page earns a speed bonus.";
