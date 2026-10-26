@@ -140,13 +140,16 @@
   .clue-label{font-size:.66rem; letter-spacing:.12em; color:var(--ink-muted); text-transform:uppercase; font-weight:600;}
 
   /* ==================== STATS ROW ==================== */
-  .stats{display:grid; grid-template-columns:repeat(3,1fr); width:min(420px,100%); padding:0 4px;}
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); width:min(420px,100%); padding:0 4px;}
   .stat{display:flex; flex-direction:column; align-items:center; gap:4px;}
   .stat .v{font-size:1.6rem; font-weight:800; letter-spacing:-.02em; line-height:1.1; color:var(--ink);}
   .stat .l{font-size:.64rem; letter-spacing:.1em; color:var(--ink-muted); text-transform:uppercase; font-weight:600;}
   .stat.words .v{color:var(--accent-ink);}
   .stat.words .v small{font-size:1rem; font-weight:600; color:var(--ink-muted);}
   .stat.bounce .v.hot{color:var(--bad);}
+  /* time on the page; it greys out once the speed bonus has fully drained */
+  .stat.time .v{font-variant-numeric:tabular-nums;}
+  .stat.time .v.over{color:var(--ink-muted);}
   /* ink stock: up to three drops (one to start) that drain as they're used and fill back up as you play (--fill 0..1) */
   /* the header stock doubles as the Ink button — a thumb goes there first */
   button.stat.ink{background:transparent; border:1px solid transparent; border-radius:10px; padding:4px 10px; margin:-4px -10px; cursor:pointer; font:inherit; color:inherit; transition:background .15s ease, border-color .15s ease;}
@@ -159,8 +162,18 @@
   .stat.ink .v i svg{display:block; width:100%; height:100%; overflow:visible;}
   .stat.ink .v i .rim{fill:none; stroke:var(--rule-strong); stroke-width:1.8; stroke-linejoin:round; transition:stroke .3s;}
   .stat.ink .v i .lvl{fill:var(--gold); transform-box:fill-box; transform-origin:50% 100%;
-    transform:scaleY(var(--fill,0)); transition:transform 1s linear;}
+    transform:scaleY(var(--fill,0)); transition:transform .3s ease-out;}
   .stat.ink .v i.full .rim{stroke:var(--gold);}
+  /* the drop that's refilling: a faint gold rim, a sheen riding the surface, and a pulse once it's nearly ready */
+  .stat.ink .v i.filling .rim{stroke:var(--gold); stroke-opacity:.45;}
+  .stat.ink .v i .sheen{fill:#fff; opacity:0; transform-box:view-box; transform:translateY(calc((1 - var(--fill,0))*18px));
+    transition:transform .3s ease-out;}
+  .stat.ink .v i.filling .sheen{opacity:.35; animation:inksheen 2.4s ease-in-out infinite;}
+  @keyframes inksheen{0%,100%{opacity:.2;}50%{opacity:.45;}}
+  .stat.ink .v i.soon{animation:inksoon 1s ease-in-out infinite;}
+  .stat.ink .v i.soon .rim{stroke-opacity:1;}
+  @keyframes inksoon{0%,100%{transform:scale(1);}50%{transform:scale(1.12);}}
+  .stat.ink .l{font-variant-numeric:tabular-nums;}
   .stat.ink .v i.pop{animation:inkpop .5s cubic-bezier(.2,.9,.2,1);}
   @keyframes inkpop{0%{transform:scale(.8);}55%{transform:scale(1.25);}100%{transform:scale(1);}}
 
@@ -862,6 +875,7 @@
     <div class="stat words"><span class="v" id="words">0</span><span class="l">Words set</span></div>
     <button class="stat ink" id="inkStat" type="button" aria-label="Ink drops in stock — tap to use one"><span class="v" id="drops"></span><span class="l">Ink</span></button>
     <div class="stat bounce"><span class="v" id="bounces">0</span><span class="l">Bounces</span></div>
+    <div class="stat time"><span class="v" id="clock">0:00</span><span class="l">Time</span></div>
   </div>
 
   <div class="hint-banner" id="givenBanner"><span>That gold cell is still empty — a block with that letter has to sit on top of it.</span>
@@ -2237,7 +2251,7 @@ function updateControls(){
     .every(([a,b])=>a<0||a>4||b<0||b>4||isSpacer(a,b)||g[a][b]));
   if(!walled) givenHintDismissed=false;                   // re-arm once the board changes shape
   $("givenBanner").classList.toggle("show",walled&&!givenHintDismissed);
-  renderDrops(ink<INK_MAX?Math.min(1,(elapsedNow()-lastRefill)/refillInterval()):0);
+  renderDrops(); renderTime();
   $("resetBtn").disabled=won||lock||!pieces.some(p=>p.at);   // nothing to clear, or the page is done
   $("submitBtn").disabled=won||lock||!pieces.some(p=>p.at);
 }
@@ -2327,20 +2341,41 @@ function clearCelebrationState(){
 function elapsedNow(){ return elapsed+(runningSince?Date.now()-runningSince:0); }
 function startClock(){ if(!won&&!runningSince) runningSince=Date.now(); }
 function pauseClock(){ if(runningSince){ elapsed+=Date.now()-runningSince; runningSince=0; } }
-function renderTime(){ /* the clock isn't shown while playing — it only feeds the speed bonus and ink refills */ }
+function fmtClock(ms){ const t=Math.floor(ms/1000), h=Math.floor(t/3600), m=Math.floor(t/60)%60, s=t%60;
+  return (h?h+":"+String(m).padStart(2,"0"):m)+":"+String(s).padStart(2,"0"); }
+function renderTime(){
+  const ms=elapsedNow(), el=$("clock"), txt=fmtClock(ms);
+  if(el.textContent!==txt) el.textContent=txt;
+  el.classList.toggle("over",ms>=timeLimit());            // speed bonus is spent
+}
 // Ink refills one drop per interval of play time, never banking past a full stock.
-// Drops are kept as persistent DOM so the fill level animates between ticks.
-function renderDrops(prog){
-  const box=$("drops");
-  const DROP='<i><svg viewBox="0 0 24 24"><g clip-path="url(#dropClip)"><rect class="lvl" x="0" y="0" width="24" height="24"/></g>'+
+// Drops are kept as persistent DOM; while the clock runs the refilling drop is
+// redrawn every frame, so its level tracks the time left to the next drop.
+function refillProgress(){ return ink<INK_MAX?Math.min(1,Math.max(0,(elapsedNow()-lastRefill)/refillInterval())):0; }
+function renderDrops(){
+  const box=$("drops"), prog=refillProgress();
+  // the level and sheen span the teardrop itself (y 3..21), so the fill reads true to the time left
+  const DROP='<i><svg viewBox="0 0 24 24"><g clip-path="url(#dropClip)"><rect class="lvl" x="0" y="3" width="24" height="18"/>'+
+    '<rect class="sheen" x="0" y="2.4" width="24" height="1.2"/></g>'+
     '<path class="rim" d="M12 3s6.5 7 6.5 11.5a6.5 6.5 0 0 1-13 0C5.5 10 12 3 12 3z"/></svg></i>';
   if(box.children.length!==INK_MAX) box.innerHTML=DROP.repeat(INK_MAX);
+  const filling=!won&&ink<INK_MAX;
   Array.from(box.children).forEach((d,i)=>{
     const fill=i<ink?1:i===ink?prog:0;
-    d.style.setProperty("--fill",fill.toFixed(3));
+    d.style.setProperty("--fill",fill.toFixed(4));
     d.classList.toggle("full",i<ink);
+    d.classList.toggle("filling",filling&&i===ink);
+    d.classList.toggle("soon",filling&&i===ink&&!!runningSince&&prog>=.9);
   });
+  // the label counts down to the next drop
+  const lbl=$("inkStat").querySelector(".l");
+  const txt=filling?"Ink · "+fmtClock(Math.max(0,refillInterval()-(elapsedNow()-lastRefill))+999):"Ink";
+  if(lbl.textContent!==txt) lbl.textContent=txt;
 }
+(function frame(){
+  if(runningSince&&!document.hidden){ renderDrops(); renderTime(); }
+  requestAnimationFrame(frame);
+})();
 function refillInk(){
   if(won) return;
   const now=elapsedNow(), step=refillInterval();
