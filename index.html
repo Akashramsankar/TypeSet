@@ -173,7 +173,6 @@
   .stat.ink .v i.soon{animation:inksoon 1s ease-in-out infinite;}
   .stat.ink .v i.soon .rim{stroke-opacity:1;}
   @keyframes inksoon{0%,100%{transform:scale(1);}50%{transform:scale(1.12);}}
-  .stat.ink .l{font-variant-numeric:tabular-nums;}
   .stat.ink .v i.pop{animation:inkpop .5s cubic-bezier(.2,.9,.2,1);}
   @keyframes inkpop{0%{transform:scale(.8);}55%{transform:scale(1.25);}100%{transform:scale(1);}}
 
@@ -2367,10 +2366,6 @@ function renderDrops(){
     d.classList.toggle("filling",filling&&i===ink);
     d.classList.toggle("soon",filling&&i===ink&&!!runningSince&&prog>=.9);
   });
-  // the label counts down to the next drop
-  const lbl=$("inkStat").querySelector(".l");
-  const txt=filling?"Ink · "+fmtClock(Math.max(0,refillInterval()-(elapsedNow()-lastRefill))+999):"Ink";
-  if(lbl.textContent!==txt) lbl.textContent=txt;
 }
 (function frame(){
   if(runningSince&&!document.hidden){ renderDrops(); renderTime(); }
