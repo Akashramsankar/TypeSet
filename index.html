@@ -109,20 +109,21 @@
   .sub.meta .stars .off{color:var(--rule-strong);}
 
   /* Corner icon buttons */
-  .help-btn,.cal-btn,.stats-btn,.theme-btn,.lb-btn{
+  .help-btn,.cal-btn,.stats-btn,.theme-btn,.lb-btn,.games-btn{
     position:absolute; top:calc(8px + var(--safe-top-inset));
     background:transparent; color:var(--ink); border:none;
     width:38px; height:38px; border-radius:999px; cursor:pointer;
     display:inline-flex; align-items:center; justify-content:center; line-height:1;
     z-index:10; transition:background .15s ease, color .15s ease;
   }
-  .help-btn:hover,.cal-btn:hover,.stats-btn:hover,.theme-btn:hover,.lb-btn:hover{background:var(--surface-2);}
+  .help-btn:hover,.cal-btn:hover,.stats-btn:hover,.theme-btn:hover,.lb-btn:hover,.games-btn:hover{background:var(--surface-2);}
   .help-btn{left:calc(-6px + var(--safe-left-inset)); font-family:var(--font-display); font-weight:800; font-size:1.15rem;}
   .cal-btn{left:calc(32px + var(--safe-left-inset));}
   .stats-btn{left:calc(70px + var(--safe-left-inset));}
   .theme-btn{right:-6px;}
   .lb-btn{right:32px;}
-  .cal-btn svg,.stats-btn svg,.theme-btn svg,.lb-btn svg{width:19px; height:19px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; pointer-events:none;}
+  .games-btn{right:70px;}
+  .cal-btn svg,.stats-btn svg,.theme-btn svg,.lb-btn svg,.games-btn svg{width:19px; height:19px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; pointer-events:none;}
   .theme-btn .ico-moon{display:none;}
   :root[data-theme="dark"] .theme-btn .ico-sun{display:none;}
   :root[data-theme="dark"] .theme-btn .ico-moon{display:inline-block;}
@@ -461,6 +462,29 @@
   .arch-row .as.done{color:var(--good);}
   .arch-row .as.medal{font-size:1.1rem; color:inherit;}
 
+  /* more games: sibling puzzles, same cards as Tumbler's */
+  .games{max-height:86vh; overflow-y:auto;}
+  .game-card{display:flex; align-items:center; gap:14px; width:100%; padding:14px 16px; margin-bottom:10px;
+    background:var(--surface-2); border:1px solid var(--rule); border-radius:var(--radius);
+    color:var(--ink); text-decoration:none; text-align:left; transition:border-color .15s, background .15s, transform .15s;}
+  .game-card:hover{border-color:var(--ink); background:var(--hover); transform:translateY(-1px);}
+  .game-card-mark{flex:0 0 44px; width:44px; height:44px; display:flex; align-items:center; justify-content:center;
+    border-radius:var(--radius); background:var(--accent-soft); color:var(--accent-ink);}
+  .game-card-body{flex:1; min-width:0;}
+  .game-card-title{display:block; font-family:var(--font-display); font-weight:800; font-size:1.05rem; line-height:1.2; margin-bottom:3px;}
+  .game-card-desc{display:block; font-size:.78rem; color:var(--ink-muted); line-height:1.35;}
+  .game-card-arrow{flex:0 0 auto; color:var(--ink-muted);}
+  .game-card svg{stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
+  /* compact row in the win modal */
+  .win-more-games{margin:14px 0 0; padding-top:12px; border-top:1px solid var(--rule);}
+  .win-more-games .nl{display:block; font-size:.64rem; color:var(--ink-muted); letter-spacing:.1em; text-transform:uppercase; font-weight:600; margin-bottom:8px;}
+  .win-more-games-row{display:flex; gap:8px;}
+  .win-game-link{flex:1; display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:9px 10px;
+    border-radius:999px; background:var(--card); border:1px solid var(--rule); color:var(--ink);
+    font-size:.82rem; font-weight:600; text-decoration:none; transition:border-color .15s, background .15s;}
+  .win-game-link:hover{border-color:var(--ink); background:var(--hover);}
+  .win-game-link svg{width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
+
   /* daily leaderboard */
   .lb{max-height:86vh; overflow-y:auto;}
   /* Today | Yesterday — underline tabs, as in Tumbler's leaderboard */
@@ -700,6 +724,9 @@
         <path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"></path>
       </svg>
     </button>
+    <button class="games-btn" id="gamesBtn" type="button" aria-label="More games" title="More games">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+    </button>
     <h1>Typeset</h1>
     <div class="sub">Daily letterpress puzzle</div>
     <div class="sub meta" id="dateLabel"></div>
@@ -732,6 +759,33 @@
         <div class="arch-sub">Pick any past day to play it. Only today's solve counts toward your streak.</div>
         <div class="arch-list" id="archList"></div>
         <button id="archClose" class="secondary">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="gamesModal">
+    <div class="win-wrap">
+      <button class="x-close" type="button" aria-label="Close more games" title="Close more games"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <div class="win games">
+        <h2>More games</h2>
+        <div class="arch-sub">Two more daily word puzzles from the same workshop.</div>
+        <a class="game-card" href="https://akashramsankar.github.io/Tumbler/" target="_blank" rel="noopener">
+          <span class="game-card-mark"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15.5" r="1.5"/></svg></span>
+          <span class="game-card-body">
+            <span class="game-card-title">Tumbler</span>
+            <span class="game-card-desc">Crack the daily 4-letter code in 6 attempts. Follow the arrows and outsmart the vault.</span>
+          </span>
+          <svg class="game-card-arrow" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7"/><path d="M9 7h8v8"/></svg>
+        </a>
+        <a class="game-card" href="https://akashramsankar.github.io/currents/" target="_blank" rel="noopener">
+          <span class="game-card-mark"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12c3-4 6-4 9 0s6 4 9 0"/><path d="M3 17c3-4 6-4 9 0s6 4 9 0"/><path d="M3 7c3-4 6-4 9 0s6 4 9 0"/></svg></span>
+          <span class="game-card-body">
+            <span class="game-card-title">Currents</span>
+            <span class="game-card-desc">Slide the grid until the answer's letters link up into one unbroken circuit.</span>
+          </span>
+          <svg class="game-card-arrow" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7"/><path d="M9 7h8v8"/></svg>
+        </a>
+        <button id="gamesClose" class="secondary" type="button">Close</button>
       </div>
     </div>
   </div>
@@ -906,6 +960,13 @@
           <div class="sdist" id="stDist"></div>
         </div>
         <div class="next-page" id="winNext" hidden><span class="nl">Next page in</span><b class="nt"></b></div>
+        <div class="win-more-games">
+          <span class="nl">Keep playing</span>
+          <div class="win-more-games-row">
+            <a class="win-game-link" href="https://akashramsankar.github.io/Tumbler/" target="_blank" rel="noopener">Tumbler<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7"/><path d="M9 7h8v8"/></svg></a>
+            <a class="win-game-link" href="https://akashramsankar.github.io/currents/" target="_blank" rel="noopener">Currents<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7"/><path d="M9 7h8v8"/></svg></a>
+          </div>
+        </div>
         <div class="share" id="share"></div>
         <button id="copyBtn">Share result</button>
         <div id="lbJoin" hidden>
@@ -2686,6 +2747,11 @@ $("statsBtn").addEventListener("click",()=>{
 });
 $("statsClose").addEventListener("click",()=>$("statsModal").classList.remove("show"));
 $("statsModal").addEventListener("click",e=>{ if(e.target.id==="statsModal") $("statsModal").classList.remove("show"); });
+
+/* ---------------- More games ---------------- */
+$("gamesBtn").addEventListener("click",()=>{ if(tutorialMode) return; $("gamesModal").classList.add("show"); });
+$("gamesClose").addEventListener("click",()=>$("gamesModal").classList.remove("show"));
+$("gamesModal").addEventListener("click",e=>{ if(e.target.id==="gamesModal") $("gamesModal").classList.remove("show"); });
 
 /* ---------------- How to play: the concise deck ----------------
    Four slides behind the ? button. The first visit gets the walkthrough
