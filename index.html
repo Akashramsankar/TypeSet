@@ -392,7 +392,7 @@
   }
   /* Dismiss button: same quiet icon button as the header controls. */
   .x-close{
-    position:absolute; top:12px; right:12px; z-index:6; width:28px; height:28px; padding:0;
+    position:absolute; top:12px; right:calc(12px + var(--sbw, 0px)); z-index:6; width:28px; height:28px; padding:0;
     display:inline-flex; align-items:center; justify-content:center;
     background:var(--card); border:none; border-radius:999px; cursor:pointer;
     color:var(--ink-muted); transition:background .15s ease, color .15s ease, transform .1s ease;
@@ -2818,6 +2818,11 @@ document.addEventListener("click",e=>{
   const x=e.target.closest&&e.target.closest(".x-close"); if(!x) return;
   const m=x.closest(".modal"); if(m) m.classList.remove("show");
 });
+// A card that scrolls grows a scrollbar under the pinned x; --sbw shifts the x
+// left of it so it never covers (or swallows clicks meant for) the bar.
+const sbObs=new ResizeObserver(es=>es.forEach(({target:w})=>
+  w.parentElement.style.setProperty("--sbw",(w.offsetWidth-w.clientWidth)+"px")));
+document.querySelectorAll(".win-wrap > .win").forEach(w=>sbObs.observe(w));
 // Escape does the same from the keyboard — the top-most open modal first, and
 // with nothing open it steps out of ink mode.
 document.addEventListener("keydown",e=>{
