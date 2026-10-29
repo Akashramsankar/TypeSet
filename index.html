@@ -392,7 +392,7 @@
   }
   /* Dismiss button: same quiet icon button as the header controls. */
   .x-close{
-    position:absolute; top:9px; right:9px; z-index:6; width:34px; height:34px; padding:0;
+    position:absolute; top:12px; right:12px; z-index:6; width:28px; height:28px; padding:0;
     display:inline-flex; align-items:center; justify-content:center;
     background:var(--card); border:none; border-radius:999px; cursor:pointer;
     color:var(--ink-muted); transition:background .15s ease, color .15s ease, transform .1s ease;
@@ -401,7 +401,9 @@
      pinned x on the long cards. */
   .x-close:hover{background:var(--surface-2); color:var(--ink);}
   .x-close:active{transform:scale(.92);}
-  .x-close svg{width:17px; height:17px; stroke:currentColor; fill:none; stroke-width:2;
+  /* Small and light to look at, but the tap target stays ~40px. */
+  .x-close::before{content:""; position:absolute; inset:-6px;}
+  .x-close svg{width:13px; height:13px; stroke:currentColor; fill:none; stroke-width:1.75;
     stroke-linecap:round; stroke-linejoin:round; pointer-events:none;}
   .win h2{
     font-family:var(--font-display); font-weight:800; font-size:1.7rem; letter-spacing:-.015em;
@@ -515,7 +517,7 @@
   .lb-row .lr{font-family:var(--font-display); font-weight:800; min-width:26px; color:var(--accent-ink);}
   .lb-row .ln{flex:1; min-width:0; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .lb-row .ln small{font-size:.58rem; letter-spacing:.1em; font-weight:600; color:var(--accent-ink); text-transform:uppercase; margin-left:6px;}
-  .lb-row .lm{font-size:1rem;}
+  .lb-row .lm{font-size:.72rem;}
   .lb-row .ls{font-family:var(--font-display); font-weight:800; min-width:34px; text-align:right;}
   .lb-row .lt{font-size:.72rem; color:var(--ink-muted); min-width:36px; text-align:right; font-variant-numeric:tabular-nums;}
   .lb .arch-sub .stars{color:var(--gold);}
