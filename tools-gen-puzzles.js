@@ -36,11 +36,22 @@ for(const w of enable) if(w.length>=3) wide[w.length].push(w);
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
 function shuffle(arr,rng){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
+/* ---- Stars = estimated solve time ----
+   Fitted to leaderboard median solve times (days 26-49, ~400 solves): time grows
+   with every rotated block and every multi-letter block to place. Letter repeats,
+   grid size and word count added nothing once those two were in — big boards just
+   have more repeats. A board's stars come from this estimate, not its slot. */
+function estSecs(pcs){ return Math.exp(2.647+0.135*pcs.filter(x=>x.k).length+0.292*pcs.filter(x=>x.s.length>1).length); }
+const STAR_CUTS=[110,180,240,320];   // seconds: <110 1★, <180 2★, <240 3★, <320 4★, else 5★
+function starsFor(pcs){ const t=estSecs(pcs); return 1+STAR_CUTS.filter(c=>t>=c).length; }
+
 /* ---- Weekday tiers: spacer layouts + block composition ---- */
-/* Difficulty comes from how many words there are to find, how constrained the
-   pieces are, how common the words are, and how much rotation is needed.
+/* The tier sets the slot in the 1★..5★ week; block mix and rotation are tuned so
+   the tier lands in its time band, and boards outside it are rejected.
    Low tiers use lattice layouts: the spacers kill every short crossing, so the
-   board is a handful of 5-letter words and nothing else (no 2-letter words). */
+   board is a handful of 5-letter words and nothing else (no 2-letter words).
+   Big blocks (Q, M) make a board FASTER — fewer pieces to place — so 5★ uses
+   many small rotated blocks rather than a few big ones. */
 const RAILS=[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]];        // rows 1,3 + cols 0,2,4  -> 5 words, 19 cells
 const RAILS_T=[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]];      // transposed rails
 const HASH=[[1,1],[1,3],[3,1],[3,3]];                     // rows 0,2,4 + cols 0,2,4 -> 6 words, 21 cells
@@ -48,12 +59,12 @@ const CORNERS=[[0,0],[0,4],[4,0],[4,4]];                  // 3,5,5,5,3 both ways
 const DIAG=[[1,1],[3,3]], DIAG2=[[1,3],[3,1]];            // 5,3,5,3,5 both ways    -> 10 words, 23 cells
 const TIERS=[
  {name:"Easy",   stars:1, layouts:[RAILS, RAILS_T], weights:{S:1,D:5,T:5}, rot:0,   maxRank:2000},
- {name:"Casual", stars:2, layouts:[HASH, RAILS, RAILS_T], weights:{S:1,D:5,T:4}, rot:.25, maxRank:3000},
- {name:"Medium", stars:3, layouts:[DIAG, DIAG2, HASH], weights:{S:1,D:4,T:4,Q:1}, rot:.5, maxRank:5000},
+ {name:"Casual", stars:2, layouts:[HASH, RAILS, RAILS_T], weights:{S:1,D:5,T:4}, rot:.4, maxRank:3000},
+ {name:"Medium", stars:3, layouts:[DIAG, DIAG2, HASH], weights:{S:1,D:4,T:4,Q:1}, rot:.3, maxRank:5000},
  {name:"Hard",   stars:4, layouts:[[[0,0],[4,4],[1,3],[3,1]], [[0,4],[4,0],[1,1],[3,3]], [[0,2],[4,2],[2,0],[2,4]], CORNERS],
-   weights:{D:3,T:4,Q:3}, rot:.6},
+   weights:{D:4,T:4,L:1,Q:1}, rot:.5},
  {name:"Master", stars:5, layouts:[[[0,0],[2,2],[4,4]], [[0,0],[2,2]], [[0,4],[2,2],[4,0]], [[1,1],[3,3]], [[1,2],[3,2]]],
-   weights:{D:1.5,T:2,L:3,Q:2,M:1.5}, rot:.75, rare:true},
+   weights:{D:4,T:4,L:2,Q:1}, rot:.85, rare:true},
 ];
 
 /* ---- Grid fill ---- */
@@ -149,6 +160,15 @@ function compScore(pieces,weights){
   for(const t of Object.keys(SHAPES)){const want=(weights[t]||0)/tot; const have=pieces.filter(p=>p.t===t).length/n; d+=Math.abs(want-have);}
   return d;
 }
+// tiling -> emitted blocks, with each multi-letter block's starting turn rolled at the tier's rate
+function blocksOf(pieces,g,rng,rot){
+  return pieces.map(p=>{
+    const cells=p.sh.map(([dr,dc])=>[dr,dc,g[p.r0+dr][p.c0+dc].toUpperCase()]);
+    let k=0;
+    if(p.t!=="S"&&rng()<rot){ k=1+Math.floor(rng()*3); }
+    return {s:cells.map(([r,c])=>[r,c]), l:cells.map(c=>c[2]).join(""), at:[p.r0,p.c0], k};
+  });
+}
 function rotateCells(cells){ // 90° clockwise, cells [[dr,dc,ch]] within bbox
   const h=Math.max(...cells.map(c=>c[0]))+1;
   return cells.map(([r,c,ch])=>[c,h-1-r,ch]);
@@ -181,29 +201,25 @@ for(let i=PUZ.length;i<N;i++){
   // Scheduled layout first; if its common-word fills are used up (every fill
   // repeats an earlier puzzle), fall back to the tier's other layouts in turn.
   const li=Math.floor(i/TIERS.length)%tier.layouts.length;
-  let layout, res=null, pieces=null, seed=1000+i*97;
-  for(let j=0;j<tier.layouts.length&&!pieces;j++){
+  let layout, res=null, out=null, seed=1000+i*97;
+  for(let j=0;j<tier.layouts.length&&!out;j++){
   layout=tier.layouts[(li+j)%tier.layouts.length];
   if(j) console.error(`puzzle ${i}: layout ${li} exhausted, trying layout ${(li+j)%tier.layouts.length}`);
-  for(let attempt=0;attempt<400&&!pieces;attempt++){
+  for(let attempt=0;attempt<400&&!out;attempt++){
     const rng=mulberry32(seed+attempt*7919);
     res=fill(layout,rng,{wide:false, rare:!!tier.rare, maxRank:tier.maxRank, branch:attempt<8?24:40, budget:250000});
     if(!res)continue;
     // reject grids that reuse too many words from an earlier puzzle
     if(PUZ.some(q=>res.words.filter(w=>w.length>=3&&q._words.includes(w)).length>=3)){res=null;continue;}
+    // best-matching tiling whose estimated solve time lands in the tier's star band
     let best=null;
-    for(let k=0;k<30;k++){const p=tile(res.g,tier.weights,rng); if(!p)continue; const s=compScore(p,tier.weights); if(!best||s<best.s)best={p,s};}
-    if(best)pieces=best.p;
+    for(let k=0;k<30;k++){const p=tile(res.g,tier.weights,rng); if(!p)continue;
+      const o=blocksOf(p,res.g,rng,tier.rot); if(starsFor(o)!==tier.stars)continue;
+      const s=compScore(p,tier.weights); if(!best||s<best.s)best={o,s};}
+    if(best)out=best.o;
   }
   }
-  if(!pieces){console.error("FAILED puzzle",i);process.exit(1);}
-  const rng=mulberry32(seed+5);
-  const out=pieces.map(p=>{
-    const cells=p.sh.map(([dr,dc])=>[dr,dc,res.g[p.r0+dr][p.c0+dc].toUpperCase()]);
-    let k=0;
-    if(p.t!=="S"&&rng()<tier.rot){ k=1+Math.floor(rng()*3); }
-    return {s:cells.map(([r,c])=>[r,c]), l:cells.map(c=>c[2]).join(""), at:[p.r0,p.c0], k};
-  });
+  if(!out){console.error("FAILED puzzle",i);process.exit(1);}
   // sanity: exact cover
   const cover=Array.from({length:5},()=>new Array(5).fill(0));
   out.forEach(p=>p.s.forEach(([dr,dc])=>cover[p.at[0]+dr][p.at[1]+dc]++));
@@ -215,7 +231,7 @@ for(let i=PUZ.length;i<N;i++){
 PUZ.forEach((p,i)=>{
   const comp={}; p.p.forEach(x=>{const t=x.s.length===1?"S":x.s.length===4?"Q":x.s.length===6?"M":x.s.length===2?"D":(x.s.every(([r])=>r===x.s[0][0])||x.s.every(([,c])=>c===x.s[0][1]))?"T":"L"; comp[t]=(comp[t]||0)+1;});
   if(p._kept) return;
-  console.error(`#${i+1} ${"★".repeat(p.stars)} ${p.tier} par=${p.p.length} rot=${p.p.filter(x=>x.k).length} ${JSON.stringify(comp)} words=${p._words.join(",")}${p._uncommon.length?"  UNCOMMON:"+p._uncommon.join(","):""}`);
+  console.error(`#${i+1} ${"★".repeat(p.stars)} ${p.tier} est=${Math.round(estSecs(p.p))}s par=${p.p.length} rot=${p.p.filter(x=>x.k).length} ${JSON.stringify(comp)} words=${p._words.join(",")}${p._uncommon.length?"  UNCOMMON:"+p._uncommon.join(","):""}`);
   console.error("   "+p.g.join(" / "));
 });
 // emit JS
