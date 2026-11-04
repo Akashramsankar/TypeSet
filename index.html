@@ -2938,13 +2938,18 @@ async function lbFetch(day){
     if(typeof v.s==="number") rows.push({pid:c.key, n:cleanName(v.n)||"Anonymous", s:v.s|0, m:v.m|0, t:v.t|0, at:+v.at||0});
   });
   rows.sort((a,b)=>b.s-a.s||b.m-a.m||a.t-b.t||a.at-b.at);
+  // Identical results share a rank and the next rank is skipped (1, 2, 2, 4); `at` only orders the display.
+  rows.forEach((r,i)=>{
+    const p=rows[i-1];
+    r.rank=p&&p.s===r.s&&p.m===r.m&&p.t===r.t?p.rank:i+1;
+  });
   return rows;
 }
 function fmtTime(sec){ return Math.floor(sec/60)+":"+String(sec%60).padStart(2,"0"); }
-function lbRow(r,rank,me){
+function lbRow(r,me){
   const el=document.createElement("div");
   el.className="lb-row"+(r.pid===me?" you":"");
-  el.innerHTML=`<span class="lr">${rank}</span><span class="ln"></span><span class="lm">${medalEmoji(r.m)}</span>`+
+  el.innerHTML=`<span class="lr">${r.rank}</span><span class="ln"></span><span class="lm">${medalEmoji(r.m)}</span>`+
     `<span class="ls">${r.s}</span><span class="lt">${fmtTime(r.t)}</span>`;
   el.querySelector(".ln").textContent=r.n;
   if(r.pid===me) el.querySelector(".ln").insertAdjacentHTML("beforeend","<small>You</small>");
@@ -2979,9 +2984,9 @@ async function openLeaderboard(ago=0){
     if(req!==lbReq) return;   // the player switched tabs while this was loading
     list.innerHTML="";
     if(!rows.length){ list.innerHTML=`<div class="lb-empty">${ago?"No one made yesterday's board.":"No one's on the board yet — finish today's page to be first."}</div>`; return; }
-    rows.slice(0,LB_SHOW).forEach((r,i)=>list.appendChild(lbRow(r,i+1,me)));
+    rows.slice(0,LB_SHOW).forEach(r=>list.appendChild(lbRow(r,me)));
     const mine=rows.findIndex(r=>r.pid===me);
-    if(mine>=LB_SHOW){ const el=lbRow(rows[mine],mine+1,me); el.classList.add("gap"); list.appendChild(el); }
+    if(mine>=LB_SHOW){ const el=lbRow(rows[mine],me); el.classList.add("gap"); list.appendChild(el); }
   }catch(e){
     if(req!==lbReq) return;
     list.innerHTML=`<div class="lb-empty">Couldn't reach the leaderboard. Check your connection and try again.</div>`;
@@ -3024,7 +3029,8 @@ async function lbShowRank(day){
   msg.textContent="Checking today's leaderboard…";
   try{
     const rows=await lbFetch(day), i=rows.findIndex(r=>r.pid===lbPid());
-    msg.innerHTML=i<0?"You're on today's leaderboard.":`You're <b>#${i+1}</b> of ${rows.length} on today's leaderboard.`;
+    const tied=i>=0&&rows.some((r,j)=>j!==i&&r.rank===rows[i].rank);
+    msg.innerHTML=i<0?"You're on today's leaderboard.":`You're ${tied?"tied for ":""}<b>#${rows[i].rank}</b> of ${rows.length} on today's leaderboard.`;
   }catch(e){ msg.textContent="You're on today's leaderboard."; }
 }
 
