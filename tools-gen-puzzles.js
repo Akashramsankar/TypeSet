@@ -5,7 +5,9 @@
    Needs two word lists next to it:
      enable.txt  https://raw.githubusercontent.com/dolph/dictionary/master/enable1.txt   (validation dictionary; also feeds words.js)
      g10k.txt    https://raw.githubusercontent.com/first20hours/google-10000-english/master/google-10000-english-usa-no-swears.txt  (frequency list -> "common" fill words)
-   Puzzle i uses tier i % 5 (1★..5★ then back to 1★), so keep the count a multiple of 5.
+   Puzzle i uses tier (i - CYCLE_START) % 5 (1★..5★ then back to 1★). The cycle was
+   re-anchored so puzzle #57 (9 Nov 2026) is a 1★; keep (count - CYCLE_START) a
+   multiple of 5 so the wrap back to puzzle #1 (a 1★) doesn't break the cycle.
 
    Fills 5x5 grids (spacer layout per weekday), cuts the open cells into
    letter blocks per the tier's block composition, and emits a PUZZLES array. */
@@ -176,6 +178,7 @@ function rotateCells(cells){ // 90° clockwise, cells [[dr,dc,ch]] within bbox
 
 /* ---- Build ---- */
 const N=+process.argv[2]||35;
+const CYCLE_START=56;   // index of the first 1★ in the current cycle (day 56 = 9 Nov 2026)
 const KEEP=process.argv.includes("--keep")?+process.argv[process.argv.indexOf("--keep")+1]:Infinity;
 /* APPEND-ONLY: puzzles already published in index.html are the schedule that
    players have seen. They are loaded here and kept verbatim; only indices
@@ -197,7 +200,7 @@ try{
 }catch(e){ console.error("could not read existing puzzles:",e.message); }
 console.error("keeping",PUZ.length,"published puzzles; generating",Math.max(0,N-PUZ.length),"new");
 for(let i=PUZ.length;i<N;i++){
-  const tier=TIERS[i%TIERS.length];
+  const tier=TIERS[(((i-CYCLE_START)%TIERS.length)+TIERS.length)%TIERS.length];
   // Scheduled layout first; if its common-word fills are used up (every fill
   // repeats an earlier puzzle), fall back to the tier's other layouts in turn.
   const li=Math.floor(i/TIERS.length)%tier.layouts.length;
