@@ -2,7 +2,10 @@
    Usage:  node tools-gen-puzzles.js 70   -> writes puzzles.js (paste its PUZZLES array into index.html)
    Append-only: existing puzzles in index.html are kept as-is; pass a count larger than the current list to extend it.
    --keep N  keep only the first N published puzzles (use ONLY for days nobody can have played yet).
-   Needs two word lists next to it:
+   Weekly edition:  node tools-gen-puzzles.js --weekly 26  -> writes weekly.js (paste its WEEKLY array into index.html)
+   Each week is 3 fresh 1★ boards; same append-only rule, existing weeks are kept verbatim.
+   Weekly boards never reuse 3+ words of any daily or weekly board, and vice versa.
+   Needs two word lists in the current directory (or in $WORDLISTS):
      enable.txt  https://raw.githubusercontent.com/dolph/dictionary/master/enable1.txt   (validation dictionary; also feeds words.js)
      g10k.txt    https://raw.githubusercontent.com/first20hours/google-10000-english/master/google-10000-english-usa-no-swears.txt  (frequency list -> "common" fill words)
    Puzzle i uses tier (i - CYCLE_START) % 5 (1★..5★ then back to 1★). The cycle was
@@ -11,9 +14,10 @@
 
    Fills 5x5 grids (spacer layout per weekday), cuts the open cells into
    letter blocks per the tier's block composition, and emits a PUZZLES array. */
-const fs=require("fs");
-const enable=new Set(fs.readFileSync("enable.txt","utf8").split("\n").map(s=>s.trim()).filter(w=>/^[a-z]{2,5}$/.test(w)));
-const g10k=fs.readFileSync("g10k.txt","utf8").split("\n").map(s=>s.trim());
+const fs=require("fs"), path=require("path");
+const WL=process.env.WORDLISTS||".";
+const enable=new Set(fs.readFileSync(path.join(WL,"enable.txt"),"utf8").split("\n").map(s=>s.trim()).filter(w=>/^[a-z]{2,5}$/.test(w)));
+const g10k=fs.readFileSync(path.join(WL,"g10k.txt"),"utf8").split("\n").map(s=>s.trim());
 const COMMON2="ad ah am an as at ax be by do go ha he hi id if in is it me my no of oh on or ow ox pa so to up us we ye".split(" ");
 const web2=new Set(fs.readFileSync("/usr/share/dict/words","utf8").split("\n").filter(w=>/^[a-z]{2,5}$/.test(w)));
 /* abbreviations / names / fragments that slip through the dictionaries */
@@ -177,43 +181,51 @@ function rotateCells(cells){ // 90° clockwise, cells [[dr,dc,ch]] within bbox
 }
 
 /* ---- Build ---- */
-const N=+process.argv[2]||35;
+const WEEKLY_MODE=process.argv.includes("--weekly");
+const N=WEEKLY_MODE?0:(+process.argv[2]||35);
+const WEEKS=WEEKLY_MODE?(+process.argv[process.argv.indexOf("--weekly")+1]||26):0;
+const PAGES_PER_WEEK=3;
 const CYCLE_START=56;   // index of the first 1★ in the current cycle (day 56 = 9 Nov 2026)
 const KEEP=process.argv.includes("--keep")?+process.argv[process.argv.indexOf("--keep")+1]:Infinity;
 /* APPEND-ONLY: puzzles already published in index.html are the schedule that
    players have seen. They are loaded here and kept verbatim; only indices
    beyond them are generated. Never regenerate an existing entry — it would
    silently swap a past (or today's) puzzle under players' feet.            */
-const PUZ=[];
-try{
-  const html=fs.readFileSync(require("path").join(__dirname,"index.html"),"utf8");
-  const m=html.match(/const PUZZLES = (\[[\s\S]*?\n\]);/);
-  if(m){
-    const existing=eval(m[1]).slice(0,KEEP);
-    for(const q of existing){
-      const words=[]; // rebuild the word list from the grid so the duplicate check still applies
-      const isOpen=(r,c)=>q.g[r][c]!=="#";
-      for(const sp of spansOf(isOpen)) words.push(sp.map(([r,c])=>q.g[r][c]).join("").toLowerCase());
-      PUZ.push(Object.assign({},q,{_words:words,_uncommon:[],_kept:true}));
-    }
-  }
-}catch(e){ console.error("could not read existing puzzles:",e.message); }
-console.error("keeping",PUZ.length,"published puzzles; generating",Math.max(0,N-PUZ.length),"new");
-for(let i=PUZ.length;i<N;i++){
-  const tier=TIERS[(((i-CYCLE_START)%TIERS.length)+TIERS.length)%TIERS.length];
-  // Scheduled layout first; if its common-word fills are used up (every fill
-  // repeats an earlier puzzle), fall back to the tier's other layouts in turn.
-  const li=Math.floor(i/TIERS.length)%tier.layouts.length;
-  let layout, res=null, out=null, seed=1000+i*97;
+const HTML=(()=>{ try{ return fs.readFileSync(path.join(__dirname,"index.html"),"utf8"); }catch(e){ console.error("could not read index.html:",e.message); return ""; } })();
+function wordsOf(q){
+  const words=[]; // rebuild the word list from the grid so the duplicate check still applies
+  const isOpen=(r,c)=>q.g[r][c]!=="#";
+  for(const sp of spansOf(isOpen)) words.push(sp.map(([r,c])=>q.g[r][c]).join("").toLowerCase());
+  return words;
+}
+function published(name){
+  const m=HTML.match(new RegExp("const "+name+" = (\\[[\\s\\S]*?\\n\\]);"));
+  if(!m) return [];
+  try{ return eval(m[1]); }catch(e){ console.error("could not read "+name+":",e.message); return []; }
+}
+const PUZ=published("PUZZLES").slice(0,WEEKLY_MODE?Infinity:KEEP)
+  .map(q=>Object.assign({},q,{_words:wordsOf(q),_uncommon:[],_kept:true}));
+const WK=published("WEEKLY")
+  .map(week=>week.map(q=>Object.assign({},q,{_words:wordsOf(q),_uncommon:[],_kept:true})));
+// every board players can meet, daily or weekly: a new board may share at most 2 words with any of them
+const seen=()=>PUZ.concat(...WK);
+
+/* One board for `tier`: scheduled layout li first; if its common-word fills are
+   used up (every fill repeats an earlier board), fall back to the tier's other
+   layouts in turn. Returns null if nothing fits. */
+function genBoard(tier,li,seed,label,ban=new Set()){
+  let layout, res=null, out=null;
+  const others=seen();
   for(let j=0;j<tier.layouts.length&&!out;j++){
   layout=tier.layouts[(li+j)%tier.layouts.length];
-  if(j) console.error(`puzzle ${i}: layout ${li} exhausted, trying layout ${(li+j)%tier.layouts.length}`);
+  if(j) console.error(`${label}: layout ${li} exhausted, trying layout ${(li+j)%tier.layouts.length}`);
   for(let attempt=0;attempt<400&&!out;attempt++){
     const rng=mulberry32(seed+attempt*7919);
     res=fill(layout,rng,{wide:false, rare:!!tier.rare, maxRank:tier.maxRank, branch:attempt<8?24:40, budget:250000});
     if(!res)continue;
+    if(res.words.some(w=>ban.has(w))){res=null;continue;}   // e.g. a word already on another page this week
     // reject grids that reuse too many words from an earlier puzzle
-    if(PUZ.some(q=>res.words.filter(w=>w.length>=3&&q._words.includes(w)).length>=3)){res=null;continue;}
+    if(others.some(q=>res.words.filter(w=>w.length>=3&&q._words.includes(w)).length>=3)){res=null;continue;}
     // best-matching tiling whose estimated solve time lands in the tier's star band
     let best=null;
     for(let k=0;k<30;k++){const p=tile(res.g,tier.weights,rng); if(!p)continue;
@@ -222,25 +234,50 @@ for(let i=PUZ.length;i<N;i++){
     if(best)out=best.o;
   }
   }
-  if(!out){console.error("FAILED puzzle",i);process.exit(1);}
+  if(!out) return null;
   // sanity: exact cover
   const cover=Array.from({length:5},()=>new Array(5).fill(0));
   out.forEach(p=>p.s.forEach(([dr,dc])=>cover[p.at[0]+dr][p.at[1]+dc]++));
   for(let r=0;r<5;r++)for(let c=0;c<5;c++){const want=res.g[r][c]==="#"?0:1; if(cover[r][c]!==want)throw new Error("cover mismatch");}
   const uncommon=res.words.filter(w=>!common[w.length].includes(w));
-  PUZ.push({sp:layout, stars:tier.stars, tier:tier.name, g:res.g.map(r=>r.map(ch=>ch==="#"?"#":ch.toUpperCase()).join("")), p:out, _words:res.words, _uncommon:uncommon});
+  return {sp:layout, stars:tier.stars, tier:tier.name, g:res.g.map(r=>r.map(ch=>ch==="#"?"#":ch.toUpperCase()).join("")), p:out, _words:res.words, _uncommon:uncommon};
 }
-// report
-PUZ.forEach((p,i)=>{
+function report(p,label){
   const comp={}; p.p.forEach(x=>{const t=x.s.length===1?"S":x.s.length===4?"Q":x.s.length===6?"M":x.s.length===2?"D":(x.s.every(([r])=>r===x.s[0][0])||x.s.every(([,c])=>c===x.s[0][1]))?"T":"L"; comp[t]=(comp[t]||0)+1;});
-  if(p._kept) return;
-  console.error(`#${i+1} ${"★".repeat(p.stars)} ${p.tier} est=${Math.round(estSecs(p.p))}s par=${p.p.length} rot=${p.p.filter(x=>x.k).length} ${JSON.stringify(comp)} words=${p._words.join(",")}${p._uncommon.length?"  UNCOMMON:"+p._uncommon.join(","):""}`);
+  console.error(`${label} ${"★".repeat(p.stars)} ${p.tier} est=${Math.round(estSecs(p.p))}s par=${p.p.length} rot=${p.p.filter(x=>x.k).length} ${JSON.stringify(comp)} words=${p._words.join(",")}${p._uncommon.length?"  UNCOMMON:"+p._uncommon.join(","):""}`);
   console.error("   "+p.g.join(" / "));
-});
-// emit JS
-const lines=PUZ.map(p=>{
-  const pcs=p.p.map(x=>`{s:${JSON.stringify(x.s)},l:"${x.l}",at:[${x.at}],k:${x.k}}`).join(",\n      ");
-  return `  { sp:${JSON.stringify(p.sp)}, stars:${p.stars}, tier:"${p.tier}",\n    g:${JSON.stringify(p.g)},\n    p:[\n      ${pcs}\n    ] }`;
-});
-fs.writeFileSync("puzzles.js","const PUZZLES = [\n"+lines.join(",\n")+"\n];\n");
-console.error("wrote",PUZ.length,"puzzles");
+}
+function emit(p,indent){
+  const pcs=p.p.map(x=>`{s:${JSON.stringify(x.s)},l:"${x.l}",at:[${x.at}],k:${x.k}}`).join(",\n"+indent+"    ");
+  return `${indent}{ sp:${JSON.stringify(p.sp)}, stars:${p.stars}, tier:"${p.tier}",\n${indent}  g:${JSON.stringify(p.g)},\n${indent}  p:[\n${indent}    ${pcs}\n${indent}  ] }`;
+}
+
+if(WEEKLY_MODE){
+  /* Weekly edition: week w (0 = week of 14 Sep 2026) is WEEKLY[w % length],
+     three 1★ boards played back to back. Seeds live far from the daily ones. */
+  console.error("keeping",WK.length,"published weeks; generating",Math.max(0,WEEKS-WK.length),"new");
+  const easy=TIERS[0];
+  for(let w=WK.length;w<WEEKS;w++){
+    const week=[];
+    WK.push(week);   // pages already made this week count as "seen" for the next page
+    for(let k=0;k<PAGES_PER_WEEK;k++){
+      const b=genBoard(easy,(w+k)%easy.layouts.length,500000+w*1009+k*97,`week ${w+1} page ${k+1}`,new Set(week.flatMap(q=>q._words)));
+      if(!b){console.error(`FAILED week ${w+1} page ${k+1}`);process.exit(1);}
+      week.push(b); report(b,`week ${w+1} p${k+1}`);
+    }
+  }
+  const lines=WK.map((week,w)=>`  [ // week ${w+1}\n`+week.map(p=>emit(p,"    ")).join(",\n")+`\n  ]`);
+  fs.writeFileSync("weekly.js","const WEEKLY = [\n"+lines.join(",\n")+"\n];\n");
+  console.error("wrote",WK.length,"weeks");
+}else{
+  console.error("keeping",PUZ.length,"published puzzles; generating",Math.max(0,N-PUZ.length),"new");
+  for(let i=PUZ.length;i<N;i++){
+    const tier=TIERS[(((i-CYCLE_START)%TIERS.length)+TIERS.length)%TIERS.length];
+    const b=genBoard(tier,Math.floor(i/TIERS.length)%tier.layouts.length,1000+i*97,`puzzle ${i}`);
+    if(!b){console.error("FAILED puzzle",i);process.exit(1);}
+    PUZ.push(b);
+  }
+  PUZ.forEach((p,i)=>{ if(!p._kept) report(p,`#${i+1}`); });
+  fs.writeFileSync("puzzles.js","const PUZZLES = [\n"+PUZ.map(p=>emit(p,"  ")).join(",\n")+"\n];\n");
+  console.error("wrote",PUZ.length,"puzzles");
+}

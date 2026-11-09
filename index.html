@@ -499,6 +499,65 @@
   .win-game-link:hover{border-color:var(--ink); background:var(--hover);}
   .win-game-link svg{width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
 
+  /* ==================== WEEKLY EDITION ==================== */
+  /* the featured card is a button inside .win, so undo the modal button look */
+  .win button.game-card{display:flex; width:100%; margin:0 0 10px; padding:14px 16px; border-radius:var(--radius);
+    background:var(--surface-2); color:var(--ink); border:1px solid var(--rule); text-align:left;
+    font:inherit; font-size:inherit; font-weight:inherit; letter-spacing:normal; cursor:pointer;}
+  .win button.game-card.featured{border-color:var(--accent);}
+  .win button.game-card:hover{background:var(--hover); border-color:var(--ink);}
+  .win button.game-card:active{transform:translateY(-1px);}
+  .win button.game-card .game-card-desc{font-weight:400;}
+  /* weekly card on the daily ready / result cards */
+  .win button.week-card{display:flex; align-items:center; gap:12px; width:100%; margin:10px 0 0; padding:12px 14px;
+    border-radius:var(--radius); background:var(--accent-soft); color:var(--ink); border:1px solid var(--accent);
+    text-align:left; font:inherit; letter-spacing:normal; cursor:pointer;}
+  .win button.week-card:hover{background:var(--hover); border-color:var(--ink);}
+  .win button.week-card:active{transform:scale(.99);}
+  .win .win-more-games button.week-card{margin:0 0 8px;}
+  .wc-mark{flex:0 0 40px; width:40px; height:40px; display:flex; align-items:center; justify-content:center;
+    border-radius:var(--radius); background:var(--card); color:var(--accent-ink);}
+  .wc-mark svg, .wc-arrow{width:22px; height:22px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
+  .wc-arrow{flex:0 0 auto; width:18px; height:18px; color:var(--ink-muted);}
+  .wc-body{flex:1; min-width:0; display:flex; flex-direction:column; gap:3px;}
+  .wc-title{display:flex; align-items:center; gap:8px; font-family:var(--font-display); font-weight:800; font-size:1rem; line-height:1.2; white-space:nowrap;}
+  .wc-tag{font-family:var(--font-ui); font-size:.58rem; letter-spacing:.1em; text-transform:uppercase; font-weight:700;
+    padding:2px 7px; border-radius:999px; border:1px solid var(--accent); color:var(--accent-ink); background:var(--card); white-space:nowrap;}
+  .wc-tag.done{border-color:var(--good); color:var(--good);}
+  .wc-tag.started{border-color:var(--gold); color:var(--gold);}
+  .wc-desc{font-size:.78rem; color:var(--ink-soft); line-height:1.35;}
+  .wc-body .week-pips{margin-top:2px; justify-content:flex-start;}
+  .wc-body .week-pips i{width:9px; height:9px;}
+  .week-bar{display:none; align-items:center; gap:10px; width:min(420px,100%); padding:0 4px;}
+  body.weekly .week-bar{display:flex;}
+  .week-back{display:inline-flex; align-items:center; gap:4px; padding:6px 12px 6px 8px; border-radius:999px; cursor:pointer;
+    background:var(--card); border:1px solid var(--rule); color:var(--ink); font-size:.8rem; font-weight:600;
+    transition:border-color .15s, background .15s;}
+  .week-back:hover{border-color:var(--ink); background:var(--hover);}
+  .week-back svg{width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
+  .week-label{margin-left:auto; display:inline-flex; align-items:center; gap:10px; padding:4px 0; background:none; border:none;
+    font-size:.66rem; letter-spacing:.12em; text-transform:uppercase; font-weight:600; color:var(--accent-ink); cursor:default;}
+  .week-label.done{cursor:pointer;}
+  .week-pips{display:inline-flex; gap:6px; justify-content:center;}
+  .week-pips i{width:11px; height:11px; border-radius:50%; border:2px solid var(--rule-strong); box-sizing:border-box;}
+  .week-pips i.current{border-color:var(--accent);}
+  .week-pips i.done{background:var(--color-correct); border-color:var(--color-correct);}
+  .week-pips i.proof{background:var(--color-far); border-color:var(--color-far);}
+  .week-pips.big{gap:8px; margin:6px 0 2px;}
+  .week-pips.big i{width:13px; height:13px;}
+  #weekReadyModal{backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);}
+  .week-rules{text-align:left; margin:14px 0 4px; padding:14px 0 0 18px; border-top:1px solid var(--rule);
+    color:var(--ink-soft); font-size:.88rem; line-height:1.5;}
+  .week-rules li{margin-bottom:6px;}
+  .week-rules b{color:var(--ink);}
+  .week-pages{display:flex; flex-direction:column; gap:6px; margin:12px 0 4px; text-align:left;}
+  .week-pages div{display:flex; align-items:baseline; gap:10px; background:var(--surface-2); border:1px solid var(--rule);
+    border-radius:var(--radius); padding:8px 12px; font-size:.82rem;}
+  .week-pages .pn{font-family:var(--font-display); font-weight:800; color:var(--accent-ink); min-width:48px;}
+  .week-pages .pw{flex:1; min-width:0; font-size:.7rem; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-muted); font-weight:600;}
+  .week-pages .pt{font-weight:700; color:var(--ink); font-variant-numeric:tabular-nums;}
+  .wk-sub{font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; font-weight:600; color:var(--ink-muted); margin:0 0 4px;}
+
   /* daily leaderboard */
   .lb{max-height:86vh; overflow-y:auto;}
   /* Today | Yesterday — underline tabs, as in Tumbler's leaderboard */
@@ -742,7 +801,7 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
     </button>
     <h1>Typeset</h1>
-    <div class="sub">Daily letterpress puzzle</div>
+    <div class="sub" id="subLabel">Daily letterpress puzzle</div>
     <div class="sub meta" id="dateLabel"></div>
   </header>
 
@@ -782,7 +841,15 @@
       <button class="x-close" type="button" aria-label="Close more games" title="Close more games"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       <div class="win games">
         <h2>More games</h2>
-        <div class="arch-sub">Three more daily word puzzles from the same workshop.</div>
+        <div class="arch-sub">This week's special, plus three more daily word puzzles from the same workshop.</div>
+        <button type="button" class="game-card featured" id="gamesWeekly">
+          <span class="game-card-mark"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="15" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M7 14h4M7 17h7"/></svg></span>
+          <span class="game-card-body">
+            <span class="game-card-title">Weekly special</span>
+            <span class="game-card-desc" id="gamesWeeklyDesc">Three 1★ pages back to back on one clock. One go per week, open Monday to Sunday.</span>
+          </span>
+          <svg class="game-card-arrow" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
         <a class="game-card" href="https://akashramsankar.github.io/Tumbler/" target="_blank" rel="noopener">
           <span class="game-card-mark"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15.5" r="1.5"/></svg></span>
           <span class="game-card-body">
@@ -880,6 +947,11 @@
   <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
     <clipPath id="dropClip"><path d="M12 3s6.5 7 6.5 11.5a6.5 6.5 0 0 1-13 0C5.5 10 12 3 12 3z"/></clipPath>
   </defs></svg>
+  <div class="week-bar" id="weekBar">
+    <button class="week-back" id="weekBack" type="button" aria-label="Back to the daily puzzle"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>Daily</button>
+    <button class="week-label" id="weekLabel" type="button"><span id="weekLabelText">Page 1 of 3</span><span class="week-pips" id="weekPips"></span></button>
+  </div>
+
   <div class="stats">
     <div class="stat words"><span class="v" id="words">0</span><span class="l">Words set</span></div>
     <button class="stat ink" id="inkStat" type="button" aria-label="Ink drops in stock — tap to use one"><span class="v" id="drops"></span><span class="l">Ink</span></button>
@@ -942,6 +1014,64 @@
         </div>
         <div class="ctext" id="readyText">The clock starts when you begin, a quicker page earns a speed bonus.</div>
         <button id="readyStart" type="button">Start</button>
+        <button id="readyWeekly" class="week-card" type="button"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Weekly special: gate before the run (and before resuming it), blurred like the daily ready card -->
+  <div class="modal" id="weekReadyModal">
+    <div class="win-wrap">
+      <div class="win confirm ready">
+        <h2>Weekly special</h2>
+        <div class="rsub" id="wrSub"></div>
+        <div class="week-pips big" id="wrPips"></div>
+        <ul class="week-rules">
+          <li><b>Three 1★ pages</b> back to back, on one clock.</li>
+          <li>Scored like the daily: letters, speed, bounces and ink, added up across all three.</li>
+          <li><b>One go per week.</b> It's open Monday to Sunday, so play whichever day suits you.</li>
+        </ul>
+        <div class="ctext" id="wrText"></div>
+        <button id="wrStart" type="button">Start the special</button>
+        <button id="wrBack" class="secondary" type="button">Back to daily</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Weekly special: between pages -->
+  <div class="modal" id="pageModal">
+    <div class="win-wrap">
+      <div class="win confirm ready">
+        <div class="rsub" id="pgSub"></div>
+        <h2 id="pgTitle">Page printed</h2>
+        <div class="phrase" id="pgPhrase"></div>
+        <div class="week-pips big" id="pgPips"></div>
+        <div class="ctext" id="pgText"></div>
+        <button id="pgNext" type="button">Next page</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Weekly special: result -->
+  <div class="modal" id="weekModal">
+    <div class="win-wrap">
+      <button class="x-close" type="button" aria-label="Close" title="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <div class="win">
+        <div class="wk-sub" id="wkSub"></div>
+        <h2 id="wkTitle">All pages printed</h2>
+        <div class="medal" id="wkMedal"></div>
+        <div class="score" id="wkScore"></div>
+        <div class="breakdown" id="wkBreakdown"></div>
+        <div class="bonus" id="wkBonus"></div>
+        <div class="week-pages" id="wkPages"></div>
+        <div class="next-page" id="wkNext" data-until="week" hidden><span class="nl">Next special in</span><b class="nt"></b></div>
+        <div class="share" id="wkShare"></div>
+        <button id="wkCopy" type="button">Share result</button>
+        <div id="wkLb" hidden>
+          <div class="lb-msg" id="wkLbMsg"></div>
+          <button id="wkLbOpen" class="secondary" type="button">This week's leaderboard</button>
+        </div>
+        <button id="wkBack" class="secondary" type="button">Back to daily</button>
       </div>
     </div>
   </div>
@@ -985,6 +1115,7 @@
         <div class="next-page" id="winNext" hidden><span class="nl">Next page in</span><b class="nt"></b></div>
         <div class="win-more-games">
           <span class="nl">Keep playing</span>
+          <button class="week-card" id="winWeekly" type="button"></button>
           <div class="win-more-games-row">
             <a class="win-game-link" href="https://akashramsankar.github.io/Tumbler/" target="_blank" rel="noopener">Tumbler<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7"/><path d="M9 7h8v8"/></svg></a>
             <a class="win-game-link" href="https://akashramsankar.github.io/currents/" target="_blank" rel="noopener">Currents<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7"/><path d="M9 7h8v8"/></svg></a>
@@ -1009,6 +1140,7 @@
         <div class="lb-tabs" role="tablist" aria-label="Leaderboard day">
           <button class="lb-tab on" type="button" role="tab" data-ago="0" aria-selected="true">Today</button>
           <button class="lb-tab" type="button" role="tab" data-ago="1" aria-selected="false">Yesterday</button>
+          <button class="lb-tab" type="button" role="tab" data-ago="w" aria-selected="false">This week</button>
         </div>
         <div class="arch-sub" id="lbSub"></div>
         <div class="lb-list" id="lbList"></div>
@@ -1022,7 +1154,7 @@
     <div class="win-wrap">
       <button class="x-close" type="button" aria-label="Close" title="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       <div class="win nameplate">
-        <div class="rsub">Today's leaderboard</div>
+        <div class="rsub" id="nameSub">Today's leaderboard</div>
         <h2 id="nameTitle">Sign your page</h2>
         <div class="ntext" id="nameText"></div>
         <div class="lb-row you npreview" id="namePreview">
@@ -1989,6 +2121,1088 @@ const PUZZLES = [
     ] }
 ];
 
+/* Weekly special: three 1★ pages a week, generated by tools-gen-puzzles.js --weekly.
+   Week w (0 = week of 14 Sep 2026) plays WEEKLY[w % length]. Append-only, like PUZZLES. */
+const WEEKLY = [
+  [ // week 1
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["S#A#A","PAGES","A#A#K","CRIME","E#N#D"],
+      p:[
+        {s:[[0,0],[1,0]],l:"SP",at:[0,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"AGA",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"ASK",at:[0,4],k:0},
+        {s:[[0,0]],l:"A",at:[1,1],k:0},
+        {s:[[0,0]],l:"E",at:[1,3],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"ACE",at:[2,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"RIM",at:[3,1],k:0},
+        {s:[[0,0],[1,0]],l:"ED",at:[3,4],k:0},
+        {s:[[0,0]],l:"N",at:[4,2],k:0}
+      ] },
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["TOTAL","#F#F#","STATE","#E#E#","ENTRY"],
+      p:[
+        {s:[[0,0],[0,1]],l:"TO",at:[0,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"TAL",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"FTE",at:[1,1],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"FTE",at:[1,3],k:0},
+        {s:[[0,0]],l:"S",at:[2,0],k:0},
+        {s:[[0,0]],l:"A",at:[2,2],k:0},
+        {s:[[0,0]],l:"E",at:[2,4],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"ENT",at:[4,0],k:0},
+        {s:[[0,0],[0,1]],l:"RY",at:[4,3],k:0}
+      ] },
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["D#I#P","ENTER","A#E#E","TIMES","H#S#S"],
+      p:[
+        {s:[[0,0],[1,0]],l:"DE",at:[0,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"ITE",at:[0,2],k:0},
+        {s:[[0,0],[1,0]],l:"PR",at:[0,4],k:0},
+        {s:[[0,0]],l:"N",at:[1,1],k:0},
+        {s:[[0,0]],l:"E",at:[1,3],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"ATH",at:[2,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"ESS",at:[2,4],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"IME",at:[3,1],k:0},
+        {s:[[0,0]],l:"S",at:[4,2],k:0}
+      ] }
+  ],
+  [ // week 2
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["DRIVE","#O#A#","TOOLS","#M#U#","ASKED"],
+      p:[
+        {s:[[0,0],[0,1]],l:"DR",at:[0,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"IVE",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"OOM",at:[1,1],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"ALU",at:[1,3],k:0},
+        {s:[[0,0]],l:"T",at:[2,0],k:0},
+        {s:[[0,0]],l:"O",at:[2,2],k:0},
+        {s:[[0,0]],l:"S",at:[2,4],k:0},
+        {s:[[0,0],[0,1]],l:"AS",at:[4,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"KED",at:[4,2],k:0}
+      ] },
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["F#A#B","ORDER","R#D#I","CLEAN","E#D#G"],
+      p:[
+        {s:[[0,0],[1,0]],l:"FO",at:[0,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"ADD",at:[0,2],k:0},
+        {s:[[0,0],[1,0]],l:"BR",at:[0,4],k:0},
+        {s:[[0,0]],l:"R",at:[1,1],k:0},
+        {s:[[0,0]],l:"E",at:[1,3],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"RCE",at:[2,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"ING",at:[2,4],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"LEA",at:[3,1],k:0},
+        {s:[[0,0]],l:"D",at:[4,2],k:0}
+      ] },
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["SINCE","#N#H#","IDEAS","#E#I#","EXTRA"],
+      p:[
+        {s:[[0,0],[0,1],[0,2]],l:"SIN",at:[0,0],k:0},
+        {s:[[0,0],[0,1]],l:"CE",at:[0,3],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"NDE",at:[1,1],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"HAI",at:[1,3],k:0},
+        {s:[[0,0]],l:"I",at:[2,0],k:0},
+        {s:[[0,0]],l:"E",at:[2,2],k:0},
+        {s:[[0,0]],l:"S",at:[2,4],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"EXT",at:[4,0],k:0},
+        {s:[[0,0],[0,1]],l:"RA",at:[4,3],k:0}
+      ] }
+  ],
+  [ // week 3
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["U#S#S","SHORT","E#N#A","RIGHT","S#S#E"],
+      p:[
+        {s:[[0,0],[1,0]],l:"US",at:[0,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"SON",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"STA",at:[0,4],k:0},
+        {s:[[0,0]],l:"H",at:[1,1],k:0},
+        {s:[[0,0]],l:"R",at:[1,3],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"ERS",at:[2,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"IGH",at:[3,1],k:0},
+        {s:[[0,0],[1,0]],l:"TE",at:[3,4],k:0},
+        {s:[[0,0]],l:"S",at:[4,2],k:0}
+      ] },
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["WORDS","#R#E#","IDEAS","#E#L#","CROSS"],
+      p:[
+        {s:[[0,0],[0,1]],l:"WO",at:[0,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"RDS",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"RDE",at:[1,1],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"EAL",at:[1,3],k:0},
+        {s:[[0,0]],l:"I",at:[2,0],k:0},
+        {s:[[0,0]],l:"E",at:[2,2],k:0},
+        {s:[[0,0]],l:"S",at:[2,4],k:0},
+        {s:[[0,0],[0,1]],l:"CR",at:[4,0],k:0},
+        {s:[[0,0],[0,1]],l:"OS",at:[4,2],k:0},
+        {s:[[0,0]],l:"S",at:[4,4],k:0}
+      ] },
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["S#Q#S","COUNT","A#I#A","LATER","E#E#S"],
+      p:[
+        {s:[[0,0],[1,0]],l:"SC",at:[0,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"QUI",at:[0,2],k:0},
+        {s:[[0,0],[1,0]],l:"ST",at:[0,4],k:0},
+        {s:[[0,0]],l:"O",at:[1,1],k:0},
+        {s:[[0,0]],l:"N",at:[1,3],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"ALE",at:[2,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"ARS",at:[2,4],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"ATE",at:[3,1],k:0},
+        {s:[[0,0]],l:"E",at:[4,2],k:0}
+      ] }
+  ],
+  [ // week 4
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["NORTH","#W#R#","INPUT","#E#S#","WROTE"],
+      p:[
+        {s:[[0,0],[0,1]],l:"NO",at:[0,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"RTH",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"WNE",at:[1,1],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"RUS",at:[1,3],k:0},
+        {s:[[0,0]],l:"I",at:[2,0],k:0},
+        {s:[[0,0]],l:"P",at:[2,2],k:0},
+        {s:[[0,0]],l:"T",at:[2,4],k:0},
+        {s:[[0,0],[0,1]],l:"WR",at:[4,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"OTE",at:[4,2],k:0}
+      ] },
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["O#E#U","FUNDS","T#T#E","ERROR","N#Y#S"],
+      p:[
+        {s:[[0,0],[1,0],[2,0]],l:"OFT",at:[0,0],k:0},
+        {s:[[0,0],[1,0]],l:"EN",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"USE",at:[0,4],k:0},
+        {s:[[0,0]],l:"U",at:[1,1],k:0},
+        {s:[[0,0]],l:"D",at:[1,3],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"TRY",at:[2,2],k:0},
+        {s:[[0,0],[0,1]],l:"ER",at:[3,0],k:0},
+        {s:[[0,0],[0,1]],l:"OR",at:[3,3],k:0},
+        {s:[[0,0]],l:"N",at:[4,0],k:0},
+        {s:[[0,0]],l:"S",at:[4,4],k:0}
+      ] },
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["HOUSE","#T#T#","CHEAP","#E#G#","GREEN"],
+      p:[
+        {s:[[0,0],[0,1],[0,2]],l:"HOU",at:[0,0],k:0},
+        {s:[[0,0],[1,0]],l:"ST",at:[0,3],k:0},
+        {s:[[0,0]],l:"E",at:[0,4],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"THE",at:[1,1],k:0},
+        {s:[[0,0]],l:"C",at:[2,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"EAP",at:[2,2],k:0},
+        {s:[[0,0],[1,0]],l:"GE",at:[3,3],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"GRE",at:[4,0],k:0},
+        {s:[[0,0]],l:"N",at:[4,4],k:0}
+      ] }
+  ],
+  [ // week 5
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["S#S#S","COUNT","O#I#U","RATED","E#E#Y"],
+      p:[
+        {s:[[0,0],[1,0]],l:"SC",at:[0,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"SUI",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"STU",at:[0,4],k:0},
+        {s:[[0,0]],l:"O",at:[1,1],k:0},
+        {s:[[0,0]],l:"N",at:[1,3],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"ORE",at:[2,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"ATE",at:[3,1],k:0},
+        {s:[[0,0],[1,0]],l:"DY",at:[3,4],k:0},
+        {s:[[0,0]],l:"E",at:[4,2],k:0}
+      ] },
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["YEARS","#V#A#","MEANS","#R#G#","TYPES"],
+      p:[
+        {s:[[0,0],[0,1]],l:"YE",at:[0,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"ARS",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"VER",at:[1,1],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"ANG",at:[1,3],k:0},
+        {s:[[0,0]],l:"M",at:[2,0],k:0},
+        {s:[[0,0]],l:"A",at:[2,2],k:0},
+        {s:[[0,0]],l:"S",at:[2,4],k:0},
+        {s:[[0,0],[0,1]],l:"TY",at:[4,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"PES",at:[4,2],k:0}
+      ] },
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["A#G#S","WHITE","A#R#N","RULES","D#S#E"],
+      p:[
+        {s:[[0,0],[1,0]],l:"AW",at:[0,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"GIR",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"SEN",at:[0,4],k:0},
+        {s:[[0,0]],l:"H",at:[1,1],k:0},
+        {s:[[0,0]],l:"T",at:[1,3],k:0},
+        {s:[[0,0],[1,0]],l:"AR",at:[2,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"ULE",at:[3,1],k:0},
+        {s:[[0,0],[1,0]],l:"SE",at:[3,4],k:0},
+        {s:[[0,0]],l:"D",at:[4,0],k:0},
+        {s:[[0,0]],l:"S",at:[4,2],k:0}
+      ] }
+  ],
+  [ // week 6
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["CLASS","#E#I#","AGENT","#A#C#","OLDER"],
+      p:[
+        {s:[[0,0],[0,1]],l:"CL",at:[0,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"ASS",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"EGA",at:[1,1],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"INC",at:[1,3],k:0},
+        {s:[[0,0]],l:"A",at:[2,0],k:0},
+        {s:[[0,0]],l:"E",at:[2,2],k:0},
+        {s:[[0,0]],l:"T",at:[2,4],k:0},
+        {s:[[0,0],[0,1]],l:"OL",at:[4,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"DER",at:[4,2],k:0}
+      ] },
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["S#W#U","TOOLS","A#R#I","TAKEN","E#S#G"],
+      p:[
+        {s:[[0,0],[1,0],[2,0]],l:"STA",at:[0,0],k:0},
+        {s:[[0,0]],l:"W",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"USI",at:[0,4],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"OOL",at:[1,1],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"RKS",at:[2,2],k:0},
+        {s:[[0,0],[0,1]],l:"TA",at:[3,0],k:0},
+        {s:[[0,0],[0,1]],l:"EN",at:[3,3],k:0},
+        {s:[[0,0]],l:"E",at:[4,0],k:0},
+        {s:[[0,0]],l:"G",at:[4,4],k:0}
+      ] },
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["BEING","#N#A#","ITEMS","#E#E#","CROSS"],
+      p:[
+        {s:[[0,0],[0,1],[0,2]],l:"BEI",at:[0,0],k:0},
+        {s:[[0,0],[0,1]],l:"NG",at:[0,3],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"NTE",at:[1,1],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"AME",at:[1,3],k:0},
+        {s:[[0,0]],l:"I",at:[2,0],k:0},
+        {s:[[0,0]],l:"E",at:[2,2],k:0},
+        {s:[[0,0]],l:"S",at:[2,4],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"CRO",at:[4,0],k:0},
+        {s:[[0,0],[0,1]],l:"SS",at:[4,3],k:0}
+      ] }
+  ],
+  [ // week 7
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["S#L#L","CRIME","O#S#A","RATES","E#S#T"],
+      p:[
+        {s:[[0,0],[1,0]],l:"SC",at:[0,0],k:0},
+        {s:[[0,0]],l:"L",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"LEA",at:[0,4],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"RIM",at:[1,1],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"ORE",at:[2,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"STS",at:[2,2],k:0},
+        {s:[[0,0]],l:"A",at:[3,1],k:0},
+        {s:[[0,0],[0,1]],l:"ES",at:[3,3],k:0},
+        {s:[[0,0]],l:"T",at:[4,4],k:0}
+      ] },
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["CASES","#B#N#","SOUTH","#U#E#","STARS"],
+      p:[
+        {s:[[0,0],[0,1],[0,2]],l:"CAS",at:[0,0],k:0},
+        {s:[[0,0],[1,0]],l:"EN",at:[0,3],k:0},
+        {s:[[0,0]],l:"S",at:[0,4],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"BOU",at:[1,1],k:0},
+        {s:[[0,0]],l:"S",at:[2,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"UTH",at:[2,2],k:0},
+        {s:[[0,0],[1,0]],l:"ER",at:[3,3],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"STA",at:[4,0],k:0},
+        {s:[[0,0]],l:"S",at:[4,4],k:0}
+      ] },
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["S#F#C","PHOTO","A#C#V","CAUSE","E#S#R"],
+      p:[
+        {s:[[0,0],[1,0],[2,0]],l:"SPA",at:[0,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"FOC",at:[0,2],k:0},
+        {s:[[0,0],[1,0]],l:"CO",at:[0,4],k:0},
+        {s:[[0,0]],l:"H",at:[1,1],k:0},
+        {s:[[0,0]],l:"T",at:[1,3],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"VER",at:[2,4],k:0},
+        {s:[[0,0],[1,0]],l:"CE",at:[3,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"AUS",at:[3,1],k:0},
+        {s:[[0,0]],l:"S",at:[4,2],k:0}
+      ] }
+  ],
+  [ // week 8
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["SHIPS","#A#I#","SPEED","#P#C#","TYPES"],
+      p:[
+        {s:[[0,0],[0,1],[0,2]],l:"SHI",at:[0,0],k:0},
+        {s:[[0,0],[0,1]],l:"PS",at:[0,3],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"APP",at:[1,1],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"IEC",at:[1,3],k:0},
+        {s:[[0,0]],l:"S",at:[2,0],k:0},
+        {s:[[0,0]],l:"E",at:[2,2],k:0},
+        {s:[[0,0]],l:"D",at:[2,4],k:0},
+        {s:[[0,0],[0,1]],l:"TY",at:[4,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"PES",at:[4,2],k:0}
+      ] },
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["B#S#O","UNTIL","I#O#D","LARGE","D#Y#R"],
+      p:[
+        {s:[[0,0],[1,0]],l:"BU",at:[0,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"STO",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"OLD",at:[0,4],k:0},
+        {s:[[0,0]],l:"N",at:[1,1],k:0},
+        {s:[[0,0]],l:"I",at:[1,3],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"ILD",at:[2,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"ARG",at:[3,1],k:0},
+        {s:[[0,0],[1,0]],l:"ER",at:[3,4],k:0},
+        {s:[[0,0]],l:"Y",at:[4,2],k:0}
+      ] },
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["MAKES","#D#N#","QUOTE","#L#E#","START"],
+      p:[
+        {s:[[0,0],[0,1],[0,2]],l:"MAK",at:[0,0],k:0},
+        {s:[[0,0],[1,0]],l:"EN",at:[0,3],k:0},
+        {s:[[0,0]],l:"S",at:[0,4],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"DUL",at:[1,1],k:0},
+        {s:[[0,0]],l:"Q",at:[2,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"OTE",at:[2,2],k:0},
+        {s:[[0,0]],l:"E",at:[3,3],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"STA",at:[4,0],k:0},
+        {s:[[0,0],[0,1]],l:"RT",at:[4,3],k:0}
+      ] }
+  ],
+  [ // week 9
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["S#M#N","CLOSE","O#N#E","RATED","E#H#S"],
+      p:[
+        {s:[[0,0],[1,0]],l:"SC",at:[0,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"MON",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"NEE",at:[0,4],k:0},
+        {s:[[0,0]],l:"L",at:[1,1],k:0},
+        {s:[[0,0]],l:"S",at:[1,3],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"ORE",at:[2,0],k:0},
+        {s:[[0,0]],l:"A",at:[3,1],k:0},
+        {s:[[0,0],[1,0]],l:"TH",at:[3,2],k:0},
+        {s:[[0,0],[0,1]],l:"ED",at:[3,3],k:0},
+        {s:[[0,0]],l:"S",at:[4,4],k:0}
+      ] },
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["BASED","#W#X#","PARTS","#R#R#","IDEAS"],
+      p:[
+        {s:[[0,0],[0,1]],l:"BA",at:[0,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"SED",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"WAR",at:[1,1],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"XTR",at:[1,3],k:0},
+        {s:[[0,0]],l:"P",at:[2,0],k:0},
+        {s:[[0,0]],l:"R",at:[2,2],k:0},
+        {s:[[0,0]],l:"S",at:[2,4],k:0},
+        {s:[[0,0],[0,1]],l:"ID",at:[4,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"EAS",at:[4,2],k:0}
+      ] },
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["A#R#S","GRANT","E#N#A","NIGHT","T#E#E"],
+      p:[
+        {s:[[0,0],[1,0]],l:"AG",at:[0,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"RAN",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"STA",at:[0,4],k:0},
+        {s:[[0,0]],l:"R",at:[1,1],k:0},
+        {s:[[0,0]],l:"N",at:[1,3],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"ENT",at:[2,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"IGH",at:[3,1],k:0},
+        {s:[[0,0],[1,0]],l:"TE",at:[3,4],k:0},
+        {s:[[0,0]],l:"E",at:[4,2],k:0}
+      ] }
+  ],
+  [ // week 10
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["STOCK","#O#H#","LOCAL","#L#I#","USERS"],
+      p:[
+        {s:[[0,0],[0,1],[0,2]],l:"STO",at:[0,0],k:0},
+        {s:[[0,0],[0,1]],l:"CK",at:[0,3],k:0},
+        {s:[[0,0]],l:"O",at:[1,1],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"HAI",at:[1,3],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"LOC",at:[2,0],k:0},
+        {s:[[0,0]],l:"L",at:[2,4],k:0},
+        {s:[[0,0]],l:"L",at:[3,1],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"USE",at:[4,0],k:0},
+        {s:[[0,0],[0,1]],l:"RS",at:[4,3],k:0}
+      ] },
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["P#S#C","EXTRA","A#A#U","CARDS","E#S#E"],
+      p:[
+        {s:[[0,0],[1,0]],l:"PE",at:[0,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"STA",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"CAU",at:[0,4],k:0},
+        {s:[[0,0]],l:"X",at:[1,1],k:0},
+        {s:[[0,0]],l:"R",at:[1,3],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"ACE",at:[2,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"ARD",at:[3,1],k:0},
+        {s:[[0,0],[1,0]],l:"SE",at:[3,4],k:0},
+        {s:[[0,0]],l:"S",at:[4,2],k:0}
+      ] },
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["AGREE","#R#N#","NORTH","#U#E#","SPORT"],
+      p:[
+        {s:[[0,0],[0,1],[0,2]],l:"AGR",at:[0,0],k:0},
+        {s:[[0,0],[0,1]],l:"EE",at:[0,3],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"ROU",at:[1,1],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"NTE",at:[1,3],k:0},
+        {s:[[0,0]],l:"N",at:[2,0],k:0},
+        {s:[[0,0]],l:"R",at:[2,2],k:0},
+        {s:[[0,0]],l:"H",at:[2,4],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"SPO",at:[4,0],k:0},
+        {s:[[0,0],[0,1]],l:"RT",at:[4,3],k:0}
+      ] }
+  ],
+  [ // week 11
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["G#A#P","UNDER","E#U#E","SALES","T#T#S"],
+      p:[
+        {s:[[0,0],[1,0],[2,0]],l:"GUE",at:[0,0],k:0},
+        {s:[[0,0]],l:"A",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"PRE",at:[0,4],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"NDE",at:[1,1],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"ULT",at:[2,2],k:0},
+        {s:[[0,0],[1,0]],l:"ST",at:[3,0],k:0},
+        {s:[[0,0]],l:"A",at:[3,1],k:0},
+        {s:[[0,0],[0,1]],l:"ES",at:[3,3],k:0},
+        {s:[[0,0]],l:"S",at:[4,4],k:0}
+      ] },
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["GIVES","#N#V#","SPEED","#U#N#","STATE"],
+      p:[
+        {s:[[0,0],[0,1]],l:"GI",at:[0,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"VES",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"NPU",at:[1,1],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"VEN",at:[1,3],k:0},
+        {s:[[0,0]],l:"S",at:[2,0],k:0},
+        {s:[[0,0]],l:"E",at:[2,2],k:0},
+        {s:[[0,0]],l:"D",at:[2,4],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"STA",at:[4,0],k:0},
+        {s:[[0,0],[0,1]],l:"TE",at:[4,3],k:0}
+      ] },
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["S#H#H","THOSE","E#U#A","ERROR","L#S#T"],
+      p:[
+        {s:[[0,0],[1,0],[2,0]],l:"STE",at:[0,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"HOU",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"HEA",at:[0,4],k:0},
+        {s:[[0,0]],l:"H",at:[1,1],k:0},
+        {s:[[0,0]],l:"S",at:[1,3],k:0},
+        {s:[[0,0],[1,0]],l:"EL",at:[3,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"RRO",at:[3,1],k:0},
+        {s:[[0,0],[1,0]],l:"RT",at:[3,4],k:0},
+        {s:[[0,0]],l:"S",at:[4,2],k:0}
+      ] }
+  ],
+  [ // week 12
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["BLOCK","#I#H#","AGAIN","#H#L#","STUDY"],
+      p:[
+        {s:[[0,0],[0,1],[0,2]],l:"BLO",at:[0,0],k:0},
+        {s:[[0,0],[0,1]],l:"CK",at:[0,3],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"IGH",at:[1,1],k:0},
+        {s:[[0,0]],l:"H",at:[1,3],k:0},
+        {s:[[0,0]],l:"A",at:[2,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"AIN",at:[2,2],k:0},
+        {s:[[0,0],[1,0]],l:"LD",at:[3,3],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"STU",at:[4,0],k:0},
+        {s:[[0,0]],l:"Y",at:[4,4],k:0}
+      ] },
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["I#U#H","DANCE","E#I#A","AFTER","S#S#T"],
+      p:[
+        {s:[[0,0],[1,0]],l:"ID",at:[0,0],k:0},
+        {s:[[0,0]],l:"U",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"HEA",at:[0,4],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"ANC",at:[1,1],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"EAS",at:[2,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"ITS",at:[2,2],k:0},
+        {s:[[0,0]],l:"F",at:[3,1],k:0},
+        {s:[[0,0],[0,1]],l:"ER",at:[3,3],k:0},
+        {s:[[0,0]],l:"T",at:[4,4],k:0}
+      ] },
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["BUILT","#S#E#","LEGAL","#R#V#","ASKED"],
+      p:[
+        {s:[[0,0],[0,1],[0,2]],l:"BUI",at:[0,0],k:0},
+        {s:[[0,0],[0,1]],l:"LT",at:[0,3],k:0},
+        {s:[[0,0]],l:"S",at:[1,1],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"EAV",at:[1,3],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"LEG",at:[2,0],k:0},
+        {s:[[0,0]],l:"L",at:[2,4],k:0},
+        {s:[[0,0],[1,0]],l:"RS",at:[3,1],k:0},
+        {s:[[0,0]],l:"A",at:[4,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"KED",at:[4,2],k:0}
+      ] }
+  ],
+  [ // week 13
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["C#L#S","AGENT","U#G#I","SHALL","E#L#L"],
+      p:[
+        {s:[[0,0],[1,0],[2,0]],l:"CAU",at:[0,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"LEG",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"STI",at:[0,4],k:0},
+        {s:[[0,0]],l:"G",at:[1,1],k:0},
+        {s:[[0,0]],l:"N",at:[1,3],k:0},
+        {s:[[0,0],[1,0]],l:"SE",at:[3,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"HAL",at:[3,1],k:0},
+        {s:[[0,0],[1,0]],l:"LL",at:[3,4],k:0},
+        {s:[[0,0]],l:"L",at:[4,2],k:0}
+      ] },
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["CLICK","#I#A#","EVENT","#E#O#","USING"],
+      p:[
+        {s:[[0,0],[0,1],[0,2]],l:"CLI",at:[0,0],k:0},
+        {s:[[0,0],[0,1]],l:"CK",at:[0,3],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"IVE",at:[1,1],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"ANO",at:[1,3],k:0},
+        {s:[[0,0]],l:"E",at:[2,0],k:0},
+        {s:[[0,0]],l:"E",at:[2,2],k:0},
+        {s:[[0,0]],l:"T",at:[2,4],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"USI",at:[4,0],k:0},
+        {s:[[0,0],[0,1]],l:"NG",at:[4,3],k:0}
+      ] },
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["A#D#C","STEEL","K#A#E","EXTRA","D#H#R"],
+      p:[
+        {s:[[0,0],[1,0],[2,0]],l:"ASK",at:[0,0],k:0},
+        {s:[[0,0]],l:"D",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"CLE",at:[0,4],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"TEE",at:[1,1],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"ATH",at:[2,2],k:0},
+        {s:[[0,0],[0,1]],l:"EX",at:[3,0],k:0},
+        {s:[[0,0],[0,1]],l:"RA",at:[3,3],k:0},
+        {s:[[0,0]],l:"D",at:[4,0],k:0},
+        {s:[[0,0]],l:"R",at:[4,4],k:0}
+      ] }
+  ],
+  [ // week 14
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["BASIC","#G#N#","HAPPY","#I#U#","UNITS"],
+      p:[
+        {s:[[0,0],[0,1]],l:"BA",at:[0,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"SIC",at:[0,2],k:0},
+        {s:[[0,0]],l:"G",at:[1,1],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"NPU",at:[1,3],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"HAP",at:[2,0],k:0},
+        {s:[[0,0]],l:"Y",at:[2,4],k:0},
+        {s:[[0,0]],l:"I",at:[3,1],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"UNI",at:[4,0],k:0},
+        {s:[[0,0],[0,1]],l:"TS",at:[4,3],k:0}
+      ] },
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["E#W#T","NORTH","J#O#I","OFTEN","Y#E#G"],
+      p:[
+        {s:[[0,0],[1,0],[2,0]],l:"ENJ",at:[0,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"WRO",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"THI",at:[0,4],k:0},
+        {s:[[0,0]],l:"O",at:[1,1],k:0},
+        {s:[[0,0]],l:"T",at:[1,3],k:0},
+        {s:[[0,0],[1,0]],l:"OY",at:[3,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"FTE",at:[3,1],k:0},
+        {s:[[0,0],[1,0]],l:"NG",at:[3,4],k:0},
+        {s:[[0,0]],l:"E",at:[4,2],k:0}
+      ] },
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["APPLY","#H#A#","MAYBE","#S#E#","DEALS"],
+      p:[
+        {s:[[0,0],[0,1]],l:"AP",at:[0,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"PLY",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"HAS",at:[1,1],k:0},
+        {s:[[0,0]],l:"A",at:[1,3],k:0},
+        {s:[[0,0]],l:"M",at:[2,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"YBE",at:[2,2],k:0},
+        {s:[[0,0],[1,0]],l:"EL",at:[3,3],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"DEA",at:[4,0],k:0},
+        {s:[[0,0]],l:"S",at:[4,4],k:0}
+      ] }
+  ],
+  [ // week 15
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["A#U#U","SONGS","K#I#E","ENTER","D#S#S"],
+      p:[
+        {s:[[0,0],[1,0]],l:"AS",at:[0,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"UNI",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"USE",at:[0,4],k:0},
+        {s:[[0,0]],l:"O",at:[1,1],k:0},
+        {s:[[0,0]],l:"G",at:[1,3],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"KED",at:[2,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"NTE",at:[3,1],k:0},
+        {s:[[0,0],[1,0]],l:"RS",at:[3,4],k:0},
+        {s:[[0,0]],l:"S",at:[4,2],k:0}
+      ] },
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["STAND","#H#A#","SEEMS","#R#E#","LEAST"],
+      p:[
+        {s:[[0,0],[0,1]],l:"ST",at:[0,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"AND",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"HER",at:[1,1],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"AME",at:[1,3],k:0},
+        {s:[[0,0]],l:"S",at:[2,0],k:0},
+        {s:[[0,0]],l:"E",at:[2,2],k:0},
+        {s:[[0,0]],l:"S",at:[2,4],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"LEA",at:[4,0],k:0},
+        {s:[[0,0],[0,1]],l:"ST",at:[4,3],k:0}
+      ] },
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["A#A#O","POWER","P#A#D","LARGE","Y#D#R"],
+      p:[
+        {s:[[0,0],[1,0]],l:"AP",at:[0,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"AWA",at:[0,2],k:0},
+        {s:[[0,0],[1,0]],l:"OR",at:[0,4],k:0},
+        {s:[[0,0]],l:"O",at:[1,1],k:0},
+        {s:[[0,0]],l:"E",at:[1,3],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"PLY",at:[2,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"DER",at:[2,4],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"ARG",at:[3,1],k:0},
+        {s:[[0,0]],l:"D",at:[4,2],k:0}
+      ] }
+  ],
+  [ // week 16
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["MONEY","#L#V#","ADDED","#E#N#","WRITE"],
+      p:[
+        {s:[[0,0],[0,1]],l:"MO",at:[0,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"NEY",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"LDE",at:[1,1],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"VEN",at:[1,3],k:0},
+        {s:[[0,0]],l:"A",at:[2,0],k:0},
+        {s:[[0,0]],l:"D",at:[2,2],k:0},
+        {s:[[0,0]],l:"D",at:[2,4],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"WRI",at:[4,0],k:0},
+        {s:[[0,0],[0,1]],l:"TE",at:[4,3],k:0}
+      ] },
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["A#L#S","GREAT","E#A#O","NEVER","T#E#E"],
+      p:[
+        {s:[[0,0],[1,0]],l:"AG",at:[0,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"LEA",at:[0,2],k:0},
+        {s:[[0,0],[1,0]],l:"ST",at:[0,4],k:0},
+        {s:[[0,0]],l:"R",at:[1,1],k:0},
+        {s:[[0,0]],l:"A",at:[1,3],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"ENT",at:[2,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"ORE",at:[2,4],k:0},
+        {s:[[0,0],[0,1]],l:"EV",at:[3,1],k:0},
+        {s:[[0,0]],l:"E",at:[3,3],k:0},
+        {s:[[0,0]],l:"E",at:[4,2],k:0}
+      ] },
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["ALLOW","#E#R#","HANDS","#R#E#","ENTRY"],
+      p:[
+        {s:[[0,0]],l:"A",at:[0,0],k:0},
+        {s:[[0,0],[1,0]],l:"LE",at:[0,1],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"LOW",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"RDE",at:[1,3],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"HAN",at:[2,0],k:0},
+        {s:[[0,0]],l:"S",at:[2,4],k:0},
+        {s:[[0,0],[1,0]],l:"RN",at:[3,1],k:0},
+        {s:[[0,0]],l:"E",at:[4,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"TRY",at:[4,2],k:0}
+      ] }
+  ],
+  [ // week 17
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["D#S#W","ENTER","A#A#O","LIGHT","S#E#E"],
+      p:[
+        {s:[[0,0],[1,0]],l:"DE",at:[0,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"STA",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"WRO",at:[0,4],k:0},
+        {s:[[0,0]],l:"N",at:[1,1],k:0},
+        {s:[[0,0]],l:"E",at:[1,3],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"ALS",at:[2,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"IGH",at:[3,1],k:0},
+        {s:[[0,0],[1,0]],l:"TE",at:[3,4],k:0},
+        {s:[[0,0]],l:"E",at:[4,2],k:0}
+      ] },
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["FORUM","#F#N#","STUDY","#E#E#","ENTRY"],
+      p:[
+        {s:[[0,0],[0,1]],l:"FO",at:[0,0],k:0},
+        {s:[[0,0],[0,1]],l:"RU",at:[0,2],k:0},
+        {s:[[0,0]],l:"M",at:[0,4],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"FTE",at:[1,1],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"NDE",at:[1,3],k:0},
+        {s:[[0,0]],l:"S",at:[2,0],k:0},
+        {s:[[0,0]],l:"U",at:[2,2],k:0},
+        {s:[[0,0]],l:"Y",at:[2,4],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"ENT",at:[4,0],k:0},
+        {s:[[0,0],[0,1]],l:"RY",at:[4,3],k:0}
+      ] },
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["S#S#U","COMES","A#I#E","LATER","E#H#S"],
+      p:[
+        {s:[[0,0],[1,0],[2,0]],l:"SCA",at:[0,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"SMI",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"USE",at:[0,4],k:0},
+        {s:[[0,0]],l:"O",at:[1,1],k:0},
+        {s:[[0,0]],l:"E",at:[1,3],k:0},
+        {s:[[0,0],[1,0]],l:"LE",at:[3,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"ATE",at:[3,1],k:0},
+        {s:[[0,0],[1,0]],l:"RS",at:[3,4],k:0},
+        {s:[[0,0]],l:"H",at:[4,2],k:0}
+      ] }
+  ],
+  [ // week 18
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["COULD","#F#A#","STARS","#E#G#","INDEX"],
+      p:[
+        {s:[[0,0],[0,1],[0,2]],l:"COU",at:[0,0],k:0},
+        {s:[[0,0],[1,0]],l:"LA",at:[0,3],k:0},
+        {s:[[0,0]],l:"D",at:[0,4],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"FTE",at:[1,1],k:0},
+        {s:[[0,0]],l:"S",at:[2,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"ARS",at:[2,2],k:0},
+        {s:[[0,0],[1,0]],l:"GE",at:[3,3],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"IND",at:[4,0],k:0},
+        {s:[[0,0]],l:"X",at:[4,4],k:0}
+      ] },
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["S#A#U","TIMES","O#O#I","CANON","K#G#G"],
+      p:[
+        {s:[[0,0],[1,0]],l:"ST",at:[0,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"AMO",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"USI",at:[0,4],k:0},
+        {s:[[0,0]],l:"I",at:[1,1],k:0},
+        {s:[[0,0]],l:"E",at:[1,3],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"OCK",at:[2,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"ANO",at:[3,1],k:0},
+        {s:[[0,0],[1,0]],l:"NG",at:[3,4],k:0},
+        {s:[[0,0]],l:"G",at:[4,2],k:0}
+      ] },
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["AWARD","#H#I#","LEAVE","#R#E#","LEARN"],
+      p:[
+        {s:[[0,0],[0,1]],l:"AW",at:[0,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"ARD",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"HER",at:[1,1],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"IVE",at:[1,3],k:0},
+        {s:[[0,0]],l:"L",at:[2,0],k:0},
+        {s:[[0,0]],l:"A",at:[2,2],k:0},
+        {s:[[0,0]],l:"E",at:[2,4],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"LEA",at:[4,0],k:0},
+        {s:[[0,0],[0,1]],l:"RN",at:[4,3],k:0}
+      ] }
+  ],
+  [ // week 19
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["F#O#C","OFFER","C#T#O","USERS","S#N#S"],
+      p:[
+        {s:[[0,0],[1,0],[2,0]],l:"FOC",at:[0,0],k:0},
+        {s:[[0,0],[1,0]],l:"OF",at:[0,2],k:0},
+        {s:[[0,0],[1,0]],l:"CR",at:[0,4],k:0},
+        {s:[[0,0]],l:"F",at:[1,1],k:0},
+        {s:[[0,0]],l:"E",at:[1,3],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"TEN",at:[2,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"OSS",at:[2,4],k:0},
+        {s:[[0,0],[1,0]],l:"US",at:[3,0],k:0},
+        {s:[[0,0]],l:"S",at:[3,1],k:0},
+        {s:[[0,0]],l:"R",at:[3,3],k:0}
+      ] },
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["WOMAN","#T#G#","THERE","#E#E#","GREEN"],
+      p:[
+        {s:[[0,0],[0,1],[0,2]],l:"WOM",at:[0,0],k:0},
+        {s:[[0,0],[1,0]],l:"AG",at:[0,3],k:0},
+        {s:[[0,0]],l:"N",at:[0,4],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"THE",at:[1,1],k:0},
+        {s:[[0,0]],l:"T",at:[2,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"ERE",at:[2,2],k:0},
+        {s:[[0,0],[1,0]],l:"EE",at:[3,3],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"GRE",at:[4,0],k:0},
+        {s:[[0,0]],l:"N",at:[4,4],k:0}
+      ] },
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["A#F#S","BUILT","O#E#U","VALID","E#D#Y"],
+      p:[
+        {s:[[0,0],[1,0]],l:"AB",at:[0,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"FIE",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"STU",at:[0,4],k:0},
+        {s:[[0,0]],l:"U",at:[1,1],k:0},
+        {s:[[0,0]],l:"L",at:[1,3],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"OVE",at:[2,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"ALI",at:[3,1],k:0},
+        {s:[[0,0],[1,0]],l:"DY",at:[3,4],k:0},
+        {s:[[0,0]],l:"D",at:[4,2],k:0}
+      ] }
+  ],
+  [ // week 20
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["SHALL","#U#I#","IMAGE","#A#H#","UNITS"],
+      p:[
+        {s:[[0,0],[0,1]],l:"SH",at:[0,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"ALL",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"UMA",at:[1,1],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"IGH",at:[1,3],k:0},
+        {s:[[0,0]],l:"I",at:[2,0],k:0},
+        {s:[[0,0]],l:"A",at:[2,2],k:0},
+        {s:[[0,0]],l:"E",at:[2,4],k:0},
+        {s:[[0,0],[0,1]],l:"UN",at:[4,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"ITS",at:[4,2],k:0}
+      ] },
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["C#E#A","LINES","O#J#K","STORE","E#Y#D"],
+      p:[
+        {s:[[0,0],[1,0]],l:"CL",at:[0,0],k:0},
+        {s:[[0,0],[1,0]],l:"EN",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"ASK",at:[0,4],k:0},
+        {s:[[0,0]],l:"I",at:[1,1],k:0},
+        {s:[[0,0]],l:"E",at:[1,3],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"OSE",at:[2,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"JOY",at:[2,2],k:0},
+        {s:[[0,0]],l:"T",at:[3,1],k:0},
+        {s:[[0,0],[0,1]],l:"RE",at:[3,3],k:0},
+        {s:[[0,0]],l:"D",at:[4,4],k:0}
+      ] },
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["TOOLS","#L#E#","IDEAS","#E#V#","GREEN"],
+      p:[
+        {s:[[0,0],[0,1],[0,2]],l:"TOO",at:[0,0],k:0},
+        {s:[[0,0],[0,1]],l:"LS",at:[0,3],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"LDE",at:[1,1],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"EAV",at:[1,3],k:0},
+        {s:[[0,0]],l:"I",at:[2,0],k:0},
+        {s:[[0,0]],l:"E",at:[2,2],k:0},
+        {s:[[0,0]],l:"S",at:[2,4],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"GRE",at:[4,0],k:0},
+        {s:[[0,0],[0,1]],l:"EN",at:[4,3],k:0}
+      ] }
+  ],
+  [ // week 21
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["C#E#U","LINKS","A#J#I","SHOWN","S#Y#G"],
+      p:[
+        {s:[[0,0],[1,0]],l:"CL",at:[0,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"ENJ",at:[0,2],k:0},
+        {s:[[0,0],[1,0]],l:"US",at:[0,4],k:0},
+        {s:[[0,0]],l:"I",at:[1,1],k:0},
+        {s:[[0,0]],l:"K",at:[1,3],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"ASS",at:[2,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"ING",at:[2,4],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"HOW",at:[3,1],k:0},
+        {s:[[0,0]],l:"Y",at:[4,2],k:0}
+      ] },
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["STATE","#H#O#","WRITE","#E#A#","CELLS"],
+      p:[
+        {s:[[0,0],[0,1]],l:"ST",at:[0,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"ATE",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"HRE",at:[1,1],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"OTA",at:[1,3],k:0},
+        {s:[[0,0]],l:"W",at:[2,0],k:0},
+        {s:[[0,0]],l:"I",at:[2,2],k:0},
+        {s:[[0,0]],l:"E",at:[2,4],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"CEL",at:[4,0],k:0},
+        {s:[[0,0],[0,1]],l:"LS",at:[4,3],k:0}
+      ] },
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["S#N#S","THESE","A#V#N","NEEDS","D#R#E"],
+      p:[
+        {s:[[0,0],[1,0]],l:"ST",at:[0,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"NEV",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"SEN",at:[0,4],k:0},
+        {s:[[0,0]],l:"H",at:[1,1],k:0},
+        {s:[[0,0]],l:"S",at:[1,3],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"AND",at:[2,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"EED",at:[3,1],k:0},
+        {s:[[0,0],[1,0]],l:"SE",at:[3,4],k:0},
+        {s:[[0,0]],l:"R",at:[4,2],k:0}
+      ] }
+  ],
+  [ // week 22
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["GREEN","#A#R#","ENTRY","#G#O#","HEART"],
+      p:[
+        {s:[[0,0],[0,1],[0,2]],l:"GRE",at:[0,0],k:0},
+        {s:[[0,0],[0,1]],l:"EN",at:[0,3],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"ANG",at:[1,1],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"RRO",at:[1,3],k:0},
+        {s:[[0,0]],l:"E",at:[2,0],k:0},
+        {s:[[0,0]],l:"T",at:[2,2],k:0},
+        {s:[[0,0]],l:"Y",at:[2,4],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"HEA",at:[4,0],k:0},
+        {s:[[0,0],[0,1]],l:"RT",at:[4,3],k:0}
+      ] },
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["A#C#A","GLASS","A#U#K","ISSUE","N#E#D"],
+      p:[
+        {s:[[0,0],[1,0],[2,0]],l:"AGA",at:[0,0],k:0},
+        {s:[[0,0]],l:"C",at:[0,2],k:0},
+        {s:[[0,0],[1,0]],l:"AS",at:[0,4],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"LAS",at:[1,1],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"USE",at:[2,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"KED",at:[2,4],k:0},
+        {s:[[0,0],[1,0]],l:"IN",at:[3,0],k:0},
+        {s:[[0,0]],l:"S",at:[3,1],k:0},
+        {s:[[0,0]],l:"U",at:[3,3],k:0}
+      ] },
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["APPLY","#H#I#","DOING","#T#K#","COAST"],
+      p:[
+        {s:[[0,0],[0,1],[0,2]],l:"APP",at:[0,0],k:0},
+        {s:[[0,0],[0,1]],l:"LY",at:[0,3],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"HOT",at:[1,1],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"INK",at:[1,3],k:0},
+        {s:[[0,0]],l:"D",at:[2,0],k:0},
+        {s:[[0,0]],l:"I",at:[2,2],k:0},
+        {s:[[0,0]],l:"G",at:[2,4],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"COA",at:[4,0],k:0},
+        {s:[[0,0],[0,1]],l:"ST",at:[4,3],k:0}
+      ] }
+  ],
+  [ // week 23
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["M#C#B","ABOVE","Y#A#A","BASIC","E#T#H"],
+      p:[
+        {s:[[0,0],[1,0]],l:"MA",at:[0,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"COA",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"BEA",at:[0,4],k:0},
+        {s:[[0,0]],l:"B",at:[1,1],k:0},
+        {s:[[0,0]],l:"V",at:[1,3],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"YBE",at:[2,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"ASI",at:[3,1],k:0},
+        {s:[[0,0],[1,0]],l:"CH",at:[3,4],k:0},
+        {s:[[0,0]],l:"T",at:[4,2],k:0}
+      ] },
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["TIMES","#M#V#","PANEL","#G#N#","DEATH"],
+      p:[
+        {s:[[0,0],[0,1],[0,2]],l:"TIM",at:[0,0],k:0},
+        {s:[[0,0],[1,0]],l:"EV",at:[0,3],k:0},
+        {s:[[0,0]],l:"S",at:[0,4],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"MAG",at:[1,1],k:0},
+        {s:[[0,0]],l:"P",at:[2,0],k:0},
+        {s:[[0,0]],l:"N",at:[2,2],k:0},
+        {s:[[0,0],[1,0]],l:"EN",at:[2,3],k:0},
+        {s:[[0,0]],l:"L",at:[2,4],k:0},
+        {s:[[0,0],[0,1]],l:"DE",at:[4,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"ATH",at:[4,2],k:0}
+      ] },
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["S#L#U","PRESS","O#A#E","RIVER","T#E#S"],
+      p:[
+        {s:[[0,0],[1,0],[2,0]],l:"SPO",at:[0,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"LEA",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"USE",at:[0,4],k:0},
+        {s:[[0,0]],l:"R",at:[1,1],k:0},
+        {s:[[0,0]],l:"S",at:[1,3],k:0},
+        {s:[[0,0],[1,0]],l:"RT",at:[3,0],k:0},
+        {s:[[0,0],[0,1]],l:"IV",at:[3,1],k:0},
+        {s:[[0,0],[0,1]],l:"ER",at:[3,3],k:0},
+        {s:[[0,0]],l:"E",at:[4,2],k:0},
+        {s:[[0,0]],l:"S",at:[4,4],k:0}
+      ] }
+  ],
+  [ // week 24
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["COAST","#L#T#","IDEAS","#E#R#","WRITE"],
+      p:[
+        {s:[[0,0]],l:"C",at:[0,0],k:0},
+        {s:[[0,0],[1,0]],l:"OL",at:[0,1],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"AST",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"TAR",at:[1,3],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"IDE",at:[2,0],k:0},
+        {s:[[0,0]],l:"S",at:[2,4],k:0},
+        {s:[[0,0],[1,0]],l:"ER",at:[3,1],k:0},
+        {s:[[0,0]],l:"W",at:[4,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"ITE",at:[4,2],k:0}
+      ] },
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["S#F#S","POINT","A#E#A","COLOR","E#D#S"],
+      p:[
+        {s:[[0,0],[1,0]],l:"SP",at:[0,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"FIE",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"STA",at:[0,4],k:0},
+        {s:[[0,0]],l:"O",at:[1,1],k:0},
+        {s:[[0,0]],l:"N",at:[1,3],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"ACE",at:[2,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"OLO",at:[3,1],k:0},
+        {s:[[0,0],[1,0]],l:"RS",at:[3,4],k:0},
+        {s:[[0,0]],l:"D",at:[4,2],k:0}
+      ] },
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["APPLY","#H#A#","HOURS","#N#G#","SEVEN"],
+      p:[
+        {s:[[0,0]],l:"A",at:[0,0],k:0},
+        {s:[[0,0],[1,0]],l:"PH",at:[0,1],k:0},
+        {s:[[0,0],[0,1]],l:"PL",at:[0,2],k:0},
+        {s:[[0,0]],l:"Y",at:[0,4],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"ARG",at:[1,3],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"HOU",at:[2,0],k:0},
+        {s:[[0,0]],l:"S",at:[2,4],k:0},
+        {s:[[0,0],[1,0]],l:"NE",at:[3,1],k:0},
+        {s:[[0,0]],l:"S",at:[4,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"VEN",at:[4,2],k:0}
+      ] }
+  ],
+  [ // week 25
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["E#C#A","ALONG","R#U#R","LARGE","Y#T#E"],
+      p:[
+        {s:[[0,0],[1,0]],l:"EA",at:[0,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"COU",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"AGR",at:[0,4],k:0},
+        {s:[[0,0]],l:"L",at:[1,1],k:0},
+        {s:[[0,0]],l:"N",at:[1,3],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"RLY",at:[2,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"ARG",at:[3,1],k:0},
+        {s:[[0,0],[1,0]],l:"EE",at:[3,4],k:0},
+        {s:[[0,0]],l:"T",at:[4,2],k:0}
+      ] },
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["IMAGE","#O#O#","ENJOY","#T#D#","THOSE"],
+      p:[
+        {s:[[0,0],[0,1]],l:"IM",at:[0,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"AGE",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"ONT",at:[1,1],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"OOD",at:[1,3],k:0},
+        {s:[[0,0]],l:"E",at:[2,0],k:0},
+        {s:[[0,0]],l:"J",at:[2,2],k:0},
+        {s:[[0,0]],l:"Y",at:[2,4],k:0},
+        {s:[[0,0],[0,1]],l:"TH",at:[4,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"OSE",at:[4,2],k:0}
+      ] },
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["T#H#A","ROUND","U#M#D","SCALE","T#N#D"],
+      p:[
+        {s:[[0,0],[1,0]],l:"TR",at:[0,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"HUM",at:[0,2],k:0},
+        {s:[[0,0],[1,0]],l:"AD",at:[0,4],k:0},
+        {s:[[0,0]],l:"O",at:[1,1],k:0},
+        {s:[[0,0]],l:"N",at:[1,3],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"UST",at:[2,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"DED",at:[2,4],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"CAL",at:[3,1],k:0},
+        {s:[[0,0]],l:"N",at:[4,2],k:0}
+      ] }
+  ],
+  [ // week 26
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["SPEED","#A#N#","WROTE","#T#E#","USERS"],
+      p:[
+        {s:[[0,0],[0,1],[0,2]],l:"SPE",at:[0,0],k:0},
+        {s:[[0,0],[0,1]],l:"ED",at:[0,3],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"ART",at:[1,1],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"NTE",at:[1,3],k:0},
+        {s:[[0,0]],l:"W",at:[2,0],k:0},
+        {s:[[0,0]],l:"O",at:[2,2],k:0},
+        {s:[[0,0]],l:"E",at:[2,4],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"USE",at:[4,0],k:0},
+        {s:[[0,0],[0,1]],l:"RS",at:[4,3],k:0}
+      ] },
+    { sp:[[0,1],[0,3],[2,1],[2,3],[4,1],[4,3]], stars:1, tier:"Easy",
+      g:["U#N#L","STORE","I#T#A","NEEDS","G#S#T"],
+      p:[
+        {s:[[0,0],[1,0]],l:"US",at:[0,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"NOT",at:[0,2],k:0},
+        {s:[[0,0],[1,0]],l:"LE",at:[0,4],k:0},
+        {s:[[0,0]],l:"T",at:[1,1],k:0},
+        {s:[[0,0]],l:"R",at:[1,3],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"ING",at:[2,0],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"AST",at:[2,4],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"EED",at:[3,1],k:0},
+        {s:[[0,0]],l:"S",at:[4,2],k:0}
+      ] },
+    { sp:[[1,0],[3,0],[1,2],[3,2],[1,4],[3,4]], stars:1, tier:"Easy",
+      g:["PHASE","#O#I#","AMONG","#E#C#","ASKED"],
+      p:[
+        {s:[[0,0],[0,1]],l:"PH",at:[0,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"ASE",at:[0,2],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"OME",at:[1,1],k:0},
+        {s:[[0,0],[1,0],[2,0]],l:"INC",at:[1,3],k:0},
+        {s:[[0,0]],l:"A",at:[2,0],k:0},
+        {s:[[0,0]],l:"O",at:[2,2],k:0},
+        {s:[[0,0]],l:"G",at:[2,4],k:0},
+        {s:[[0,0],[0,1]],l:"AS",at:[4,0],k:0},
+        {s:[[0,0],[0,1],[0,2]],l:"KED",at:[4,2],k:0}
+      ] }
+  ]
+];
+
 const GAME_URL="https://akashramsankar.github.io/TypeSet/";   // appended to the share card, as Tumbler does
 
 /* ---------------- Dictionary ---------------- */
@@ -2041,6 +3255,9 @@ let won=false;
 let history=[];          // snapshots for Undo
 let celebrationTimers=[];
 let tutorialMode=false, tutStep=0;   // scripted walkthrough on the practice board (see below)
+let weeklyMode=false;    // the board is running a page of the weekly edition, not a daily puzzle
+let activeWeek=0, weekPage=0;   // which week's edition, and which of its pages is on the board
+let weekBase=0;          // ms already on the edition's clock from its earlier pages
 let PITCH=64, CELL=58;   // measured from the DOM after render
 
 /* ---------------- Puzzle selection (by date) ----------------
@@ -2057,18 +3274,45 @@ function puzzleForDay(day){
    for that day no longer matches and is discarded. */
 function sigOf(p){ return p.g.join("|")+"|"+p.p.map(x=>x.l+x.at.join("")+x.k).join(","); }
 
+/* ---------------- Weekly special ----------------
+   One run a week: three 1★ pages back to back on one clock, one go only.
+   EPOCH is a Monday, so week w covers days 7w..7w+6, Monday to Sunday.
+   It never touches the daily streak, stats or saves. */
+const WEEK_PAGES=3;
+function weekNumber(){ return Math.floor(dayNumber()/7); }
+function pagesForWeek(w){ return WEEKLY[((w%WEEKLY.length)+WEEKLY.length)%WEEKLY.length]; }
+function weekDateStr(w){ return dateForDay(w*7).toLocaleDateString(undefined,{month:"short",day:"numeric"}); }
+
 /* ---------------- Progress persistence ---------------- */
-const SAVE_KEY="typeset_progress_v1";
+const SAVE_KEY="typeset_progress_v1", WEEKLY_KEY="typeset_weekly_v1";
 function allSaves(){
   try{ return JSON.parse(localStorage.getItem(SAVE_KEY)||"{}")||{}; }catch(e){ return {}; }
+}
+function weeklySaves(){
+  try{ return JSON.parse(localStorage.getItem(WEEKLY_KEY)||"{}")||{}; }catch(e){ return {}; }
+}
+// A week's page saves, in page order; null for a page not started (or re-authored since).
+function weeklyRun(w){
+  const s=weeklySaves()[w];
+  return pagesForWeek(w).map((p,i)=>{
+    const q=s&&Array.isArray(s.pages)?s.pages[i]:null;
+    return q&&q.sig===sigOf(p)&&Array.isArray(q.pieces)?q:null;
+  });
 }
 function saveState(){
   if(tutorialMode) return;   // the practice board never touches real progress
   try{
-    const all=allSaves();
-    all[activeDay]={sig:sigOf(activePuzzle),pieces:pieces.map(p=>({rot:p.rot,at:p.at})),
+    const rec={sig:sigOf(activePuzzle),pieces:pieces.map(p=>({rot:p.rot,at:p.at})),
       moves,bounces,inkUsed,ink,lastRefill,stamps,won,history,elapsed:elapsedNow(),proof};
-    localStorage.setItem(SAVE_KEY, JSON.stringify(all));
+    if(weeklyMode){
+      const all=weeklySaves(), wk=all[activeWeek]&&Array.isArray(all[activeWeek].pages)?all[activeWeek]:(all[activeWeek]={pages:[]});
+      wk.pages[weekPage]=rec;
+      localStorage.setItem(WEEKLY_KEY, JSON.stringify(all));
+    }else{
+      const all=allSaves();
+      all[activeDay]=rec;
+      localStorage.setItem(SAVE_KEY, JSON.stringify(all));
+    }
   }catch(e){ /* localStorage blocked — progress just won't persist */ }
 }
 function loadState(day){
@@ -2376,9 +3620,9 @@ function pauseClock(){ if(runningSince){ elapsed+=Date.now()-runningSince; runni
 function fmtClock(ms){ const t=Math.floor(ms/1000), h=Math.floor(t/3600), m=Math.floor(t/60)%60, s=t%60;
   return (h?h+":"+String(m).padStart(2,"0"):m)+":"+String(s).padStart(2,"0"); }
 function renderTime(){
-  const ms=elapsedNow(), el=$("clock"), txt=fmtClock(ms);
+  const ms=weekBase+elapsedNow(), el=$("clock"), txt=fmtClock(ms);   // the edition shows one clock across its pages
   if(el.textContent!==txt) el.textContent=txt;
-  el.classList.toggle("over",ms>=timeLimit());            // speed bonus is spent
+  el.classList.toggle("over",ms>=(weeklyMode?weekBudget(activeWeek):timeLimit()));   // speed bonus is spent
 }
 // Ink refills one drop per interval of play time, never banking past a full stock.
 // Drops are kept as persistent DOM; while the clock runs the refilling drop is
@@ -2660,7 +3904,7 @@ function scoreFor(){
 function medalFor(){ if(proof) return 0; const r=scoreFor()/maxScore(); return (r>=.85&&inkUsed===0)?3:r>=.65?2:1; }
 function winGame(){
   won=true; pauseClock(); renderTime(); setInking(false);
-  if(!tutorialMode && activeDay===dayNumber()) recordWin(medalFor());
+  if(!tutorialMode && !weeklyMode && activeDay===dayNumber()) recordWin(medalFor());
   saveState(); updateControls();
   animateWin();
 }
@@ -2672,7 +3916,7 @@ function animateWin(){
     boardEl.querySelectorAll(".block").forEach(b=>b.classList.add("inked"));
   },380));
   celebrationTimers.push(setTimeout(()=>{ boardEl.classList.remove("pressing"); boardEl.classList.add("celebrate"); },1300));
-  celebrationTimers.push(setTimeout(tutorialMode?tutFinish:showWin,1500));
+  celebrationTimers.push(setTimeout(tutorialMode?tutFinish:weeklyMode?weeklyPageDone:showWin,1500));
 }
 function medalEmoji(m){ return m===3?"🥇":m===2?"🥈":m===1?"🥉":"📄"; }
 
@@ -2692,8 +3936,11 @@ function askSubmit(){
   // deliberately no word / right-place counts here — that would be a free hint
   $("confirmText").innerHTML=`You've set <b>${set} of ${openCells.length} letters</b>. `+
     (goldOpen?`<b>${goldOpen} gold cell${goldOpen===1?" is":"s are"} still empty</b> — a block with that letter has to go on top. `:"")+
+    (weeklyMode ?
+    `Submitting ends this page and reveals its solution. `+
+    `Only letters sitting in the <b>right place</b> score, and the special ends with a proof 📄 instead of a medal.` :
     `Submitting ends this puzzle and reveals the solution. `+
-    `Only letters sitting in the <b>right place</b> score; you'll get a proof 📄 instead of a medal, and it still counts for your streak.`;
+    `Only letters sitting in the <b>right place</b> score; you'll get a proof 📄 instead of a medal, and it still counts for your streak.`);
   $("confirmModal").classList.add("show");
 }
 function submitProof(){
@@ -2705,9 +3952,9 @@ function submitProof(){
   // reveal: every block goes to its authored home
   pieces.forEach(p=>{ p.rot=0; p.at=p.home.slice(); });
   won=true;
-  if(activeDay===dayNumber()) recordWin(0);
+  if(!weeklyMode && activeDay===dayNumber()) recordWin(0);
   saveState(); fullRender();
-  celebrationTimers.push(setTimeout(showWin,900));
+  celebrationTimers.push(setTimeout(weeklyMode?weeklyPageDone:showWin,900));
 }
 $("submitBtn").addEventListener("click",askSubmit);
 $("confirmYes").addEventListener("click",submitProof);
@@ -2748,6 +3995,7 @@ function showWin(){
     `${mid}${s.currentStreak?` · 🔥${s.currentStreak}`:""}${extras}\n`+
     `${grid}\n${GAME_URL}`;
   lbAfterWin();
+  renderWeeklyEntries();
   $("modal").classList.add("show");
 }
 
@@ -2756,8 +4004,8 @@ $("inkBtn").addEventListener("click",toggleInking);
 $("inkStat").addEventListener("click",toggleInking);
 $("undoBtn").addEventListener("click",undoMove);
 $("resetBtn").addEventListener("click",resetBoard);
-async function shareResult(){
-  const text=$("share").textContent;
+async function shareResult(id="share"){
+  const text=$(id).textContent;
   if(navigator.share && navigator.canShare && navigator.canShare({text})){
     try{ await navigator.share({text}); return; }
     catch(err){ if(err && err.name==="AbortError") return; }
@@ -2774,7 +4022,7 @@ async function shareResult(){
     toast("Result copied!");
   }catch(e){ toast("Copy failed",true); }
 }
-$("copyBtn").addEventListener("click",shareResult);
+$("copyBtn").addEventListener("click",()=>shareResult("share"));
 $("modal").addEventListener("click",e=>{ if(e.target.id==="modal") $("modal").classList.remove("show"); });
 
 /* ---------------- Next-page countdown ----------------
@@ -2788,11 +4036,14 @@ function showNextPage(id,on){
 function tickNextPage(){
   const live=[...document.querySelectorAll(".modal.show .next-page:not([hidden])")];
   if(!live.length){ clearInterval(nextTimer); nextTimer=0; return; }
-  const left=Math.max(0,Math.ceil((dateForDay(BOOT_DAY+1)-Date.now())/1000));
   live.forEach(el=>{
-    el.querySelector(".nl").textContent=left?"Next page in":"A new page is ready";
+    // data-until="week": the countdown runs to Monday's new edition instead of tomorrow's page
+    const wk=el.dataset.until==="week", what=wk?"special":"page";
+    const end=wk?dateForDay((Math.floor(BOOT_DAY/7)+1)*7):dateForDay(BOOT_DAY+1);
+    const left=Math.max(0,Math.ceil((end-Date.now())/1000)), d=Math.floor(left/86400);
+    el.querySelector(".nl").textContent=left?`Next ${what} in`:`A new ${what} is ready`;
     el.querySelector(".nt").textContent=left?
-      Math.floor(left/3600)+":"+String(Math.floor(left/60)%60).padStart(2,"0")+":"+String(left%60).padStart(2,"0") : "Tap to open";
+      (d?d+"d ":"")+Math.floor(left/3600)%24+":"+String(Math.floor(left/60)%60).padStart(2,"0")+":"+String(left%60).padStart(2,"0") : "Tap to open";
     el.style.cursor=left?"":"pointer";
   });
 }
@@ -2849,7 +4100,7 @@ document.querySelectorAll(".win-wrap > .win").forEach(w=>sbObs.observe(w));
 // with nothing open it steps out of ink mode.
 document.addEventListener("keydown",e=>{
   if(e.key!=="Escape"&&e.key!=="Esc") return;
-  const open=document.querySelectorAll(".modal.show:not(#readyModal)");
+  const open=document.querySelectorAll(".modal.show:not(#readyModal):not(#weekReadyModal):not(#pageModal)");   // gates only close by their buttons
   if(open.length){ open[open.length-1].classList.remove("show"); e.preventDefault(); return; }
   if(inking){ setInking(false); e.preventDefault(); }
 });
@@ -2942,17 +4193,28 @@ async function markTypesetVisit(){
   }catch(e){ /* Visit tracking is best effort and must not block the game. */ }
 }
 void markTypesetVisit();
-async function lbPost(day,entry){
+/* A board is one leaderboard: today's daily page (typeset/daily/{day}) or a
+   week's edition (typeset/weekly/{week}). Same entry shape {n,s,m,t,at}. */
+const LB_POSTED_W_KEY="typeset_lb_posted_w", LB_ASKED_W_KEY="typeset_lb_asked_w";
+function dailyBoard(day){
+  return {kind:"daily", id:String(day), path:`typeset/daily/${day}`, posted:LB_POSTED_KEY, asked:LB_ASKED_KEY,
+    name:"today's leaderboard", live:()=>day===dayNumber()};
+}
+function weeklyBoard(w){
+  return {kind:"weekly", id:String(w), path:`typeset/weekly/${w}`, posted:LB_POSTED_W_KEY, asked:LB_ASKED_W_KEY,
+    name:"this week's leaderboard", live:()=>w===weekNumber()};
+}
+async function lbPost(b,entry){
   const db=await lbDb();
   entry.at=firebase.database.ServerValue.TIMESTAMP;
-  const ref=db.ref(`typeset/daily/${day}/${lbPid()}`);
+  const ref=db.ref(`${b.path}/${lbPid()}`);
   await withTimeout(ref.transaction(cur=>cur===null?entry:undefined),LB_TIMEOUT);   // first result stands
-  lbSet(LB_POSTED_KEY,String(day));
+  lbSet(b.posted,b.id);
   void markTypesetVisit();   // a posted score always comes with a profile
 }
-async function lbFetch(day){
+async function lbFetch(b){
   const db=await lbDb();
-  const snap=await withTimeout(db.ref(`typeset/daily/${day}`).once("value"),LB_TIMEOUT);
+  const snap=await withTimeout(db.ref(b.path).once("value"),LB_TIMEOUT);
   const rows=[];
   snap.forEach(c=>{
     const v=c.val()||{};
@@ -2976,35 +4238,46 @@ function lbRow(r,me){
   if(r.pid===me) el.querySelector(".ln").insertAdjacentHTML("beforeend","<small>You</small>");
   return el;
 }
-function renderLbYou(day){
-  const you=$("lbYou"), isToday=day===dayNumber();
-  if(!lbName){ you.textContent=isToday?"Finish today's page to put your name on the board.":""; return; }
+function renderLbYou(b){
+  const you=$("lbYou"), live=b.live(), what=b.kind==="weekly"?"this week's special":"today's page";
+  if(!lbName){ you.textContent=live?`Finish ${what} to put your name on the board.`:""; return; }
   you.innerHTML=`Playing as <b></b> · <button class="lnk" type="button" id="lbRename">Change name</button>`+
-    (!isToday||lbGet(LB_POSTED_KEY)===String(day)?"":"<br>Finish today's page to post your score.");
+    (!live||lbGet(b.posted)===b.id?"":`<br>Finish ${what} to post your score.`);
   you.querySelector("b").textContent=lbName;
-  $("lbRename").onclick=()=>openNameCard("rename",dayNumber(),null);   // a rename only touches today's entry
+  $("lbRename").onclick=()=>openNameCard("rename",null,null,null);   // a rename only touches the live entries
 }
-// ago: 0 = today's board, 1 = yesterday's (read-only — only today's live result ever posts).
+// ago: 0 = today's board, 1 = yesterday's (read-only — only today's live result ever posts), "w" = this week's special.
 let lbReq=0, lbAgo=0;
 async function openLeaderboard(ago=0){
   const today=Math.max(0,dayNumber());
-  if(today<1) ago=0;
+  if(today<1&&ago===1) ago=0;
   lbAgo=ago;
-  const day=today-ago, list=$("lbList"), req=++lbReq;
-  document.querySelector(".lb-tabs").hidden=today<1;   // launch day: nothing to look back on
+  const list=$("lbList"), req=++lbReq;
   document.querySelectorAll(".lb-tab").forEach(t=>{
-    const on=+t.dataset.ago===ago; t.classList.toggle("on",on); t.setAttribute("aria-selected",on);
+    const on=t.dataset.ago===String(ago); t.classList.toggle("on",on); t.setAttribute("aria-selected",on);
+    if(t.dataset.ago==="1") t.hidden=today<1;   // launch day: nothing to look back on
   });
-  const dstr=dateForDay(day).toLocaleDateString(undefined,{month:"short",day:"numeric"});
-  $("lbSub").innerHTML=`Puzzle #${day+1} · ${dstr} · <span class="stars">${starsHTML(puzzleForDay(day).stars)}</span><br>Ranked by score, then medal, then time`;
+  let b, empty;
+  if(ago==="w"){
+    const w=weekNumber();
+    b=weeklyBoard(w);
+    $("lbSub").innerHTML=`Weekly special #${w+1} · week of ${weekDateStr(w)} · <span class="stars">${starsHTML(1)}</span><br>Three pages, ranked by score, then medal, then total time`;
+    empty="No one's printed this week's special yet — be the first.";
+  }else{
+    const day=today-ago;
+    b=dailyBoard(day);
+    const dstr=dateForDay(day).toLocaleDateString(undefined,{month:"short",day:"numeric"});
+    $("lbSub").innerHTML=`Puzzle #${day+1} · ${dstr} · <span class="stars">${starsHTML(puzzleForDay(day).stars)}</span><br>Ranked by score, then medal, then time`;
+    empty=ago?"No one made yesterday's board.":"No one's on the board yet — finish today's page to be first.";
+  }
   list.innerHTML=`<div class="lb-empty">Loading…</div>`;
-  renderLbYou(day);
+  renderLbYou(b);
   $("lbModal").classList.add("show");
   try{
-    const rows=await lbFetch(day), me=lbPid();
+    const rows=await lbFetch(b), me=lbPid();
     if(req!==lbReq) return;   // the player switched tabs while this was loading
     list.innerHTML="";
-    if(!rows.length){ list.innerHTML=`<div class="lb-empty">${ago?"No one made yesterday's board.":"No one's on the board yet — finish today's page to be first."}</div>`; return; }
+    if(!rows.length){ list.innerHTML=`<div class="lb-empty">${empty}</div>`; return; }
     rows.slice(0,LB_SHOW).forEach(r=>list.appendChild(lbRow(r,me)));
     const mine=rows.findIndex(r=>r.pid===me);
     if(mine>=LB_SHOW){ const el=lbRow(rows[mine],me); el.classList.add("gap"); list.appendChild(el); }
@@ -3013,62 +4286,67 @@ async function openLeaderboard(ago=0){
     list.innerHTML=`<div class="lb-empty">Couldn't reach the leaderboard. Check your connection and try again.</div>`;
   }
 }
-// Win card: today's live result posts itself once a name is known; archive replays never post.
-// With no name yet, the name card opens over the result once per day.
+/* After a live result (today's page, or this week's finished edition): post it
+   once a name is known; with no name yet, the name card opens over the result
+   once per board. Archive replays never post. msgId is the result card's line. */
 function lbCurrentEntry(){ return {s:scoreFor(), m:medalFor(), t:Math.round(elapsedNow()/1000)}; }
+function lbAfterResult(b,entry,msgId,modalId){
+  if(lbGet(b.posted)===b.id){ lbShowRank(b,msgId); return; }
+  if(lbName){ lbSubmit(b,entry,msgId); return; }
+  lbShowJoinLink(b,entry,msgId);
+  if(lbGet(b.asked)===b.id) return;
+  lbSet(b.asked,b.id);
+  // let the score land first, then ask
+  celebrationTimers.push(setTimeout(()=>{
+    if(b.live() && $(modalId).classList.contains("show")) openNameCard("join",b,entry,msgId);
+  },700));
+}
 function lbAfterWin(){
   const day=dayNumber(), box=$("lbJoin");
   box.hidden=activeDay!==day;
   if(box.hidden) return;
-  if(lbGet(LB_POSTED_KEY)===String(day)){ lbShowRank(day); return; }
-  if(lbName){ lbSubmit(day,lbCurrentEntry()); return; }
-  lbShowJoinLink(day);
-  if(lbGet(LB_ASKED_KEY)===String(day)) return;
-  lbSet(LB_ASKED_KEY,String(day));
-  const entry=lbCurrentEntry();
-  // let the score land first, then ask
-  celebrationTimers.push(setTimeout(()=>{
-    if(activeDay===day && $("modal").classList.contains("show")) openNameCard("join",day,entry);
-  },700));
+  lbAfterResult(dailyBoard(day),lbCurrentEntry(),"lbJoinMsg","modal");
 }
-function lbShowJoinLink(day){
-  $("lbJoinMsg").innerHTML=`You're not on today's leaderboard yet. <button class="lnk" type="button" id="lbAdd">Add your name</button>`;
-  $("lbAdd").onclick=()=>openNameCard("join",day,lbCurrentEntry());
+function lbShowJoinLink(b,entry,msgId){
+  const msg=$(msgId);
+  msg.innerHTML=`You're not on ${b.name} yet. <button class="lnk" type="button">Add your name</button>`;
+  msg.querySelector("button").onclick=()=>openNameCard("join",b,entry,msgId);
 }
-async function lbSubmit(day,entry){
-  const msg=$("lbJoinMsg");
+async function lbSubmit(b,entry,msgId){
+  const msg=$(msgId);
   entry=Object.assign({n:lbName},entry);
-  msg.textContent="Posting to today's leaderboard…";
-  try{ await lbPost(day,entry); await lbShowRank(day); }
+  msg.textContent=`Posting to ${b.name}…`;
+  try{ await lbPost(b,entry); await lbShowRank(b,msgId); }
   catch(e){
-    msg.innerHTML=`Couldn't reach the leaderboard. <button class="lnk" type="button" id="lbRetry">Try again</button>`;
-    $("lbRetry").onclick=()=>lbSubmit(day,entry);
+    msg.innerHTML=`Couldn't reach the leaderboard. <button class="lnk" type="button">Try again</button>`;
+    msg.querySelector("button").onclick=()=>lbSubmit(b,entry,msgId);
   }
 }
-async function lbShowRank(day){
-  const msg=$("lbJoinMsg");
-  msg.textContent="Checking today's leaderboard…";
+async function lbShowRank(b,msgId){
+  const msg=$(msgId);
+  msg.textContent=`Checking ${b.name}…`;
   try{
-    const rows=await lbFetch(day), i=rows.findIndex(r=>r.pid===lbPid());
+    const rows=await lbFetch(b), i=rows.findIndex(r=>r.pid===lbPid());
     const tied=i>=0&&rows.some((r,j)=>j!==i&&r.rank===rows[i].rank);
-    msg.innerHTML=i<0?"You're on today's leaderboard.":`You're ${tied?"tied for ":""}<b>#${rows[i].rank}</b> of ${rows.length} on today's leaderboard.`;
-  }catch(e){ msg.textContent="You're on today's leaderboard."; }
+    msg.innerHTML=i<0?`You're on ${b.name}.`:`You're ${tied?"tied for ":""}<b>#${rows[i].rank}</b> of ${rows.length} on ${b.name}.`;
+  }catch(e){ msg.textContent=`You're on ${b.name}.`; }
 }
 
-/* Name card: one dedicated step for joining the board (mode "join", with the
+/* Name card: one dedicated step for joining a board (mode "join", with the
    result about to be posted shown as a preview row) and for renaming later. */
 let nameCtx=null;
 function renderNamePreview(){
   const n=cleanName($("nameInput").value), ln=$("namePreview").querySelector(".ln");
   ln.textContent=n||"Your name"; ln.classList.toggle("ph",!n);
 }
-function openNameCard(mode,day,entry){
-  nameCtx={mode,day,entry};
-  const join=mode==="join";
+function openNameCard(mode,board,entry,msgId){
+  nameCtx={mode,board,entry,msgId};
+  const join=mode==="join", wk=join&&board.kind==="weekly";
+  $("nameSub").textContent=wk?"This week's leaderboard":"Today's leaderboard";
   $("nameTitle").textContent=join?"Sign your page":"Change your name";
-  $("nameText").textContent=join?
-    "Pick a name to post today's result. Everyone who finishes today's puzzle is ranked by score, then medal, then time.":
-    "This is the name other players see next to your result.";
+  $("nameText").textContent=!join?"This is the name other players see next to your result.":wk?
+    "Pick a name to post this week's result. Everyone who prints this week's special is ranked by score, then medal, then time.":
+    "Pick a name to post today's result. Everyone who finishes today's puzzle is ranked by score, then medal, then time.";
   $("nameSave").textContent=join?"Post to leaderboard":"Save name";
   $("nameSkip").textContent=join?"Not now":"Cancel";
   const pv=$("namePreview");
@@ -3092,20 +4370,23 @@ $("nameForm").addEventListener("submit",async e=>{
   const ctx=nameCtx; if(!ctx) return;
   lbSetName(n); closeNameCard();
   if(ctx.mode==="join"){
-    if(ctx.day===dayNumber()) lbSubmit(ctx.day,ctx.entry);
+    if(ctx.board.live()) lbSubmit(ctx.board,ctx.entry,ctx.msgId);
     return;
   }
-  if(lbGet(LB_POSTED_KEY)===String(ctx.day)){
-    try{ const db=await lbDb(); await withTimeout(db.ref(`typeset/daily/${ctx.day}/${lbPid()}/n`).set(n),LB_TIMEOUT); }
+  // a rename carries over to the entries still live: today's page and this week's special
+  for(const b of [dailyBoard(dayNumber()),weeklyBoard(weekNumber())]){
+    if(lbGet(b.posted)!==b.id) continue;
+    try{ const db=await lbDb(); await withTimeout(db.ref(`${b.path}/${lbPid()}/n`).set(n),LB_TIMEOUT); }
     catch(err){ toast("Couldn't update your name",true); }
   }
   openLeaderboard(lbAgo);
 });
 $("nameSkip").addEventListener("click",closeNameCard);
 $("nameModal").addEventListener("click",e=>{ if(e.target.id==="nameModal") closeNameCard(); });
-$("lbBtn").addEventListener("click",()=>{ if(tutorialMode) return; openLeaderboard(); });
+$("lbBtn").addEventListener("click",()=>{ if(tutorialMode) return; openLeaderboard(weeklyMode?"w":0); });
 $("lbJoinOpen").addEventListener("click",()=>openLeaderboard());
-document.querySelectorAll(".lb-tab").forEach(t=>t.addEventListener("click",()=>openLeaderboard(+t.dataset.ago)));
+$("wkLbOpen").addEventListener("click",()=>openLeaderboard("w"));
+document.querySelectorAll(".lb-tab").forEach(t=>t.addEventListener("click",()=>openLeaderboard(t.dataset.ago==="w"?"w":+t.dataset.ago)));
 $("lbClose").addEventListener("click",()=>$("lbModal").classList.remove("show"));
 $("lbModal").addEventListener("click",e=>{ if(e.target.id==="lbModal") $("lbModal").classList.remove("show"); });
 
@@ -3218,8 +4499,10 @@ function tutCheck(){
 }
 function startTutorial(){
   $("rulesModal").classList.remove("show"); $("modal").classList.remove("show"); $("readyModal").classList.remove("show");
+  ["weekReadyModal","pageModal","weekModal"].forEach(id=>$(id).classList.remove("show"));
   pauseClock(); saveState();                      // bank the real board before swapping it out
   clearCelebrationState();
+  leaveWeeklyState();                             // the walkthrough hands back to today's daily page
   tutorialMode=true; tutStep=0;
   activePuzzle=TUTORIAL;
   document.body.classList.add("tut");
@@ -3261,14 +4544,21 @@ $("coachSkip").addEventListener("click",endTutorial);
 $("replayTut").addEventListener("click",startTutorial);
 
 /* ---------------- Init ---------------- */
-function init(){
+// quiet: coming back from the weekly edition — don't pop a finished day's result card again
+function init(quiet){
   clearCelebrationState();
+  leaveWeeklyState();
   activePuzzle=puzzleForDay(activeDay);
   const isToday=activeDay===dayNumber();
   const dlabel=dateForDay(activeDay).toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"});
   $("dateLabel").innerHTML=`PUZZLE #${activeDay+1} · ${dlabel.toUpperCase()}`+(isToday?" · TODAY":"")+
     ` · <span class="stars">${starsHTML(activePuzzle.stars)}</span>`;
-
+  setupBoard(loadState(activeDay));
+  if(won){ if(!quiet) showWin(); }   // already solved — show the result instead of replaying the press
+  else showReady();    // the clock starts from the ready card, not the first move
+}
+// Build activePuzzle's board and restore a save onto it (or start it fresh).
+function setupBoard(saved){
   buildSpans();
   pieces=activePuzzle.p.map((q,i)=>({
     id:i, base:q.s.map(([dr,dc],j)=>[dr,dc,q.l[j]]), rot:q.k, k0:q.k, at:null, home:q.at.slice(), type:shapeType(q.s)
@@ -3276,7 +4566,6 @@ function init(){
   renderBoardCells();
   givens=pickGivens();
 
-  const saved=loadState(activeDay);
   if(saved){
     saved.pieces.forEach((q,i)=>{ if(pieces[i]){ pieces[i].rot=q.rot; pieces[i].at=q.at; } });
     moves=saved.moves||0; bounces=saved.bounces||0; inkUsed=saved.inkUsed||0; stamps=Array.isArray(saved.stamps)?saved.stamps:[];
@@ -3290,8 +4579,6 @@ function init(){
   runningSince=0; renderTime();
   inking=false; boardEl.classList.remove("inking");
   fullRender();
-  if(won) showWin();   // already solved — show the result instead of replaying the press
-  else showReady();    // the clock starts from the ready card, not the first move
 }
 // Ready card: the board waits, blurred, until the player says go.
 function showReady(){
@@ -3305,9 +4592,198 @@ function showReady(){
   $("readyText").textContent=resuming?"The clock is paused — it picks up where you left off.":
     "The clock starts when you begin — a quicker page earns a speed bonus.";
   $("readyStart").textContent=resuming?"Resume":"Start";
+  renderWeeklyEntries();
   $("readyModal").classList.add("show");
 }
 $("readyStart").addEventListener("click",()=>{ $("readyModal").classList.remove("show"); startClock(); });
+
+/* ---------------- Weekly special: the run ----------------
+   It plays on the same board engine as the daily. weeklyMode reroutes saves
+   to WEEKLY_KEY, keeps the win away from the daily streak, and turns the
+   press's finish into "next page" until the third page is printed. */
+function leaveWeeklyState(){
+  weeklyMode=false; weekBase=0;
+  document.body.classList.remove("weekly");
+  $("subLabel").textContent="Daily letterpress puzzle";
+}
+// The edition's total: summed over its pages, with one speed bonus over their combined budget.
+const WEEK_SPEED=PTS_SPEED*WEEK_PAGES;
+function weekBudget(w){ return pagesForWeek(w).reduce((a,p)=>a+p.stars*3*60*1000,0); }
+function weeklyTally(w){
+  const pz=pagesForWeek(w), runs=weeklyRun(w);
+  const t={pz,runs,done:runs.every(s=>s&&s.won),open:0,letters:0,bounces:0,ink:0,ms:0,proofs:0};
+  pz.forEach((p,i)=>{
+    const s=runs[i], open=p.g.join("").replace(/#/g,"").length;
+    t.open+=open;
+    if(!s) return;
+    t.ms+=s.elapsed||0;
+    if(!s.won) return;
+    t.letters+=s.proof?s.proof.cells.length:open;
+    t.bounces+=s.bounces||0; t.ink+=s.inkUsed||0;
+    if(s.proof) t.proofs++;
+  });
+  t.speed=t.proofs?0:Math.round(WEEK_SPEED*Math.max(0,1-t.ms/weekBudget(w)));
+  t.max=t.open*PTS_LETTER+WEEK_SPEED;
+  t.score=Math.max(0,t.letters*PTS_LETTER+t.speed-t.bounces*PTS_BOUNCE-t.ink*PTS_INK);
+  const r=t.score/t.max;
+  t.medal=t.proofs?0:(r>=.85&&!t.ink)?3:r>=.65?2:1;
+  return t;
+}
+function weekStatus(){
+  const runs=weeklyRun(weekNumber());
+  if(runs.every(s=>s&&s.won)) return "done";
+  return runs.some(s=>s&&(s.won||s.elapsed>0||s.moves>0))?"started":"new";
+}
+// Entry points name the state of this week's run.
+/* The weekly card on the daily ready and result cards: a mini game card that
+   says where this week's run stands, not just "continue". */
+function weeklyCardHTML(){
+  const w=weekNumber(), t=weeklyTally(w), st=weekStatus();
+  const left=7-(((dayNumber()%7)+7)%7);                    // days the special stays open, today included
+  const open=left<=1?"last day to play":`open ${left} more days`;
+  const at=t.runs.findIndex(s=>!s||!s.won), page=at<0?WEEK_PAGES:at;
+  const pips=t.runs.map((s,i)=>`<i class="${s&&s.won?(s.proof?"proof":"done"):i===page&&st==="started"?"current":""}"></i>`).join("");
+  let tag, desc;
+  if(st==="done"){
+    tag="Printed";
+    desc=`${medalEmoji(t.medal)} ${t.score} / ${t.max} in ${fmtClock(t.ms)} · see where you rank`;
+  }else if(st==="started"){
+    tag=`Page ${page+1}/${WEEK_PAGES}`;
+    desc=`Paused at ${fmtClock(t.ms)} · ${open}`;
+  }else{
+    tag="New";
+    desc=`Three 1★ pages, one clock, one go · ${open}`;
+  }
+  return `<span class="wc-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="15" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M7 14h4M7 17h7"/></svg></span>`+
+    `<span class="wc-body"><span class="wc-title">Weekly special<span class="wc-tag ${st}">${tag}</span></span>`+
+    `<span class="wc-desc">${desc}</span><span class="week-pips">${pips}</span></span>`+
+    `<svg class="wc-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>`;
+}
+function renderWeeklyEntries(){
+  const st=weekStatus(), html=weeklyCardHTML();
+  $("readyWeekly").innerHTML=html;
+  $("winWeekly").innerHTML=html;
+  const aria=st==="done"?"Weekly special: see your result":st==="started"?"Weekly special: resume your run":"Weekly special: start this week's run";
+  $("readyWeekly").setAttribute("aria-label",aria); $("winWeekly").setAttribute("aria-label",aria);
+  $("gamesWeeklyDesc").textContent=st==="done"?"Printed this week. See your result and this week's leaderboard; a new special lands Monday.":
+    st==="started"?"Your run is paused. Pick it up where you left off; it's open until Sunday night.":
+    "Three 1★ pages back to back on one clock. One go per week, open Monday to Sunday.";
+}
+function pipsHTML(){
+  const runs=weeklyRun(activeWeek);
+  return runs.map((s,i)=>`<i class="${s&&s.won?(s.proof?"proof":"done"):i===weekPage?"current":""}"></i>`).join("");
+}
+function renderWeekBar(){
+  const done=weeklyRun(activeWeek).every(s=>s&&s.won);
+  $("weekLabelText").textContent=done?"All pages printed":`Page ${weekPage+1} of ${WEEK_PAGES}`;
+  $("weekPips").innerHTML=pipsHTML();
+  $("weekLabel").classList.toggle("done",done);
+  $("weekLabel").setAttribute("aria-label",done?"Show this week's result":`Page ${weekPage+1} of ${WEEK_PAGES}`);
+}
+function loadWeekPage(i){
+  clearCelebrationState();
+  weeklyMode=true; weekPage=i;
+  document.body.classList.add("weekly");
+  const runs=weeklyRun(activeWeek);
+  weekBase=runs.slice(0,i).reduce((a,s)=>a+((s&&s.elapsed)||0),0);
+  activePuzzle=pagesForWeek(activeWeek)[i];
+  $("subLabel").textContent="Weekly special";
+  $("dateLabel").innerHTML=`SPECIAL #${activeWeek+1} · WEEK OF ${weekDateStr(activeWeek).toUpperCase()} · <span class="stars">${starsHTML(activePuzzle.stars)}</span>`;
+  setupBoard(runs[i]);
+  renderWeekBar();
+}
+function openWeekly(){
+  if(tutorialMode) return;
+  ["gamesModal","modal","readyModal","statsModal","archiveModal"].forEach(id=>$(id).classList.remove("show"));
+  pauseClock(); saveState();                     // bank whatever board is open
+  activeWeek=weekNumber();
+  const runs=weeklyRun(activeWeek);
+  if(runs.every(s=>s&&s.won)){ loadWeekPage(WEEK_PAGES-1); showWeeklyResult(); return; }
+  loadWeekPage(runs.findIndex(s=>!s||!s.won));
+  showWeekReady();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function leaveWeekly(){
+  ["weekModal","weekReadyModal","pageModal"].forEach(id=>$(id).classList.remove("show"));
+  pauseClock(); saveState();
+  activeDay=Math.max(0,dayNumber());
+  init(true);
+}
+function showWeekReady(){
+  const resuming=weekPage>0||elapsed>0||moves>0||history.length>0;
+  $("wrSub").innerHTML=`Special #${activeWeek+1} · week of ${weekDateStr(activeWeek)} · <span class="stars">${starsHTML(1)}</span>`;
+  $("wrPips").innerHTML=pipsHTML();
+  $("wrText").textContent=resuming?
+    `Page ${weekPage+1} of ${WEEK_PAGES}. The clock is paused at ${fmtClock(weekBase+elapsed)} and picks up when you resume.`:
+    "The clock starts when you press Start and runs across all three pages. A quicker run earns a bigger speed bonus.";
+  $("wrStart").textContent=resuming?"Resume":"Start the special";
+  $("weekReadyModal").classList.add("show");
+}
+$("wrStart").addEventListener("click",()=>{ $("weekReadyModal").classList.remove("show"); startClock(); });
+$("wrBack").addEventListener("click",leaveWeekly);
+$("weekBack").addEventListener("click",leaveWeekly);
+$("wkBack").addEventListener("click",leaveWeekly);
+$("weekLabel").addEventListener("click",()=>{ if(weeklyMode&&weeklyRun(activeWeek).every(s=>s&&s.won)) showWeeklyResult(); });
+$("readyWeekly").addEventListener("click",openWeekly);
+$("winWeekly").addEventListener("click",openWeekly);
+$("gamesWeekly").addEventListener("click",openWeekly);
+$("gamesBtn").addEventListener("click",renderWeeklyEntries);
+
+// The press has come down on a page (or it was submitted): on to the next page, or the result.
+function weeklyPageDone(){
+  if(!weeklyMode) return;
+  renderWeekBar();
+  if(weekPage+1>=WEEK_PAGES){ showWeeklyResult(); return; }
+  $("pgSub").textContent=`Weekly special · page ${weekPage+1} of ${WEEK_PAGES}`;
+  $("pgTitle").textContent=proof?"Proof pulled":"Page printed";
+  $("pgPhrase").textContent=boardWords().join(" · ");
+  $("pgPips").innerHTML=pipsHTML();
+  $("pgText").textContent=`${fmtClock(weekBase+elapsedNow())} on the clock so far. It runs again as soon as the next page opens.`;
+  $("pgNext").textContent=`On to page ${weekPage+2}`;
+  $("pageModal").classList.add("show");
+}
+$("pgNext").addEventListener("click",()=>{
+  $("pageModal").classList.remove("show");
+  loadWeekPage(weekPage+1);
+  startClock();
+});
+function puzzleWords(p){
+  const out=[];
+  for(let r=0;r<5;r++) out.push(...p.g[r].split("#").filter(w=>w.length>1));
+  for(let c=0;c<5;c++) out.push(...p.g.map(row=>row[c]).join("").split("#").filter(w=>w.length>1));
+  return out;
+}
+function showWeeklyResult(){
+  const t=weeklyTally(activeWeek), w=activeWeek;
+  $("wkSub").textContent=`Special #${w+1} · week of ${weekDateStr(w)}`;
+  $("wkTitle").textContent=t.proofs?"Proof pulled":"All pages printed";
+  $("wkMedal").textContent=medalEmoji(t.medal);
+  $("wkScore").innerHTML=`${t.score}<small>/ ${t.max}</small>`;
+  $("wkBreakdown").textContent=t.proofs?
+    `${t.letters} of ${t.open} letters in the right place across the three pages, in ${fmtClock(t.ms)}.`:
+    `${Math.round(t.score/t.max*100)}% of the maximum, all three pages in ${fmtClock(t.ms)}.`;
+  $("wkBonus").innerHTML=
+    `<span class="got">${t.letters} letters +${t.letters*PTS_LETTER}</span>`+
+    (t.proofs?"":`<span class="${t.speed?"got":""}">Speed +${t.speed}</span>`)+
+    (t.bounces?`<span class="lost">${t.bounces} bounce${t.bounces===1?"":"s"} −${t.bounces*PTS_BOUNCE}</span>`:"")+
+    (t.ink?`<span class="lost">${t.ink} ink drop${t.ink===1?"":"s"} −${t.ink*PTS_INK}</span>`:`<span class="got">No ink</span>`);
+  $("wkPages").innerHTML=t.pz.map((p,i)=>{
+    const s=t.runs[i];
+    return `<div><span class="pn">Page ${i+1}</span><span class="pw">${puzzleWords(p).join(" · ")}</span><span class="pt">${s&&s.proof?"📄 ":""}${fmtClock((s&&s.elapsed)||0)}</span></div>`;
+  }).join("");
+  const pages=t.runs.map(s=>s&&s.proof?"📄":"📰").join("");
+  $("wkShare").textContent=
+    `Typeset Weekly Special #${w+1} ${medalEmoji(t.medal)}\n`+
+    `${t.score}/${t.max} · ⏱ ${fmtClock(t.ms)}${t.bounces?` · 💥${t.bounces}`:""}\n`+
+    `${pages}\n${GAME_URL}`;
+  const box=$("wkLb");
+  box.hidden=w!==weekNumber();   // only the live week posts
+  if(!box.hidden) lbAfterResult(weeklyBoard(w),{s:t.score,m:t.medal,t:Math.round(t.ms/1000)},"wkLbMsg","weekModal");
+  $("weekModal").classList.add("show");
+  showNextPage("wkNext", w===Math.floor(BOOT_DAY/7));   // after .show: the ticker only fills open cards
+}
+$("wkCopy").addEventListener("click",()=>shareResult("wkShare"));
+$("weekModal").addEventListener("click",e=>{ if(e.target.id==="weekModal") $("weekModal").classList.remove("show"); });
 /* Switch the board to a given puzzle day (from the archive). */
 function loadDay(day){
   pauseClock(); saveState();
